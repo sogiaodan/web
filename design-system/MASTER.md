@@ -1,5 +1,8 @@
 # Sacred Vellum Design System
 
+## 🏷️ BRANDING & COPYWRITING RULES
+- **Brand Name (Display):** "Sổ Giáo Dân". You MUST use this exact text for all logos, headers, titles, and footers.
+- **Internal Theme (Hidden):** "Sacred Vellum". This is strictly the internal technical name of the Design System. NEVER display the words "Sacred Vellum" anywhere on the actual User Interface.
 
 
 ### 1. Overview & Creative North Star
