@@ -12,7 +12,7 @@ export default function LoginPage() {
       <BrandHeader className="mb-8" />
       <AuthCard>
         <div className="mb-6 flex flex-col items-center">
-          <h2 className="font-serif text-[24px] font-bold text-foreground">
+          <h2 className="font-serif text-[20px] md:text-[24px] font-bold text-foreground">
             Chào mừng bạn trở lại
           </h2>
           <div className="mt-4 h-px w-full bg-outline-variant opacity-50" />
@@ -25,7 +25,7 @@ export default function LoginPage() {
           </div>
           <Link
             href="/support"
-            className="text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary"
+            className="text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary inline-flex min-h-[44px] items-center justify-center p-2 mb-2"
           >
             Hỗ trợ kỹ thuật
           </Link>

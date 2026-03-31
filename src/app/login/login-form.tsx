@@ -56,7 +56,7 @@ export function LoginForm() {
         error={errors.email?.message}
         disabled={isSubmitting}
       />
-      
+
       <div className="relative">
         <FormInput
           {...register('password')}
@@ -69,7 +69,7 @@ export function LoginForm() {
         <div className="absolute right-0 top-0">
           <Link
             href="/forgot-password"
-            className="text-[12px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary"
+            className="text-[12px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary inline-flex min-h-[44px] items-center p-2 -mr-2 -mt-2"
             tabIndex={-1}
           >
             Quên mật khẩu?

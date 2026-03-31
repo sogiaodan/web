@@ -16,7 +16,7 @@ export default function ResetPasswordPage() {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary text-primary">
             <LockKeyhole className="h-6 w-6" />
           </div>
-          <h2 className="font-serif text-[24px] font-bold text-foreground">
+          <h2 className="font-serif text-[20px] md:text-[24px] font-bold text-foreground">
             Thiết lập mật khẩu mới
           </h2>
         </div>
@@ -28,7 +28,7 @@ export default function ResetPasswordPage() {
         <div className="mt-6 flex flex-col items-center md:hidden">
           <Link
             href="/login"
-            className="text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary"
+            className="text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary flex min-h-[44px] items-center justify-center p-2"
           >
             ← Quay lại đăng nhập
           </Link>

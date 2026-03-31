@@ -15,7 +15,7 @@ export default function ForgotPasswordPage() {
           <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary text-primary">
             <KeyRound className="h-6 w-6" />
           </div>
-          <h2 className="font-serif text-[24px] font-bold text-foreground">
+          <h2 className="font-serif text-[20px] md:text-[24px] font-bold text-foreground">
             Quên mật khẩu?
           </h2>
           <p className="mt-2 text-[16px] leading-[1.6] text-outline-variant font-sans px-2">
@@ -28,7 +28,7 @@ export default function ForgotPasswordPage() {
         <div className="mt-6 flex flex-col items-center gap-6">
           <Link
             href="/login"
-            className="flex items-center gap-2 text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary"
+            className="flex items-center gap-2 text-[14px] font-medium text-primary hover:underline focus:outline-none focus:ring-1 focus:ring-primary min-h-[44px] justify-center p-2 mb-2"
           >
             <ArrowLeft className="h-4 w-4" />
             Quay lại đăng nhập
