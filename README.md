@@ -37,3 +37,38 @@ Before writing any CSS, Tailwind classes, or UI components, you MUST consult:
 ## 📡 API COMMUNICATION
 - **Base URL:** Defined via environment variables (pointing to the Cloudflare Tunnel/Mac Mini).
 - **Tenant Context:** Every request must include the `church_id` (extracted by BE from Cookie) to ensure **Schema-based isolation** via `SET search_path`.
+
+---
+
+## 🚀 CI/CD & DEPLOYMENT WORKFLOW
+
+The Web Frontend is hosted on **Cloudflare Pages** with an automated Git-to-Deploy pipeline.
+
+### 🌳 Branch Strategy & Environments
+| Branch | Environment | Domain | Purpose |
+| :--- | :--- | :--- | :--- |
+| `main` | **Production** | [giaodan.io.vn](https://giaodan.io.vn) | Live application for end-users. |
+| `develop` | **Staging** | [staging.giaodan.io.vn](https://staging.giaodan.io.vn) | Pre-release testing with Staging API. |
+| `feature/*` | **Preview** | `*.web-8u0.pages.dev` | Individual feature testing. |
+
+### 🛠️ Build Configuration (Cloudflare)
+- **Framework Preset:** Next.js
+- **Build Command:** `npx @cloudflare/next-on-pages@1`
+- **Output Directory:** `.vercel/output/static`
+- **Compatibility Flag:** `nodejs_compat` (Required for Next.js runtime).
+
+### 📡 Environment Variables (Public API)
+Variables are configured in the Cloudflare Dashboard under **Settings > Environment variables**:
+- **Production (`main`):** `NEXT_PUBLIC_API_URL=https://api.giaodan.io.vn`
+- **Preview (`develop`):** `NEXT_PUBLIC_API_URL=https://api-staging.giaodan.io.vn`
+
+### 🔄 Deployment Steps
+1.  **Local Development:** Create a `feature/your-feature` branch from `develop`.
+2.  **Pull Request (to `develop`):** Create an MR to merge into `develop`. 
+    - Cloudflare will generate a **Preview URL** for code review.
+3.  **Staging Deployment:** Once merged into `develop`, Cloudflare automatically builds and deploys to `staging.giaodan.io.vn`.
+4.  **Production Deployment:** Create an MR from `develop` into `main`.
+    - Once merged, the changes are live on `giaodan.io.vn`.
+
+> [!IMPORTANT]
+> **Manual Trigger:** If a build doesn't start automatically, go to Cloudflare Dashboard > **Deployments** and select **Retry deployment**.
