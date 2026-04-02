@@ -2,10 +2,12 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { Book, Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/components/providers/auth-provider';
 
 export function LandingHeader() {
+  const { user, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const navLinks = [
@@ -21,10 +23,10 @@ export function LandingHeader() {
     const element = document.getElementById(targetId);
     if (element) {
       // Offset for sticky header
-      const headerOffset = 64; 
+      const headerOffset = 64;
       const elementPosition = element.getBoundingClientRect().top;
       const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
-      
+
       window.scrollTo({
         top: offsetPosition,
         behavior: 'smooth'
@@ -35,11 +37,11 @@ export function LandingHeader() {
   return (
     <header className="sticky top-0 z-50 w-full bg-vellum border-b border-outline-variant">
       <div className="container mx-auto px-4 md:px-6 h-16 flex items-center justify-between max-w-7xl">
-        
+
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity min-h-[44px] min-w-[44px]">
-          <div className="flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary text-primary">
-            <Book className="h-4 w-4" />
+          <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary overflow-hidden bg-white shadow-sm">
+            <img src="/brand/icon-192.png" alt="Logo" className="h-full w-full object-contain" />
           </div>
           <span className="font-serif text-[20px] font-bold text-foreground">
             Sổ Giáo Dân
@@ -65,12 +67,23 @@ export function LandingHeader() {
 
         {/* Right: CTA & Mobile Toggle */}
         <div className="flex items-center gap-2 md:gap-4">
-          <Link
-            href="/login"
-            className="bg-primary text-white font-sans text-sm font-medium px-5 h-[44px] rounded flex items-center justify-center hover:bg-primary/90 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-vellum"
-          >
-            Đăng Nhập
-          </Link>
+          {isLoading ? (
+            <div className="h-[44px] w-[100px] bg-foreground/5 animate-pulse rounded" />
+          ) : user ? (
+            <Link
+              href="/login"
+              className="bg-primary text-white font-sans text-sm font-medium px-5 h-[44px] rounded flex items-center justify-center hover:bg-primary/90 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-vellum"
+            >
+              Vào Hệ Thống
+            </Link>
+          ) : (
+            <Link
+              href="/login"
+              className="bg-primary text-white font-sans text-sm font-medium px-5 h-[44px] rounded flex items-center justify-center hover:bg-primary/90 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-vellum"
+            >
+              Đăng Nhập
+            </Link>
+          )}
 
           <button
             className="md:hidden flex items-center justify-center h-[44px] w-[44px] text-foreground hover:bg-black/5 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"

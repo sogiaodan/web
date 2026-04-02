@@ -6,6 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { X, Send } from 'lucide-react';
+import { API_BASE_URL, APP_NAME } from '@/lib/configs';
 
 // ─── Zod schema ─────────────────────────────────────────────────────────────
 const contactSchema = z.object({
@@ -87,8 +88,7 @@ export function ContactFormModal({ isOpen, onClose }: ContactFormModalProps) {
   // ─── Submit handler ─────────────────────────────────────────────────────
   const onSubmit = async (data: ContactFormData) => {
     try {
-      const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-      const res = await fetch(`${baseUrl}/api/v1/landing/contact`, {
+      const res = await fetch(`${API_BASE_URL}/api/v1/landing/contact`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(data),

@@ -1,5 +1,6 @@
 import { NewsImage } from './NewsImage';
 import { ChevronRight } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/configs';
 
 interface VaticanNews {
   id: string;
@@ -14,8 +15,7 @@ export async function VaticanNewsSection() {
   let newsList: VaticanNews[] = [];
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
-    const res = await fetch(`${baseUrl}/api/v1/landing/news`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/landing/news`, {
       next: { revalidate: 300 }
     });
     

@@ -19,6 +19,11 @@ const workSans = Work_Sans({
 export const metadata: Metadata = {
   title: 'Sổ Giáo Dân | Parish Management System',
   description: 'Hệ thống quản trị giáo xứ hiện đại và an toàn.',
+  manifest: '/brand/manifest.json',
+  icons: {
+    icon: '/brand/favicon.ico',
+    apple: '/brand/apple-touch-icon.png',
+  },
 };
 
 export default function RootLayout({

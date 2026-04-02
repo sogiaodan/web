@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
+import { API_BASE_URL, APP_BASE_URL } from '@/lib/configs';
 
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
@@ -11,6 +12,7 @@ import { LandingFooter } from '@/components/landing/LandingFooter';
 
 // ─── SEO & Open Graph Metadata ────────────────────────────────────────────────
 export const metadata: Metadata = {
+  metadataBase: new URL(APP_BASE_URL),
   title: 'Sổ Giáo Dân - Hệ thống quản lý giáo xứ hiện đại',
   description:
     'Giải pháp số hóa công tác quản lý giáo xứ, lưu giữ truyền thống và gắn kết mọi thành viên trong đại gia đình đức tin.',

@@ -1,4 +1,5 @@
 import { Calendar, BookOpen, Library, ChevronRight } from 'lucide-react';
+import { API_BASE_URL } from '@/lib/configs';
 
 interface LiturgyData {
   date: string;
@@ -12,10 +13,9 @@ export async function SpiritualLifeSection() {
   let liturgy: LiturgyData | null = null;
 
   try {
-    const baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
     // Use proper Next.js 15 cache / fetch options. 
     // If backend is not available, this should fail gracefully and we render the fallback.
-    const res = await fetch(`${baseUrl}/api/v1/landing/liturgy`, {
+    const res = await fetch(`${API_BASE_URL}/api/v1/landing/liturgy`, {
       next: { revalidate: 300 }
     });
 

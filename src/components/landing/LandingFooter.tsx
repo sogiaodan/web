@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Book, Facebook, Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, MapPin, Phone } from 'lucide-react';
 
 const quickLinks = [
   { name: 'Về Dự Án', href: '#ve-du-an' },
@@ -39,8 +39,8 @@ export function LandingFooter() {
               href="/"
               className="flex items-center gap-2.5 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
             >
-              <div className="flex h-9 w-9 items-center justify-center rounded-full border-2 border-white/80 text-white">
-                <Book className="h-4 w-4" />
+              <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 overflow-hidden bg-white/10 shadow-sm">
+                <img src="/brand/icon-192.png" alt="Logo" className="h-full w-full object-contain" />
               </div>
               <span className="font-serif text-[20px] font-bold text-white">
                 Sổ Giáo Dân
@@ -55,15 +55,6 @@ export function LandingFooter() {
 
             {/* Social Icons */}
             <div className="flex items-center gap-3">
-              <a
-                href="https://facebook.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                aria-label="Facebook"
-                className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
-              >
-                <Facebook className="h-4 w-4" />
-              </a>
               <a
                 href="mailto:lienhe@sogiaodan.io.vn"
                 aria-label="Email"

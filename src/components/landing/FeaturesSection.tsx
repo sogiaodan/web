@@ -58,6 +58,7 @@ export function FeaturesSection() {
                 alt="Open book in a library setting representing system features"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"
+                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 800px"
               />
               <div className="absolute inset-0 bg-primary/10 mix-blend-multiply" />
             </div>
