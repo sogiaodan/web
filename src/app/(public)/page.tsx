@@ -4,7 +4,6 @@ import { API_BASE_URL, APP_BASE_URL } from '@/lib/configs';
 
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
-import { SpiritualLifeSection } from '@/components/landing/SpiritualLifeSection';
 import { FeaturesSection } from '@/components/landing/FeaturesSection';
 import { VaticanNewsSection } from '@/components/landing/VaticanNewsSection';
 import { ContactCTASection } from '@/components/landing/ContactCTASection';
@@ -104,10 +103,6 @@ export default function LandingPage() {
       {/* ① Hero — static, priority image loaded immediately */}
       <HeroSection />
 
-      {/* ② Spiritual Life — async RSC, streams in with skeleton fallback */}
-      <Suspense fallback={<SpiritualLifeSkeleton />}>
-        <SpiritualLifeSection />
-      </Suspense>
 
       {/* ③ Features — static content, no async data */}
       <FeaturesSection />

@@ -1,25 +1,19 @@
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
+import { CONTACT_INFO, PROJECT_LINKS } from '@/lib/configs';
 
-const quickLinks = [
-  { name: 'Về Dự Án', href: '#ve-du-an' },
-  { name: 'Tiện Ích', href: '#tien-ich' },
-  { name: 'Liên Hệ', href: '#lien-he' },
-  { name: 'Chính Sách Bảo Mật', href: '/privacy' },
-];
-
-const contactInfo = [
+const contactListData = [
   {
     icon: <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />,
-    text: '38 Tú Xương, Phường 7, Quận 3, TP. Hồ Chí Minh',
+    text: CONTACT_INFO.address,
   },
   {
     icon: <Phone className="h-4 w-4 flex-shrink-0 mt-0.5" />,
-    text: '(028) 3930 xxxx',
+    text: CONTACT_INFO.phone,
   },
   {
     icon: <Mail className="h-4 w-4 flex-shrink-0 mt-0.5" />,
-    text: 'lienhe@sogiaodan.io.vn',
+    text: CONTACT_INFO.email,
   },
 ];
 
@@ -56,7 +50,7 @@ export function LandingFooter() {
             {/* Social Icons */}
             <div className="flex items-center gap-3">
               <a
-                href="mailto:lienhe@sogiaodan.io.vn"
+                href={`mailto:${CONTACT_INFO.email}`}
                 aria-label="Email"
                 className="flex h-10 w-10 items-center justify-center rounded-full border border-white/20 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/40 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50"
               >
@@ -71,7 +65,7 @@ export function LandingFooter() {
               Liên Kết
             </h3>
             <nav className="flex flex-col items-center md:items-start gap-3">
-              {quickLinks.map((link) => (
+              {PROJECT_LINKS.map((link) => (
                 <Link
                   key={link.name}
                   href={link.href}
@@ -89,7 +83,7 @@ export function LandingFooter() {
               Thông Tin
             </h3>
             <ul className="flex flex-col gap-4">
-              {contactInfo.map((item, i) => (
+              {contactListData.map((item, i) => (
                 <li
                   key={i}
                   className="flex items-start justify-center md:justify-start gap-3 font-sans text-[14px] text-white/70 leading-relaxed"

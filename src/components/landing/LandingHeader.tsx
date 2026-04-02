@@ -5,16 +5,13 @@ import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/providers/auth-provider';
+import { PROJECT_LINKS } from '@/lib/configs';
 
 export function LandingHeader() {
   const { user, isLoading } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const navLinks = [
-    { name: 'Về Dự Án', href: '#ve-du-an' },
-    { name: 'Tiện Ích', href: '#tien-ich' },
-    { name: 'Liên Hệ', href: '#lien-he' },
-  ];
+  const landingLinks = PROJECT_LINKS.filter(link => link.href.startsWith('#'));
 
   const handleScroll = (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>, href: string) => {
     e.preventDefault();
@@ -45,25 +42,22 @@ export function LandingHeader() {
           </div>
           <span className="font-serif text-[20px] font-bold text-foreground">
             Sổ Giáo Dân
-            <span className="hidden lg:inline font-sans text-sm font-normal text-outline-variant ml-2 tracking-normal">
-              - Hệ thống quản lý
-            </span>
           </span>
         </Link>
 
         {/* Center: Desktop Nav */}
-        <nav className="hidden md:flex items-center gap-8">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              onClick={(e) => handleScroll(e, link.href)}
-              className="font-sans text-foreground text-sm font-medium hover:text-primary transition-all duration-200 ease-in-out min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-2"
-            >
-              {link.name}
-            </a>
-          ))}
-        </nav>
+          <nav className="hidden md:flex items-center gap-8">
+            {landingLinks.map((link) => (
+              <a
+                key={link.name}
+                href={link.href}
+                onClick={(e) => handleScroll(e, link.href)}
+                className="font-sans text-foreground text-sm font-medium hover:text-primary transition-all duration-200 ease-in-out min-h-[44px] flex items-center focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded px-2"
+              >
+                {link.name}
+              </a>
+            ))}
+          </nav>
 
         {/* Right: CTA & Mobile Toggle */}
         <div className="flex items-center gap-2 md:gap-4">
@@ -98,18 +92,18 @@ export function LandingHeader() {
       {/* Mobile Menu Dropdown */}
       {isMobileMenuOpen && (
         <div className="md:hidden bg-vellum border-b border-outline-variant px-4 py-4 space-y-4 shadow-lg absolute left-0 right-0 top-16">
-          <nav className="flex flex-col gap-2">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={(e) => handleScroll(e, link.href)}
-                className="font-sans text-foreground text-base font-medium hover:text-primary transition-all duration-200 ease-in-out h-[44px] flex items-center border-b border-outline-variant/30 px-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:bg-black/5"
-              >
-                {link.name}
-              </a>
-            ))}
-          </nav>
+            <nav className="flex flex-col gap-2">
+              {landingLinks.map((link) => (
+                <a
+                  key={link.name}
+                  href={link.href}
+                  onClick={(e) => handleScroll(e, link.href)}
+                  className="font-sans text-foreground text-base font-medium hover:text-primary transition-all duration-200 ease-in-out h-[44px] flex items-center border-b border-outline-variant/30 px-2 rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:bg-black/5"
+                >
+                  {link.name}
+                </a>
+              ))}
+            </nav>
         </div>
       )}
     </header>

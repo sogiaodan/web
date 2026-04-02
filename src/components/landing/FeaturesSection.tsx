@@ -67,7 +67,7 @@ export function FeaturesSection() {
             <div className="mt-6 lg:mt-0 lg:absolute lg:-bottom-6 lg:-left-6 bg-primary text-white rounded p-5 shadow-xl flex items-center justify-center border border-white/10 lg:animate-in lg:fade-in lg:zoom-in duration-500 max-w-xs z-10 mx-auto lg:mx-0">
               <div className="text-center">
                 <span className="block font-serif text-[32px] font-bold leading-none mb-1">
-                  100+
+                  10+
                 </span>
                 <span className="block font-sans text-[14px] font-medium opacity-90">
                   Giáo xứ đã tin dùng hệ thống
