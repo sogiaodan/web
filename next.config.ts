@@ -1,6 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  images: {
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: 'www.vaticannews.va',
+      },
+      {
+        protocol: 'https',
+        hostname: 'vaticannews.va',
+      }
+    ],
+  },
+  turbopack: {
+    root: '.',
+  },
   async rewrites() {
     return [
       {

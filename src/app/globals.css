@@ -8,6 +8,8 @@
   --color-surface-container-low: var(--surface-container-low);
   --color-surface-container: var(--surface-container);
   --color-outline-variant: var(--outline-variant);
+  --color-outline: var(--outline);
+  --color-on-surface-variant: var(--on-surface-variant);
 
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -24,6 +26,8 @@
   --surface-container-low: #FAF8F5;
   --surface-container: #F5F5F4;
   --outline-variant: #D6D3D1;
+  --outline: #E7E5E4;
+  --on-surface-variant: #78716C;
 }
 
 body {

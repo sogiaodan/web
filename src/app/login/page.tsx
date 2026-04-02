@@ -1,3 +1,5 @@
+'use client';
+
 import { AuthLayout } from '@/components/auth/AuthLayout';
 import { BrandHeader } from '@/components/auth/BrandHeader';
 import { AuthCard } from '@/components/auth/AuthCard';
@@ -5,8 +7,28 @@ import { AuthFooter } from '@/components/auth/AuthFooter';
 import { LoginForm } from './login-form';
 import { Lock } from 'lucide-react';
 import Link from 'next/link';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useRouter } from 'next/navigation';
+import { useEffect } from 'react';
 
 export default function LoginPage() {
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (user && !isLoading) {
+      router.replace('/');
+    }
+  }, [user, isLoading, router]);
+
+  if (isLoading) {
+    return null; // Or a loading spinner
+  }
+
+  if (user) {
+    return null; // Redirecting...
+  }
+
   return (
     <AuthLayout>
       <BrandHeader className="mb-8" />
