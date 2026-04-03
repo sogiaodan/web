@@ -48,7 +48,7 @@ npm run dev -- -p 3003
 ---
 
 ### 🔑 Default Credentials (DEV ONLY)
-- **Email:** `admin@sogiaodan.com`
+- **Email:** `sogiaodan@gmail.com`
 - **Password:** `Admin@2026`
 
 ---

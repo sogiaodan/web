@@ -65,7 +65,7 @@ export function LandingHeader() {
             <div className="h-[44px] w-[100px] bg-foreground/5 animate-pulse rounded" />
           ) : user ? (
             <Link
-              href="/login"
+              href="/dashboard"
               className="bg-primary text-white font-sans text-sm font-medium px-5 h-[44px] rounded flex items-center justify-center hover:bg-primary/90 transition-all duration-200 ease-in-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-vellum"
             >
               Vào Hệ Thống
