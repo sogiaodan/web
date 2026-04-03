@@ -11,6 +11,8 @@ export const metadata: Metadata = {
   title: 'Chi tiết Hộ giáo | Sổ Giáo Dân',
 };
 
+export const runtime = 'edge';
+
 export default async function HouseholdDetailPage({
   params,
 }: {

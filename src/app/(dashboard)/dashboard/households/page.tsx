@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   title: 'Danh sách Hộ giáo | Sổ Giáo Dân',
 };
 
+export const runtime = 'edge';
+
 export default async function HouseholdsPage({
   searchParams,
 }: {

@@ -8,6 +8,8 @@ export const metadata: Metadata = {
   title: 'Hôn phối & Tách hộ | Sổ Giáo Dân',
 };
 
+export const runtime = 'edge';
+
 export default async function SplitHouseholdPage({
   params,
 }: {

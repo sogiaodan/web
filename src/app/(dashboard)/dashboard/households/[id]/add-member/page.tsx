@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   title: 'Thêm Khai sinh | Sổ Giáo Dân',
 };
 
+export const runtime = 'edge';
+
 export default async function AddMemberPage({
   params,
 }: {
