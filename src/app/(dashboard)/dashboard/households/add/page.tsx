@@ -102,11 +102,11 @@ export default function AddHouseholdPage() {
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">
       <div className="mb-8">
         <Link 
-          href="/dashboard"
+          href="/dashboard/households"
           className="inline-flex items-center text-sm text-slate-500 hover:text-sacred-crimson transition-colors mb-4 group"
         >
           <ArrowLeft className="w-4 h-4 mr-1 transition-transform group-hover:-translate-x-1" />
-          Quay lại tổng quan
+          Quay lại danh sách hộ giáo
         </Link>
         <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">
           Thiết Lập Hộ Giáo Mới
@@ -298,7 +298,7 @@ export default function AddHouseholdPage() {
         {/* SUBMIT BUTTONS */}
         <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-md border-t border-slate-200 flex items-center justify-center space-x-6 z-50 md:relative md:bg-transparent md:border-none md:p-0 md:justify-end">
           <Link 
-            href="/dashboard"
+            href="/dashboard/households"
             className="px-8 py-3 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-all active:scale-[0.98]"
           >
             Hủy Bỏ

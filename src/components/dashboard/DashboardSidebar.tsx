@@ -62,7 +62,9 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
 
       <nav className="flex flex-1 flex-col px-4 gap-y-1 overflow-y-auto mt-4">
         {NAV_ITEMS.map((item) => {
-          const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const isActive = item.href === '/dashboard' 
+            ? pathname === '/dashboard' 
+            : pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           
           return (

@@ -59,9 +59,7 @@ export default async function ParishionersPage({
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-          <p className="text-xs font-body font-medium text-on-surface-variant uppercase tracking-widest mb-1">
-            Hệ thống &rsaquo; Danh sách Giáo dân
-          </p>
+
           <h1 className="text-3xl md:text-4xl font-display font-bold text-on-surface mb-1">
             Danh sách Giáo dân
           </h1>

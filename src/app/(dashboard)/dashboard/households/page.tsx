@@ -4,6 +4,7 @@ import { serverFetch } from '@/lib/api-server';
 import { HouseholdFilterBar } from './components/HouseholdFilterBar';
 import { HouseholdTable } from './components/HouseholdTable';
 import { HouseholdSummaryCards } from './components/HouseholdSummaryCards';
+import Link from 'next/link';
 
 export const metadata: Metadata = {
   title: 'Danh sách Hộ giáo | Sổ Giáo Dân',
@@ -46,13 +47,17 @@ export default async function HouseholdsPage({
         {/* Page Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-8">
           <div>
-            <h2 className="text-4xl font-display font-bold text-primary mb-2">Danh sách Hộ giáo</h2>
+            <h2 className="text-4xl font-display font-bold text-on-surface mb-2">Danh sách Hộ giáo</h2>
             <p className="text-on-surface-variant font-body">Quản lý thông tin hộ gia đình trong giáo xứ</p>
           </div>
-          <button className="bg-primary text-white px-6 py-3 rounded shadow-sm flex items-center gap-2 font-bold hover:opacity-90 transition-all active:scale-95">
+
+          <Link 
+            href="/dashboard/households/add"
+            className="bg-primary text-white px-6 py-3 rounded shadow-sm flex items-center gap-2 font-bold hover:opacity-90 transition-all active:scale-95"
+          >
             <span className="material-symbols-outlined text-lg">add_circle</span>
             <span>Tạo Hộ giáo mới</span>
-          </button>
+          </Link>
         </div>
 
         <HouseholdFilterBar zones={zonesData} />
