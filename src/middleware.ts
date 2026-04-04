@@ -24,18 +24,17 @@ export function middleware(request: NextRequest) {
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || isAuthRoute;
 
+  // FORCE BYPASS for auth routes: 
+  // If we are on a login/forgot/reset page, JUST LET THEM IN.
+  // No token checks, no redirects. This is the absolute bypass.
+  if (isAuthRoute) {
+    return NextResponse.next();
+  }
+
   // If user is trying to access a protected route without a token
   if (!token && !isPublicRoute) {
     const url = new URL('/login', request.url);
-    // Optional: save the intended destination to redirect back after login
-    // url.searchParams.set('callbackUrl', encodeURI(request.url));
     return NextResponse.redirect(url);
-  }
-
-  // If user is trying to access an auth page WITH a token
-  if (token && isAuthRoute) {
-    // Redirect to dashboard (or home if no dashboard is defined yet)
-    return NextResponse.redirect(new URL('/', request.url));
   }
 
   return NextResponse.next();

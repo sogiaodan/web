@@ -25,6 +25,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loadUser = async () => {
     setIsLoading(true);
+    
+    // Safety timeout: if API hangs beyond 2.5s, treat as unauthenticated
+    // so the visitor isn't trapped in a white screen forever.
+    const timeout = setTimeout(() => {
+      setIsLoading(false);
+      setUser(null);
+      console.warn("Auth check timed out. Forcing terminal state.");
+    }, 2500);
+
     try {
       const response = await authApi.getMe();
       if (response && response.user) {
@@ -34,14 +43,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       }
     } catch (error) {
       setUser(null);
-      // If fetching me fails, it means token is missing, expired, or invalid.
+      console.error("Auth check failed:", error);
     } finally {
+      clearTimeout(timeout);
       setIsLoading(false);
     }
   };
 
   useEffect(() => {
     loadUser();
+    
+    // Handle browser back/forward buttons more aggressively
+    window.onpopstate = () => {
+      loadUser();
+    };
+
+    return () => {
+      window.onpopstate = null;
+    };
   }, []);
 
   const login = (newUser: User) => {

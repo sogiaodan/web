@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/providers/auth-provider';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export default function DashboardLayout({
   children,
@@ -10,6 +13,29 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const { user, isLoading } = useAuth();
+  const router = useRouter();
+
+  useEffect(() => {
+    // If loading is finished and there's still no user, kick them to login
+    if (!isLoading && !user) {
+      router.push('/login');
+    }
+  }, [user, isLoading, router]);
+
+  // While checking auth, show a full-page loader to prevent "FOUC" (Flash of Unauthenticated Content)
+  if (isLoading || !user) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <LoadingSpinner className="h-10 w-10 text-primary" />
+          <p className="text-sm font-medium text-muted-foreground animate-pulse font-display">
+            Đang xác thực hệ thống...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="flex min-h-dvh flex-col lg:flex-row bg-background">

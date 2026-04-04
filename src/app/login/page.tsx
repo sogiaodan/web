@@ -16,18 +16,32 @@ export default function LoginPage() {
   const router = useRouter();
 
   useEffect(() => {
+    // Only redirect AWAY from login if we have a valid confirmed user
     if (user && !isLoading) {
       router.replace('/dashboard');
     }
   }, [user, isLoading, router]);
 
+  // Handle loading state with our new premium spinner
   if (isLoading) {
-    return null; // Or a loading spinner
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background">
+        <div className="flex flex-col items-center gap-4">
+          <div className="relative flex h-10 w-10 items-center justify-center">
+             <div className="absolute h-full w-full animate-spin rounded-full border-4 border-primary/20 border-t-primary" />
+             <div className="h-2 w-2 animate-pulse rounded-full bg-primary" />
+          </div>
+          <p className="text-sm font-medium text-muted-foreground animate-pulse font-display text-center">
+            Đang kiểm tra thông tin...
+          </p>
+        </div>
+      </div>
+    );
   }
 
-  if (user) {
-    return null; // Redirecting...
-  }
+  // Even if 'user' exists in some stale state, letting them see the login form
+  // is safer than a redirect loop. Successive login will fix the state.
+
 
   return (
     <AuthLayout>

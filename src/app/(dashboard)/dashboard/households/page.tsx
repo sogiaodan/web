@@ -38,7 +38,7 @@ export default async function HouseholdsPage({
   ]);
 
   const householdData = householdsRes?.data;
-  const zonesData = zonesRes?.data || [];
+  const zonesData = zonesRes?.data?.items || [];
 
   return (
     <div className="flex-1 overflow-y-auto p-8 bg-background-light">

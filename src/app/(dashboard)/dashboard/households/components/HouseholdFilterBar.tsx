@@ -4,7 +4,10 @@ import { useTransition, useRef } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/household';
 
-export function HouseholdFilterBar({ zones }: { zones: Zone[] }) {
+export function HouseholdFilterBar({ zones: zonesRaw }: { zones: Zone[] }) {
+  // Defensive check: ensure 'zones' is an array to prevent .map crashes
+  const zones = Array.isArray(zonesRaw) ? zonesRaw : [];
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
