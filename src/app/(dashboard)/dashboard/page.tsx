@@ -4,11 +4,12 @@ import useSWR from 'swr';
 import { Users, Home, RefreshCcw } from 'lucide-react';
 import MetricCard from '@/components/dashboard/MetricCard';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
+import OnboardingState from '@/components/dashboard/OnboardingState';
 import { ApiResponse } from '@/lib/auth-api';
 import { DashboardSummaryResponse } from '@/components/dashboard/DashboardHeader';
 
 const fetcher = (url: string) => fetch(url).then(r => r.json()).then((res: ApiResponse<DashboardSummaryResponse>) => {
-  if (res.status !== 200) throw new Error(res.message);
+  if (res.status !== 200) throw new Error(res.message || 'Lỗi không xác định khi tải dữ liệu');
   return res.data;
 });
 
@@ -18,6 +19,15 @@ export default function DashboardOverviewPage() {
     revalidateOnFocus: false,
     keepPreviousData: true,
   });
+
+  // Handle Loading state with skeleton
+  const isActuallyLoading = isLoading && !data;
+
+  // Detect empty state (onboarding case)
+  const isEmpty = data && 
+    data.metrics.total_parishioners === 0 && 
+    data.metrics.total_households === 0 && 
+    (data.activities?.length || 0) === 0;
 
   if (error) {
     return (
@@ -39,10 +49,15 @@ export default function DashboardOverviewPage() {
     );
   }
 
+  // If no data yet, show onboarding state
+  if (!isLoading && isEmpty) {
+    return <OnboardingState mutate={mutate} />;
+  }
+
   return (
     <div className="p-4 md:p-6 lg:p-8 max-w-[1200px] mx-auto w-full">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-        {isLoading ? (
+        {isActuallyLoading ? (
           <>
             <div className="h-32 rounded-sm border border-outline bg-surface p-6 shadow-sm animate-pulse w-full"></div>
             <div className="h-32 rounded-sm border border-outline bg-surface p-6 shadow-sm animate-pulse w-full"></div>
@@ -65,7 +80,7 @@ export default function DashboardOverviewPage() {
         )}
       </div>
 
-      {isLoading ? (
+      {isActuallyLoading ? (
         <div className="mt-6 h-[400px] rounded-sm border border-outline bg-surface p-0 shadow-sm animate-pulse w-full overflow-hidden flex flex-col">
           <div className="h-14 bg-vellum border-b border-outline shrink-0"></div>
           <div className="flex-1 flex flex-col pt-2">
@@ -86,3 +101,4 @@ export default function DashboardOverviewPage() {
     </div>
   );
 }
+
