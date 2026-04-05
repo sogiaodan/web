@@ -224,6 +224,8 @@ interface FormData {
   phone_number: string;
   occupation: string;
   is_non_catholic: boolean;
+  status: string;
+  date_of_death: string;
 }
 
 interface FormErrors {
@@ -256,6 +258,8 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
     phone_number: initialData?.phone_number ?? '',
     occupation: initialData?.occupation ?? '',
     is_non_catholic: initialData?.is_non_catholic ?? false,
+    status: initialData?.status ?? 'RESIDING',
+    date_of_death: initialData?.date_of_death ? initialData.date_of_death.split('T')[0] : '',
   });
 
   // Typeahead display texts
@@ -312,6 +316,8 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
         phone_number: formData.phone_number || undefined,
         occupation: formData.occupation || undefined,
         is_non_catholic: formData.is_non_catholic,
+        status: formData.status,
+        date_of_death: formData.status === 'DECEASED' ? (formData.date_of_death || undefined) : null,
       };
 
       const res = await fetch(url, {
@@ -427,6 +433,42 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
               />
               <FieldError message={errors.birth_date} />
             </div>
+
+            {/* Status */}
+            <div className="space-y-1.5">
+              <FieldLabel required>Trạng thái</FieldLabel>
+              <div className="relative">
+                <select
+                  value={formData.status}
+                  onChange={(e) => set('status', e.target.value)}
+                  disabled={isSubmitting}
+                  className={`${inputCls(isSubmitting)} appearance-none pr-10`}
+                >
+                  <option value="RESIDING">Đang sinh hoạt</option>
+                  <option value="ABSENT">Vắng mặt</option>
+                  <option value="MOVED">Chuyển xứ</option>
+                  <option value="DECEASED">Đã qua đời</option>
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
+                  expand_more
+                </span>
+              </div>
+            </div>
+
+            {/* Date of Death (Conditional) */}
+            {formData.status === 'DECEASED' && (
+              <div className="space-y-1.5">
+                <FieldLabel>Ngày qua đời</FieldLabel>
+                <input
+                  type="date"
+                  value={formData.date_of_death}
+                  onChange={(e) => set('date_of_death', e.target.value)}
+                  disabled={isSubmitting}
+                  max={new Date().toISOString().split('T')[0]}
+                  className={inputCls(isSubmitting)}
+                />
+              </div>
+            )}
           </div>
 
           {/* Gender */}
@@ -566,7 +608,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   type="tel"
                   value={formData.phone_number}
                   onChange={(e) => set('phone_number', e.target.value)}
-                  placeholder="0901 234 567"
+                  placeholder=""
                   disabled={isSubmitting}
                   className={`${inputCls(isSubmitting)} pl-10`}
                 />

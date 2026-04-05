@@ -10,6 +10,9 @@ export interface ParishionerSummary {
   parishioner_code?: string;
   relationship?: string;
   status?: string;
+  relationship_to_head?: string;
+  marital_status?: string;
+  phone_number?: string;
 }
 
 export interface SplitMemberSummary {
@@ -30,8 +33,8 @@ export interface Household {
   household_status: 'ACTIVE' | 'MOVED_OUT' | 'DISSOLVED';
   member_count?: number;
   zone_name?: string;
+  zone_id?: string;
   phone_number?: string;
-  canonical_status?: 'REGULAR' | 'SEPARATED' | 'IRREGULAR' | 'MIXED_RELIGION';
   physical_book_no?: string;
   book_issue_date?: string;
   pastoral_notes?: string;

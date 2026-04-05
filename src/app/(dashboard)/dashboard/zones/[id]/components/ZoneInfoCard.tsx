@@ -6,8 +6,8 @@ interface ZoneInfoCardProps {
 }
 
 export function ZoneInfoCard({ head, description }: ZoneInfoCardProps) {
-  // We don't have is_deceased explicitly in ParishionerLookup based on my definition,
-  // but if the name is styled muted (or logic later requires), we could add it.
+  // We don't have 'status' explicitly in ParishionerLookup based on the current definition,
+  // but if the name needs to be styled (e.g., DECEASED), we could extend it.
   // For now, I'll rely on the existing props.
   const hasHead = !!head;
 

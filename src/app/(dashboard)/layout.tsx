@@ -6,6 +6,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ZonesProvider } from '@/components/providers/zones-provider';
 
 export default function DashboardLayout({
   children,
@@ -38,15 +39,17 @@ export default function DashboardLayout({
   }
 
   return (
-    <div className="flex min-h-dvh flex-col lg:flex-row bg-background">
-      <DashboardSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
-      <div className="flex flex-1 flex-col overflow-hidden">
-        <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
-        <main className="flex-1 overflow-y-auto">
-          {children}
-        </main>
+    <ZonesProvider>
+      <div className="flex min-h-dvh flex-col lg:flex-row bg-background">
+        <DashboardSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        
+        <div className="flex flex-1 flex-col overflow-hidden">
+          <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
+          <main className="flex-1 overflow-y-auto">
+            {children}
+          </main>
+        </div>
       </div>
-    </div>
+    </ZonesProvider>
   );
 }

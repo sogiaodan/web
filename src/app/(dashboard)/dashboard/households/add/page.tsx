@@ -15,16 +15,17 @@ import {
   Info
 } from 'lucide-react';
 import Link from 'next/link';
-
-const fetcher = (url: string) => fetch(url).then(res => res.json());
+import { useZones } from '@/components/providers/zones-provider';
 
 export default function AddHouseholdPage() {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch Zones for selection
-  const { data: dashboardData } = useSWR('/api/v1/dashboard/summary', fetcher);
+  const { zones } = useZones();
+
+  const [showOptional, setShowOptional] = useState(false);
+  const [showHeadOptional, setShowHeadOptional] = useState(false);
 
   const [formData, setFormData] = useState({
     // Household Info
@@ -32,11 +33,15 @@ export default function AddHouseholdPage() {
     address: '',
     phone_number: '',
     zone_id: '',
+    book_issue_date: '',
+    physical_book_no: '',
     canonical_status: 'REGULAR',
+    pastoral_notes: '',
     
     // Head of Household Info (Parishioner)
     christian_name: '',
     full_name: '',
+    nick_name: '',
     gender: 'MALE',
     birth_date: '',
   });
@@ -52,26 +57,8 @@ export default function AddHouseholdPage() {
     setError(null);
 
     try {
-      // Step 1: Create the Head Parishioner first
-      const headRes = await fetch('/api/v1/parishioners', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          christian_name: formData.christian_name,
-          full_name: formData.full_name,
-          gender: formData.gender,
-          birth_date: formData.birth_date,
-        }),
-      });
-
-      const headResult = await headRes.json();
-      if (!headRes.ok) throw new Error(headResult.message || 'Lỗi khi tạo chủ hộ');
-
-      // The headResult should contain the new parishioner ID
-      const headId = headResult.id || headResult.data?.id;
-
-      // Step 2: Create the Household using the headId
-      const householdRes = await fetch('/api/v1/households', {
+      // Create Household and Head in a single atomic request
+      const res = await fetch('/api/v1/households', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -79,16 +66,26 @@ export default function AddHouseholdPage() {
           address: formData.address,
           phone_number: formData.phone_number,
           zone_id: formData.zone_id || undefined,
+          book_issue_date: formData.book_issue_date || undefined,
+          physical_book_no: formData.physical_book_no || undefined,
           canonical_status: formData.canonical_status,
-          head_id: headId,
+          pastoral_notes: formData.pastoral_notes || undefined,
+          // Nested head data for atomic creation
+          head: {
+            christian_name: formData.christian_name,
+            full_name: formData.full_name,
+            nick_name: formData.nick_name || undefined,
+            gender: formData.gender,
+            birth_date: formData.birth_date,
+          }
         }),
       });
 
-      const householdResult = await householdRes.json();
-      if (!householdRes.ok) throw new Error(householdResult.message || 'Lỗi khi tạo hộ giáo');
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.message || 'Lỗi khi tạo hộ giáo và chủ hộ');
 
-      // Success! Redirect to household detail or list
-      const newId = householdResult.id || householdResult.data?.id;
+      // Success! Redirect to household detail
+      const newId = result.id || result.data?.id;
       router.push(`/dashboard/households/${newId}`);
       router.refresh();
       
@@ -149,21 +146,26 @@ export default function AddHouseholdPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Giáo Khu
-              </label>
-              <select 
-                name="zone_id"
-                value={formData.zone_id}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
-              >
-                <option value="">-- Chọn Giáo Khu --</option>
-                <option value="test">Khu vực thử nghiệm</option>
-              </select>
-            </div>
+            {zones.length > 0 && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                  Giáo Khu <span className="text-sacred-crimson">*</span>
+                </label>
+                <select 
+                  name="zone_id"
+                  required
+                  value={formData.zone_id}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
+                >
+                  <option value="">-- Chọn Giáo Khu --</option>
+                  {zones.map((zone: any) => (
+                    <option key={zone.id} value={zone.id}>{zone.name}</option>
+                  ))}
+                </select>
+              </div>
+            )}
 
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
@@ -201,20 +203,78 @@ export default function AddHouseholdPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Tình Trạng Mục Vụ
+                Ngày Cấp Sổ
               </label>
-              <select 
-                name="canonical_status"
-                value={formData.canonical_status}
+              <input 
+                type="date"
+                name="book_issue_date"
+                value={formData.book_issue_date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
-              >
-                <option value="REGULAR">Bình thường</option>
-                <option value="MIXED_RELIGION">Gia đình khác đạo</option>
-                <option value="IRREGULAR">Chưa hợp thức</option>
-              </select>
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all text-slate-600"
+              />
             </div>
+
+            <div className="md:col-span-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowOptional(!showOptional)}
+                className="flex items-center text-sm font-bold text-sacred-crimson hover:text-red-800 transition-colors"
+              >
+                <span className="mr-2 h-5 w-5 bg-sacred-crimson/10 rounded-full flex items-center justify-center font-serif">
+                  {showOptional ? '−' : '+'}
+                </span>
+                {showOptional ? 'Ẩn bớt các trường không bắt buộc' : 'Hiển thị thêm các thông tin bổ sung (Số quyển, Ghi chú...)'}
+              </button>
+            </div>
+
+            {showOptional && (
+              <>
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                    Số Quyển / Số Thứ Tự
+                  </label>
+                  <input 
+                    type="text"
+                    name="physical_book_no"
+                    placeholder="Ví dụ: Q-05, STT-123"
+                    value={formData.physical_book_no}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all"
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                    Tình Trạng Hôn Phối
+                  </label>
+                  <select 
+                    name="canonical_status"
+                    value={formData.canonical_status}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
+                  >
+                    <option value="REGULAR">Bình thường (Hợp lệ)</option>
+                    <option value="MIXED_RELIGION">Hôn phối khác đạo (Chuẩn)</option>
+                    <option value="SEPARATED">Ly thân / Đã ly dị</option>
+                  </select>
+                </div>
+
+                <div className="space-y-2 md:col-span-2">
+                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                    Ghi Chú Mục Vụ
+                  </label>
+                  <textarea 
+                    name="pastoral_notes"
+                    rows={3}
+                    placeholder="Các thông tin lưu ý khác về hộ gia đình..."
+                    value={formData.pastoral_notes}
+                    onChange={handleChange}
+                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all"
+                  />
+                </div>
+              </>
+            )}
           </div>
         </section>
 
@@ -230,11 +290,12 @@ export default function AddHouseholdPage() {
           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Tên Thánh
+                Tên Thánh <span className="text-sacred-crimson">*</span>
               </label>
               <input 
                 type="text"
                 name="christian_name"
+                required
                 placeholder="VD: Gioan, Maria..."
                 value={formData.christian_name}
                 onChange={handleChange}
@@ -291,6 +352,35 @@ export default function AddHouseholdPage() {
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all text-slate-600"
               />
             </div>
+
+            <div className="md:col-span-2 pt-2">
+              <button
+                type="button"
+                onClick={() => setShowHeadOptional(!showHeadOptional)}
+                className="flex items-center text-sm font-bold text-sacred-gold hover:text-amber-700 transition-colors"
+              >
+                <span className="mr-2 h-5 w-5 bg-sacred-gold/10 rounded-full flex items-center justify-center font-serif text-sacred-gold">
+                  {showHeadOptional ? '−' : '+'}
+                </span>
+                {showHeadOptional ? 'Ẩn bớt thông tin bổ sung' : 'Bổ sung Bí danh / Tên hiệu...'}
+              </button>
+            </div>
+
+            {showHeadOptional && (
+              <div className="space-y-2">
+                <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                  Bí danh / Tên gọi ở nhà
+                </label>
+                <input 
+                  type="text"
+                  name="nick_name"
+                  placeholder="Bé Tí, Út, v.v..."
+                  value={formData.nick_name}
+                  onChange={handleChange}
+                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
+                />
+              </div>
+            )}
           </div>
         </section>
 

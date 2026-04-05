@@ -1,6 +1,6 @@
 // ─── Enums ────────────────────────────────────────────────────────────────────
 
-export type ParishionerStatus = 'RESIDING' | 'ABSENT' | 'TRANSFERRED' | 'DECEASED';
+export type ParishionerStatus = 'RESIDING' | 'ABSENT' | 'MOVED' | 'DECEASED';
 export type ParishionerGender = 'MALE' | 'FEMALE';
 export type SacramentType = 'BAPTISM' | 'EUCHARIST' | 'CONFIRMATION' | 'ANOINTING_OF_SICK' | 'HOLY_ORDERS';
 export type MaritalStatus = 'SINGLE' | 'MARRIED';
@@ -16,7 +16,6 @@ export interface ParishionerListItem {
   zone_name: string;
   household_code: string;
   status: ParishionerStatus;
-  is_deceased: boolean;
   is_non_catholic: boolean;
 }
 
@@ -61,7 +60,6 @@ export interface ParishionerDetail {
   nick_name: string | null;
   gender: ParishionerGender;
   birth_date: string;
-  is_deceased: boolean;
   is_non_catholic: boolean;
   date_of_death: string | null;
   occupation: string | null;

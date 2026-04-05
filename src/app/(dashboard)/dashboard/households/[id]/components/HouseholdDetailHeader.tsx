@@ -1,20 +1,36 @@
+'use client';
+
 import { Household } from '@/types/household';
 import Link from 'next/link';
+import { useZones } from '@/components/providers/zones-provider';
 
 export function HouseholdDetailHeader({ household }: { household: Household }) {
+  const { zones } = useZones();
+  
   const headName = household.head 
     ? `${household.head.christian_name} ${household.head.full_name}`
     : 'Không xác định';
+
+  const zoneName = household.zone?.name || household.zone_name || zones.find(z => z.id === household.zone_id)?.name || 'Không rõ';
 
   return (
     <section className="flex flex-col gap-6 border-b border-border-color pb-6 md:pb-8">
       <div>
         {/* Household Code Badge */}
-        <div className="flex items-center gap-2 text-primary mb-3">
-          <span className="material-symbols-outlined text-sm">home_work</span>
-          <span className="text-xs font-bold uppercase tracking-widest">
-            Mã hộ: {household.household_code}
-          </span>
+        <div className="flex flex-wrap items-center gap-4 text-primary mb-3">
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[16px]">home_work</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Mã hộ: {household.household_code}
+            </span>
+          </div>
+          <div className="w-[1px] h-3 bg-primary/20 hidden sm:block" />
+          <div className="flex items-center gap-1.5">
+            <span className="material-symbols-outlined text-[16px]">account_tree</span>
+            <span className="text-[10px] font-bold uppercase tracking-widest">
+              Giáo khu: {zoneName}
+            </span>
+          </div>
         </div>
         {/* Title — scales from text-2xl on mobile to text-4xl on desktop */}
         <h2 className="text-2xl md:text-4xl font-display font-bold text-text-main leading-tight">
@@ -34,8 +50,8 @@ export function HouseholdDetailHeader({ household }: { household: Household }) {
                      min-h-[48px] rounded-sm shadow-sm transition-all active:scale-95 hover:bg-primary/90
                      w-full sm:w-auto"
         >
-          <span className="material-symbols-outlined text-lg">child_care</span>
-          Thêm khai sinh
+          <span className="material-symbols-outlined text-lg">person_add</span>
+          Thêm thành viên
         </Link>
         <Link 
           href={`/dashboard/households/${household.id}/split`}

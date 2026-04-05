@@ -2,6 +2,7 @@ import { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { serverFetch } from '@/lib/api-server';
 import { HouseholdDetailHeader } from './components/HouseholdDetailHeader';
+import { StatusSyncAlert } from './components/StatusSyncAlert';
 import { CoupleCards } from './components/CoupleCards';
 import { MembersTable } from './components/MembersTable';
 import { SplitMembersSection } from './components/SplitMembersSection';
@@ -51,8 +52,11 @@ export default async function HouseholdDetailPage({
       </header>
 
       {/* Scrollable Content */}
-      <div className="flex-1 overflow-y-auto p-8 bg-background-light">
+      <div className="flex-1 overflow-y-auto p-8 bg-background-light text-text-main">
         <div className="max-w-6xl mx-auto space-y-8 pb-12">
+          {/* Synchronize Warning Component (Client-Side Logic) */}
+          <StatusSyncAlert household={householdData} />
+
           <HouseholdDetailHeader household={householdData} />
           
           <CoupleCards household={householdData} />

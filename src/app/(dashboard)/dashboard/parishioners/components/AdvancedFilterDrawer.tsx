@@ -20,7 +20,7 @@ const CHRISTIAN_NAMES = [
 const STATUS_OPTIONS = [
   { value: 'RESIDING', label: 'Đang cư trú' },
   { value: 'ABSENT', label: 'Vắng mặt' },
-  { value: 'TRANSFERRED', label: 'Chuyển xứ' },
+  { value: 'MOVED', label: 'Chuyển xứ' },
   { value: 'DECEASED', label: 'Đã qua đời' },
 ];
 

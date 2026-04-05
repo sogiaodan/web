@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Search, Bell } from 'lucide-react';
+import { Menu, Bell } from 'lucide-react';
 import useSWR from 'swr';
 import { ApiResponse } from '@/lib/auth-api';
 
@@ -59,28 +59,6 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
       </div>
 
       <div className="flex items-center gap-x-4 lg:gap-x-6">
-        {/* Desktop Search Placeholder */}
-        <div className="hidden lg:block">
-          <div className="relative relative w-64">
-            <div className="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3">
-              <Search className="h-4 w-4 text-muted" aria-hidden="true" />
-            </div>
-            <input
-              type="text"
-              name="search"
-              id="search"
-              className="block w-full rounded-md border-0 py-2 pl-10 pr-3 text-foreground ring-1 ring-inset ring-outline bg-background placeholder:text-muted focus:ring-2 focus:ring-inset focus:ring-primary sm:text-sm sm:leading-6 transition-all"
-              placeholder="Tìm kiếm nhanh..."
-            />
-          </div>
-        </div>
-        
-        {/* Mobile Search Icon */}
-        <button type="button" className="lg:hidden p-2.5 text-muted focus:outline-none hover:text-foreground h-12 w-12 flex items-center justify-center -mr-2">
-          <span className="sr-only">Tìm kiếm</span>
-          <Search className="h-6 w-6" aria-hidden="true" />
-        </button>
-
         <button
           type="button"
           className="relative rounded bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary h-[48px] w-[48px] lg:h-[32px] lg:w-[32px] flex items-center justify-center border border-primary/20 transition-colors duration-150"

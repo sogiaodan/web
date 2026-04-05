@@ -13,6 +13,8 @@ export function HouseholdFilterBar({ zones: zonesRaw }: { zones: Zone[] }) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   
   const currentZone = searchParams.get('zone_id') || '';
   const currentStatus = searchParams.get('status') || '';
@@ -33,12 +35,21 @@ export function HouseholdFilterBar({ zones: zonesRaw }: { zones: Zone[] }) {
     });
   };
 
-  const debounceRef = useRef<NodeJS.Timeout | null>(null);
   const handleSearch = (val: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      handleFilter('search', val);
-    }, 300);
+    
+    // Clear search if empty
+    if (val.length === 0) {
+      handleFilter('search', '');
+      return;
+    }
+
+    // Only search if 3 or more characters
+    if (val.length >= 3) {
+      debounceRef.current = setTimeout(() => {
+        handleFilter('search', val);
+      }, 500);
+    }
   };
 
   return (
@@ -70,13 +81,19 @@ export function HouseholdFilterBar({ zones: zonesRaw }: { zones: Zone[] }) {
 
         {/* Full-width search input */}
         <div className="bg-surface border border-outline rounded p-3 flex items-center gap-2">
-          <span className="material-symbols-outlined text-on-surface-variant text-lg shrink-0">search</span>
+          <button
+            type="button"
+            onClick={() => handleFilter('search', mobileSearchInputRef.current?.value || '')}
+            className="material-symbols-outlined text-on-surface-variant text-lg shrink-0 hover:text-primary transition-colors"
+          >
+            search
+          </button>
           <input
-            ref={searchInputRef}
+            ref={mobileSearchInputRef}
             type="text"
             defaultValue={currentSearch}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Tên chủ hộ, địa chỉ hoặc mã hộ..."
+            placeholder="Tên chủ hộ hoặc mã hộ..."
             className="flex-1 bg-transparent border-none p-0 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/40 min-h-[44px]"
           />
         </div>
@@ -121,13 +138,23 @@ export function HouseholdFilterBar({ zones: zonesRaw }: { zones: Zone[] }) {
         {/* Search Input */}
         <div className="col-span-2 bg-surface border border-outline p-4 flex flex-col gap-2 relative overflow-hidden rounded shadow-sm">
           <div className="absolute top-0 right-0 w-8 h-8 bg-primary/5 rounded-bl-full" />
-          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tìm kiếm nâng cao</label>
+          <div className="flex items-center justify-between">
+            <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tìm kiếm nâng cao</label>
+            <button
+              type="button"
+              onClick={() => handleFilter('search', searchInputRef.current?.value || '')}
+              className="material-symbols-outlined text-on-surface-variant text-lg hover:text-primary transition-all active:scale-90"
+              title="Tìm ngay"
+            >
+              search
+            </button>
+          </div>
           <input
             ref={searchInputRef}
             type="text"
             defaultValue={currentSearch}
             onChange={(e) => handleSearch(e.target.value)}
-            placeholder="Tên chủ hộ, địa chỉ hoặc mã hộ..."
+            placeholder="Tên chủ hộ hoặc mã hộ..."
             className="bg-transparent border-none p-0 text-on-surface font-body focus:ring-0 placeholder:text-on-surface-variant/40"
           />
         </div>

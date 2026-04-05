@@ -18,6 +18,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   const currentSearch = searchParams.get('search') || '';
@@ -37,9 +38,19 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
 
   const handleSearch = (val: string) => {
     if (debounceRef.current) clearTimeout(debounceRef.current);
-    debounceRef.current = setTimeout(() => {
-      handleFilter('search', val);
-    }, 300);
+    
+    // Clear search if empty
+    if (val.length === 0) {
+      handleFilter('search', '');
+      return;
+    }
+
+    // Only search if 3 or more characters
+    if (val.length >= 3) {
+      debounceRef.current = setTimeout(() => {
+        handleFilter('search', val);
+      }, 500);
+    }
   };
 
   const handleExportCSV = () => {
@@ -55,7 +66,14 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
       <div className="hidden md:flex items-center gap-3 flex-wrap">
         {/* Search Input */}
         <div className="flex-1 min-w-[280px] max-w-xs bg-surface border border-outline rounded flex items-center gap-2 px-3 py-2.5 focus-within:border-primary transition-colors">
-          <span className="material-symbols-outlined text-on-surface-variant text-lg shrink-0">search</span>
+          <button
+            type="button"
+            onClick={() => handleFilter('search', searchInputRef.current?.value || '')}
+            className="material-symbols-outlined text-on-surface-variant text-lg shrink-0 hover:text-primary transition-colors"
+            title="Tìm kiếm ngay"
+          >
+            search
+          </button>
           <input
             ref={searchInputRef}
             type="text"
@@ -102,8 +120,15 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
       {/* Mobile Layout */}
       <div className="md:hidden flex flex-col gap-3">
         <div className="bg-surface border border-outline rounded flex items-center gap-2 px-3 py-2.5 focus-within:border-primary transition-colors">
-          <span className="material-symbols-outlined text-on-surface-variant text-lg shrink-0">search</span>
+          <button
+            type="button"
+            onClick={() => handleFilter('search', mobileSearchInputRef.current?.value || '')}
+            className="material-symbols-outlined text-on-surface-variant text-lg shrink-0 hover:text-primary transition-colors"
+          >
+            search
+          </button>
           <input
+            ref={mobileSearchInputRef}
             type="text"
             defaultValue={currentSearch}
             onChange={(e) => handleSearch(e.target.value)}
@@ -147,7 +172,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
 const STATUS_LABELS: Record<string, string> = {
   RESIDING: 'Đang cư trú',
   ABSENT: 'Vắng mặt',
-  TRANSFERRED: 'Chuyển xứ',
+  MOVED: 'Chuyển xứ',
   DECEASED: 'Đã qua đời',
 };
 

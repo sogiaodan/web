@@ -9,7 +9,7 @@ import { ParishionerPreview, ParishionerStatus, SacramentType } from '@/types/pa
 const STATUS_META: Record<ParishionerStatus, { label: string; dot: string; badgeBg: string; badgeText: string }> = {
   RESIDING: { label: 'Đang sinh hoạt', dot: 'bg-[#16a34a]', badgeBg: 'bg-[#F0FDF4]', badgeText: 'text-[#166534]' },
   ABSENT: { label: 'Vắng mặt', dot: 'bg-[#d97706]', badgeBg: 'bg-[#FFF7ED]', badgeText: 'text-[#B45309]' },
-  TRANSFERRED: { label: 'Chuyển xứ', dot: 'bg-[#dc2626]', badgeBg: 'bg-[#FEF2F2]', badgeText: 'text-[#B91C1C]' },
+  MOVED: { label: 'Chuyển xứ', dot: 'bg-[#dc2626]', badgeBg: 'bg-[#FEF2F2]', badgeText: 'text-[#B91C1C]' },
   DECEASED: { label: 'Đã qua đời', dot: 'bg-[#78716C]', badgeBg: 'bg-[#F5F5F4]', badgeText: 'text-[#57534E]' },
 };
 

@@ -19,10 +19,13 @@ export const runtime = 'edge';
 
 export default async function ParishionerDetailPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ id: string }>;
+  searchParams: Promise<{ returnTo?: string }>;
 }) {
   const { id } = await params;
+  const { returnTo } = await searchParams;
 
   const [parishionerRes, meRes] = await Promise.all([
     serverFetch<ParishionerDetail>(`/api/v1/parishioners/${id}`),
@@ -42,13 +45,19 @@ export default async function ParishionerDetailPage({
       <div className="max-w-7xl mx-auto">
         {/* Back Link */}
         <Link
-          href="/dashboard/parishioners"
-          className="inline-flex items-center gap-1 text-sm font-medium text-[#1C1917] hover:text-primary transition-colors mb-6 group font-body"
+          href={(returnTo === 'household' && parishioner.household)
+            ? `/dashboard/households/${parishioner.household.id}`
+            : '/dashboard/parishioners'
+          }
+          className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-primary transition-colors mb-6 group font-body"
         >
           <span className="material-symbols-outlined text-lg group-hover:-translate-x-0.5 transition-transform">
             arrow_back
           </span>
-          Chi tiết Giáo dân
+          {(returnTo === 'household' && parishioner.household)
+            ? `Quay lại Hộ giáo ${parishioner.household.household_code || ''}`
+            : 'Danh sách Giáo dân'
+          }
         </Link>
 
         {/* Profile Header */}

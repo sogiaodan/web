@@ -3,6 +3,7 @@
 import { Household } from '@/types/household';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { useZones } from '@/components/providers/zones-provider';
 
 export function HouseholdTable({ households, total, page, limit }: { 
   households: Household[], 
@@ -23,6 +24,18 @@ export function HouseholdTable({ households, total, page, limit }: {
     const params = new URLSearchParams(searchParams.toString());
     params.set('page', newPage.toString());
     router.push(`${pathname}?${params.toString()}`);
+  };
+  
+  const { zones } = useZones();
+
+  const getZoneName = (item: Household) => {
+    if (item.zone?.name) return item.zone.name;
+    if (item.zone_name) return item.zone_name;
+    if (item.zone_id && zones.length > 0) {
+      const z = zones.find(z => z.id === item.zone_id);
+      return z ? z.name : 'Không rõ';
+    }
+    return 'Không rõ';
   };
 
   const getStatusBadge = (status: string) => {
@@ -58,7 +71,7 @@ export function HouseholdTable({ households, total, page, limit }: {
                 <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest w-16">STT</th>
                 <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Mã Hộ</th>
                 <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Tên Chủ Hộ</th>
-                <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Địa chỉ</th>
+                <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Ngày sinh</th>
                 <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest">Thành viên</th>
                 <th className="px-6 py-4 text-xs font-bold text-on-surface-variant uppercase tracking-widest text-right">Hành động</th>
               </tr>
@@ -101,8 +114,8 @@ export function HouseholdTable({ households, total, page, limit }: {
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-5 text-sm text-on-surface-variant max-w-[200px] truncate">
-                    {item.address || 'Chưa cập nhật'}
+                  <td className="px-6 py-5 text-sm text-on-surface-variant font-body">
+                    {item.head?.birth_date ? new Date(item.head.birth_date).toLocaleDateString('vi-VN') : '—'}
                   </td>
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-1.5">
@@ -147,13 +160,13 @@ export function HouseholdTable({ households, total, page, limit }: {
               </div>
             </div>
             <div className="space-y-2">
-              <div className="flex items-start gap-3">
-                <span className="material-symbols-outlined text-on-surface-variant text-sm mt-0.5">location_on</span>
-                <p className="text-sm text-on-surface-variant leading-snug">{item.address || 'Chưa cập nhật'}</p>
+              <div className="flex items-center gap-3">
+                <span className="material-symbols-outlined text-on-surface-variant text-sm">cake</span>
+                <p className="text-sm text-on-surface-variant">Ngày sinh chủ hộ: <span className="text-on-surface font-medium">{item.head?.birth_date ? new Date(item.head.birth_date).toLocaleDateString('vi-VN') : '—'}</span></p>
               </div>
               <div className="flex items-center gap-3">
                 <span className="material-symbols-outlined text-on-surface-variant text-sm">account_tree</span>
-                <p className="text-sm text-on-surface-variant">Giáo khu: <span className="text-on-surface font-medium">{item.zone_name || 'Không rõ'}</span></p>
+                <p className="text-sm text-on-surface-variant">Giáo khu: <span className="text-on-surface font-medium">{getZoneName(item)}</span></p>
               </div>
             </div>
             <div className="mt-5 pt-4 border-t border-outline-variant flex justify-between items-center">

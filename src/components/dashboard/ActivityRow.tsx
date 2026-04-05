@@ -10,6 +10,7 @@ import {
   LucideIcon
 } from 'lucide-react';
 import clsx from 'clsx';
+import Link from 'next/link';
 
 export interface ActivityLog {
   id: string;
@@ -20,6 +21,21 @@ export interface ActivityLog {
   user_name: string;
   created_at: string;
 }
+
+const getEntityRoute = (type: string, id: string) => {
+  if (!id) return null;
+  
+  switch (type) {
+    case 'PARISHIONER':
+      return `/dashboard/parishioners/${id}`;
+    case 'HOUSEHOLD':
+      return `/dashboard/households/${id}`;
+    case 'ZONE':
+      return `/dashboard/zones/${id}`;
+    default:
+      return null;
+  }
+};
 
 const getIconConfig = (actionType: string, entityType: string): { Icon: LucideIcon, bg: string, color: string } => {
   if (actionType === 'CREATE' && entityType === 'PARISHIONER') return { Icon: UserPlus, bg: 'bg-primary/10', color: 'text-primary' };
@@ -82,9 +98,10 @@ const formatDescription = (desc: string) => {
 
 export default function ActivityRow({ activity }: { activity: ActivityLog }) {
   const { Icon, bg, color } = getIconConfig(activity.action_type, activity.entity_type);
+  const route = getEntityRoute(activity.entity_type, activity.entity_id);
 
-  return (
-    <div className="flex items-start gap-x-4 border-b border-outline p-4 transition-colors hover:bg-hover-bg md:px-6 last:border-b-0 min-w-full">
+  const content = (
+    <>
       <div className={clsx("flex mt-0.5 h-8 w-8 shrink-0 items-center justify-center rounded-sm", bg, color)}>
         <Icon className="h-4 w-4" aria-hidden="true" />
       </div>
@@ -99,6 +116,23 @@ export default function ActivityRow({ activity }: { activity: ActivityLog }) {
           <span>{activity.user_name || 'Người dùng đã xóa'}</span>
         </div>
       </div>
+    </>
+  );
+
+  if (route) {
+    return (
+      <Link 
+        href={route} 
+        className="flex items-start gap-x-4 border-b border-outline p-4 transition-all hover:bg-hover-bg md:px-6 last:border-b-0 min-w-full group"
+      >
+        {content}
+      </Link>
+    );
+  }
+
+  return (
+    <div className="flex items-start gap-x-4 border-b border-outline p-4 md:px-6 last:border-b-0 min-w-full">
+      {content}
     </div>
   );
 }

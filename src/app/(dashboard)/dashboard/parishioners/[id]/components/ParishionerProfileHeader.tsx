@@ -20,7 +20,7 @@ const STATUS_META: Record<
     badgeBg: 'bg-[#FFF7ED]',
     badgeText: 'text-[#B45309]',
   },
-  TRANSFERRED: {
+  MOVED: {
     dot: 'bg-[#dc2626]',
     label: 'Chuyển xứ',
     badgeBg: 'bg-[#FEF2F2]',
@@ -102,7 +102,7 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
           <div className="relative shrink-0">
             <div
               className={`w-24 h-24 md:w-[120px] md:h-[120px] rounded-lg overflow-hidden border border-outline bg-[#F5F5F4] flex items-center justify-center ${
-                parishioner.is_deceased ? 'grayscale' : ''
+                parishioner.status === 'DECEASED' ? 'grayscale' : ''
               }`}
             >
               <span className="font-display font-bold text-5xl text-[#78716C]">
@@ -110,7 +110,7 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
               </span>
             </div>
             {/* Status badge — bottom-right of avatar */}
-            {parishioner.is_deceased ? (
+            {parishioner.status === 'DECEASED' ? (
               <span className="absolute -bottom-1.5 -right-1.5 w-7 h-7 bg-[#78716C] rounded-full border-2 border-white flex items-center justify-center">
                 <span className="material-symbols-outlined text-white text-sm">close</span>
               </span>

@@ -22,7 +22,7 @@ const STATUS_MAP: Record<
     text: 'text-[#B45309]',
     border: 'border-[#B45309]/20',
   },
-  TRANSFERRED: {
+  MOVED: {
     label: 'CHUYỂN XỨ',
     bg: 'bg-[#FEF2F2]',
     text: 'text-[#B91C1C]',
@@ -144,7 +144,7 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                 <tr
                   key={item.id}
                   className={`hover:bg-[#F5F5F4] transition-colors group ${
-                    item.is_deceased ? 'opacity-70' : ''
+                    item.status === 'DECEASED' ? 'opacity-70' : ''
                   }`}
                 >
                   <td className="px-5 py-4 text-sm text-[#78716C] font-medium">
@@ -238,7 +238,7 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
           <div
             key={item.id}
             className={`bg-surface border border-outline rounded p-4 transition-all active:scale-[0.99] ${
-              item.is_deceased ? 'opacity-70' : ''
+              item.status === 'DECEASED' ? 'opacity-70' : ''
             }`}
           >
             <div className="flex items-start justify-between gap-2 mb-3">
