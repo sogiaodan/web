@@ -219,3 +219,42 @@ export const SettingsAccountsAPI = {
     });
   }
 };
+
+export interface SaintName {
+  name: string;
+  gender: 'MALE' | 'FEMALE';
+  is_popular: boolean;
+}
+
+export interface SaintNamesResponse {
+  data: SaintName[];
+  message: string;
+  status: number;
+}
+
+export const SettingsSaintsAPI = {
+  list: async (): Promise<SaintNamesResponse> => {
+    const data = await apiFetch<SaintName[]>('/settings/saints');
+    return { data, message: '', status: 200 };
+  },
+
+  create: async (data: { name: string; gender: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
+    return apiFetch<any>('/settings/saints', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    });
+  },
+
+  update: async (name: string, data: { new_name?: string; gender?: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
+    return apiFetch<any>(`/settings/saints/${encodeURIComponent(name)}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data)
+    });
+  },
+
+  delete: async (name: string): Promise<any> => {
+    return apiFetch<any>(`/settings/saints/${encodeURIComponent(name)}`, {
+      method: 'DELETE'
+    });
+  }
+};

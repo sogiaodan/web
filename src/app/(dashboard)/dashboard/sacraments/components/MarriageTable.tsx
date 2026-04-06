@@ -81,7 +81,7 @@ export function MarriageTable({ items, page, limit, total }: MarriageTableProps)
                     </Link>
                   </td>
                   <td className="px-4 py-4 text-sm font-semibold text-primary font-body">
-                    {formatDate(item.marriage_date)}
+                    {item.marriage_date ? formatDate(item.marriage_date) : <span className="text-amber-600 bg-amber-50 px-2 py-1 rounded-sm text-xs border border-amber-200">Đang rao</span>}
                   </td>
                   <td className="px-4 py-4 text-sm text-on-surface font-body">
                     <div className="flex flex-col gap-1">
@@ -148,7 +148,7 @@ export function MarriageTable({ items, page, limit, total }: MarriageTableProps)
               <div>
                 <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-wider block mb-1">Date</span>
                 <span className="text-sm font-medium text-on-surface font-body">
-                  {formatDate(item.marriage_date)}
+                  {item.marriage_date ? formatDate(item.marriage_date) : <span className="text-amber-600">Đang rao</span>}
                 </span>
               </div>
               <div>

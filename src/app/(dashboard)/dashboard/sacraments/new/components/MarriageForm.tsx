@@ -14,9 +14,9 @@ import { Loader2, Home } from 'lucide-react';
 const marriageSchema = z.object({
   husband_id: z.string().min(1, 'Vui lòng chọn Chú rể'),
   wife_id: z.string().min(1, 'Vui lòng chọn Cô dâu'),
-  marriage_date: z.string().min(1, 'Vui lòng chọn ngày cử hành'),
+  marriage_date: z.string().optional(),
   place: z.string().optional(),
-  status: z.enum(['VALID', 'ANNULLED']),
+  status: z.enum(['VALID', 'ANNULLED', 'DRAFT']),
   witness_1_name: z.string().optional(),
   witness_2_name: z.string().optional(),
   minister_id: z.string().optional(),
@@ -221,7 +221,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                Ngày Cử hành <span className="text-red-500">*</span>
+                Ngày Cử hành
               </label>
               <input
                 type="date"
@@ -271,6 +271,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
                 className={`w-full bg-surface border border-outline rounded-sm px-3 py-3 text-sm font-body text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${readOnly ? 'opacity-70 cursor-not-allowed bg-surface-container' : ''}`}
               >
                 <option value="VALID">Thành sự (VALID)</option>
+                <option value="DRAFT">Bản nháp / Tờ rao (DRAFT)</option>
                 <option value="ANNULLED">Tiêu hôn (ANNULLED)</option>
               </select>
             </div>

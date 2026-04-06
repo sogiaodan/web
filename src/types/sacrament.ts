@@ -1,6 +1,6 @@
 export type SacramentType = 'BAPTISM' | 'EUCHARIST' | 'CONFIRMATION' | 'ANOINTING_OF_SICK' | 'HOLY_ORDERS' | 'MARRIAGE';
 
-export type MarriageStatus = 'VALID' | 'ANNULLED';
+export type MarriageStatus = 'VALID' | 'ANNULLED' | 'DRAFT';
 
 export interface MinisterRef {
   id: string;
@@ -33,7 +33,7 @@ export interface MarriageListItem {
   id: string;
   husband: Omit<SacramentParishionerRef, 'birth_date'>;
   wife: Omit<SacramentParishionerRef, 'birth_date'>;
-  marriage_date: string;
+  marriage_date: string | null;
   witness_1_name: string | null;
   witness_2_name: string | null;
   minister: MinisterRef | null;

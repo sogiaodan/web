@@ -36,7 +36,7 @@ export default async function MarriageDetailPage({
     husband_id: marriage.husband.id,
     wife_id: marriage.wife.id,
     marriage_date: marriage.marriage_date || '',
-    place: '', // place not in basic type currently
+    place: (marriage as any).place || '',
     status: marriage.status || 'VALID',
     witness_1_name: marriage.witness_1_name || '',
     witness_2_name: marriage.witness_2_name || '',
@@ -59,6 +59,18 @@ export default async function MarriageDetailPage({
             Tân Lang: <span className="font-bold">{marriage.husband.christian_name} {marriage.husband.full_name}</span> & Tân Nương: <span className="font-bold">{marriage.wife.christian_name} {marriage.wife.full_name}</span>
           </p>
         </div>
+
+        {canEdit && marriage.status === 'DRAFT' && (
+          <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-sm flex items-center justify-between">
+            <div>
+              <p className="font-bold text-amber-800 text-sm">Hồ sơ này đang ở dạng Bản nháp / Chuẩn bị cưới.</p>
+              <p className="text-amber-700 text-xs mt-1">Đã có thể in tờ rao hôn phối cho cặp đôi này.</p>
+            </div>
+            <button className="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-sm text-sm font-bold flex items-center gap-2 transition-colors">
+              🖨️ In Tờ Rao
+            </button>
+          </div>
+        )}
 
         <MarriageForm
           id={marriage.id}
