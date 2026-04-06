@@ -19,19 +19,35 @@ export function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // Check if we have an access_token cookie
+  // Check for tokens
   const token = request.cookies.get('access_token')?.value;
+  const systemToken = request.cookies.get('system_token')?.value;
+
+  // ── SUPER ADMIN PROTECTION ──────────────────────────────────────────
+  if (pathname.startsWith('/super-admin')) {
+    const isAdminAuthRoute = pathname === '/super-admin/login';
+    
+    // If trying to access admin dashboard without system token
+    if (!systemToken && !isAdminAuthRoute) {
+      return NextResponse.redirect(new URL('/super-admin/login', request.url));
+    }
+    
+    // If logged in as admin and trying to access admin login
+    if (systemToken && isAdminAuthRoute) {
+      return NextResponse.redirect(new URL('/super-admin/dashboard', request.url));
+    }
+
+    return NextResponse.next();
+  }
+
+  // ── REGULAR USER PROTECTION ──────────────────────────────────────────
   const isAuthRoute = AUTH_ROUTES.includes(pathname);
   const isPublicRoute = PUBLIC_ROUTES.includes(pathname) || isAuthRoute;
 
-  // FORCE BYPASS for auth routes: 
-  // If we are on a login/forgot/reset page, JUST LET THEM IN.
-  // No token checks, no redirects. This is the absolute bypass.
   if (isAuthRoute) {
     return NextResponse.next();
   }
 
-  // If user is trying to access a protected route without a token
   if (!token && !isPublicRoute) {
     const url = new URL('/login', request.url);
     return NextResponse.redirect(url);

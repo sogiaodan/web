@@ -19,37 +19,23 @@ Before writing any CSS, Tailwind classes, or UI components, you MUST consult:
 
 ---
 
-## 🛠️ LOCAL DEVELOPMENT GUIDE
-
-Run the full stack (Web + API + Database) on your macOS host:
-
-### 1. Database (Docker - Background)
-Navigate to `api/` and start the development database container:
-```bash
-# IMPORTANT: Ensure Docker Desktop is running before this
-docker-compose up -d sgd_postgres
-```
-
-### 2. NestJS Backend API (Port 3000)
-Navigate to `api/` and start the development server (Watch mode, auto-reload enabled):
-```bash
-# Run in Terminal tab 1
-npm run start:dev
-```
-
-### 3. Next.js Web Frontend (Port 3003)
-**IMPORTANT:** The API is configured with CORS for port 3003. You **MUST** run the frontend on this port for communication to succeed:
-```bash
-# Run in Terminal tab 2 (Inside web/ folder)
-npm run dev -- -p 3003
-```
-👉 URL: **[http://localhost:3003](http://localhost:3003)**
+## 🏛️ SYSTEM ADMINISTRATION (GLOBAL)
+- **Root Path:** `/super-admin/login`
+- **Route Group:** `(super-admin)` — Strictly isolated management layout.
+- **Role Requirement:** `SYSTEM_ADMIN` (verified against `v1/system-admin/login`).
 
 ---
 
+## 🛠️ LOCAL DEVELOPMENT GUIDE
+...
 ### 🔑 Default Credentials (DEV ONLY)
+**Church Admin:**
 - **Email:** `sogiaodan@gmail.com`
 - **Password:** `Admin@2026`
+
+**System Admin:**
+- **Email:** `sogiaodan@gmail.com`
+- **Password:** `Admin@2026` (Used for initial login)
 
 ---
 

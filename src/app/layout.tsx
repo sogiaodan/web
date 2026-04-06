@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { Lora, Work_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
+import { SystemAdminProvider } from '@/components/providers/system-admin-provider';
 import './globals.css';
 
 const lora = Lora({
@@ -43,9 +44,11 @@ export default function RootLayout({
         />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
-        <AuthProvider>
-          {children}
-        </AuthProvider>
+        <SystemAdminProvider>
+          <AuthProvider>
+            {children}
+          </AuthProvider>
+        </SystemAdminProvider>
         <Toaster position="top-right" richColors />
       </body>
     </html>
