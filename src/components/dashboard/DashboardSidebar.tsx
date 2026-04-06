@@ -28,9 +28,10 @@ const NAV_ITEMS = [
 interface DashboardSidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onOpenAccountPanel?: () => void;
 }
 
-export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarProps) {
+export default function DashboardSidebar({ isOpen, onClose, onOpenAccountPanel }: DashboardSidebarProps) {
   const pathname = usePathname();
   const { user } = useAuth();
   
@@ -97,12 +98,26 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
       <div className="mt-auto flex flex-col pt-4">
         <Link
           href="/dashboard/settings"
-          className="group flex items-center gap-x-3 px-7 py-3 text-sm font-medium text-primary hover:bg-hover-bg transition-duration-150"
+          onClick={() => onClose()}
+          className={clsx(
+            'group flex items-center gap-x-3 px-7 py-3 text-sm font-medium transition-duration-150',
+            pathname.startsWith('/dashboard/settings')
+              ? 'bg-[#FAF6F6] text-primary font-semibold border-r-4 border-primary'
+              : 'text-primary hover:bg-hover-bg'
+          )}
         >
-          <Settings className="h-5 w-5" />
+          <Settings 
+            className={clsx(
+              'h-5 w-5',
+              pathname.startsWith('/dashboard/settings') ? 'fill-primary/10 text-primary' : ''
+            )} 
+          />
           Cài đặt
         </Link>
-        <div className="flex items-center gap-x-4 border-t border-outline/50 bg-vellum/50 px-6 py-4">
+        <button 
+          onClick={onOpenAccountPanel}
+          className="flex items-center gap-x-4 border-t border-outline/50 bg-vellum/50 px-6 py-4 hover:bg-hover-bg transition-colors text-left w-full outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
+        >
           <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary text-sm font-medium text-white shrink-0">
             {getInitials(user?.name)}
           </div>
@@ -114,7 +129,7 @@ export default function DashboardSidebar({ isOpen, onClose }: DashboardSidebarPr
               {getRoleLabel(user?.role)}
             </span>
           </div>
-        </div>
+        </button>
       </div>
     </>
   );

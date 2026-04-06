@@ -7,6 +7,7 @@ import DashboardSidebar from '@/components/dashboard/DashboardSidebar';
 import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ZonesProvider } from '@/components/providers/zones-provider';
+import AccountPanel from '@/components/dashboard/settings/AccountPanel';
 
 export default function DashboardLayout({
   children,
@@ -14,6 +15,7 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [accountPanelOpen, setAccountPanelOpen] = useState(false);
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -41,7 +43,14 @@ export default function DashboardLayout({
   return (
     <ZonesProvider>
       <div className="flex min-h-dvh flex-col lg:flex-row bg-background">
-        <DashboardSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
+        <DashboardSidebar 
+          isOpen={sidebarOpen} 
+          onClose={() => setSidebarOpen(false)} 
+          onOpenAccountPanel={() => {
+            setSidebarOpen(false); // Close main sidebar on mobile when opening account panel
+            setAccountPanelOpen(true);
+          }}
+        />
         
         <div className="flex flex-1 flex-col overflow-hidden">
           <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
@@ -49,6 +58,8 @@ export default function DashboardLayout({
             {children}
           </main>
         </div>
+        
+        <AccountPanel isOpen={accountPanelOpen} onClose={() => setAccountPanelOpen(false)} />
       </div>
     </ZonesProvider>
   );

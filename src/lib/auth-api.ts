@@ -2,6 +2,7 @@ export interface User {
   id: string;
   name: string;
   email: string;
+  phone_number?: string;
   role: 'ADMIN' | 'VIEWER' | 'EDITOR';
   church_id: string;
   church_name: string;
