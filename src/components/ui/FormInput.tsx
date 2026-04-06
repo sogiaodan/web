@@ -8,11 +8,12 @@ export interface FormInputProps
   extends React.InputHTMLAttributes<HTMLInputElement> {
   label: string;
   error?: string;
+  helperText?: string;
   PrefixIcon?: React.FC<React.SVGProps<SVGSVGElement>>;
 }
 
 export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
-  ({ className, type = "text", label, error, PrefixIcon, ...props }, ref) => {
+  ({ className, type = "text", label, error, helperText, PrefixIcon, ...props }, ref) => {
     const [showPassword, setShowPassword] = useState(false);
     const isPassword = type === "password";
     const inputType = isPassword ? (showPassword ? "text" : "password") : type;
@@ -61,11 +62,15 @@ export const FormInput = forwardRef<HTMLInputElement, FormInputProps>(
             </button>
           )}
         </div>
-        {isError && (
+        {isError ? (
           <p className="mt-1 font-sans text-[12px] font-medium text-primary">
             {error}
           </p>
-        )}
+        ) : helperText ? (
+          <p className="mt-1 font-sans text-[11px] text-muted-foreground italic">
+            {helperText}
+          </p>
+        ) : null}
       </div>
     );
   }
