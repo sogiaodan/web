@@ -10,7 +10,8 @@ import {
   Map,
   Settings,
   Church,
-  X
+  X,
+  Scroll
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -20,6 +21,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/parishioners', label: 'Danh sách Giáo dân', icon: Users },
   { href: '/dashboard/households', label: 'Hộ giáo', icon: Home },
   { href: '/dashboard/sacraments', label: 'Bí tích', icon: BookOpen },
+  { href: '/dashboard/catechism', label: 'Chứng chỉ', icon: Scroll },
   { href: '/dashboard/zones', label: 'Giáo khu', icon: Map },
 ];
 
