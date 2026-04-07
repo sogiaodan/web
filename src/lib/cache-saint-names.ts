@@ -3,7 +3,7 @@
 const CACHE_KEY = 'sogiaodan_saint_names_cache';
 const CACHE_TTL = 1000 * 60 * 60 * 24; // 24 hours
 
-interface SaintName {
+export interface SaintName {
   name: string;
   gender: 'MALE' | 'FEMALE';
   is_popular: boolean;

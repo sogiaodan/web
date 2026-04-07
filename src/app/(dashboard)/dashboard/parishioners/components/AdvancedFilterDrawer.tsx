@@ -3,25 +3,23 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/zone';
-
-const CHRISTIAN_NAMES = [
-  'Anna', 'Anê', 'Antôn', 'Augustinô', 'Barthôlômêô',
-  'Catarina', 'Cecilia', 'Clara', 'Đaminh', 'Elisabeth',
-  'Phanxicô', 'Phanxicô Xaviê', 'Giêrônimô',
-  'Gioan', 'Gioan Baotixita', 'Gioan Bosco',
-  'Giuse', 'Giuse Maria', 'G.B',
-  'Lucia', 'Luca', 'Máccô', 'Marcô',
-  'Maria', 'Maria Goretti', 'Maria Magdalena',
-  'Micae', 'Nicolas', 'Phaolô', 'Phêrô',
-  'Raphael', 'Rôsa', 'Simon',
-  'Stêphanô', 'Têrêsa', 'Tôma', 'Vinh sơn',
-];
+import { getOrRefreshSaintNames, SaintName } from '@/lib/cache-saint-names';
 
 const STATUS_OPTIONS = [
   { value: 'RESIDING', label: 'Đang cư trú' },
   { value: 'ABSENT', label: 'Vắng mặt' },
   { value: 'MOVED', label: 'Chuyển xứ' },
   { value: 'DECEASED', label: 'Đã qua đời' },
+];
+
+const FALLBACK_SAINTS = [
+  { name: 'Giuse', is_popular: true, gender: 'MALE' },
+  { name: 'Maria', is_popular: true, gender: 'FEMALE' },
+  { name: 'Phêrô', is_popular: true, gender: 'MALE' },
+  { name: 'Phaolô', is_popular: true, gender: 'MALE' },
+  { name: 'Anna', is_popular: true, gender: 'FEMALE' },
+  { name: 'Gioan', is_popular: true, gender: 'MALE' },
+  { name: 'Têrêsa', is_popular: true, gender: 'FEMALE' },
 ];
 
 interface Props {
@@ -51,18 +49,31 @@ export function AdvancedFilterDrawer({ zones }: Props) {
     zone_id: searchParams.get('zone_id') || '',
   });
 
+  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
+  const [showAllSaints, setShowAllSaints] = useState(false);
+
+  // Fetch Saint Names from Cache/API
+  useEffect(() => {
+    if (isOpen) {
+      getOrRefreshSaintNames().then(setSaintNames);
+    }
+  }, [isOpen]);
+
   // Sync local state when URL changes
   useEffect(() => {
+    const statuses = searchParams.getAll('status');
+    const singleStatus = searchParams.get('status');
+    
     setLocalFilters({
       christian_name: searchParams.get('christian_name') || '',
       age_min: searchParams.get('age_min') || '',
       age_max: searchParams.get('age_max') || '',
       gender: searchParams.get('gender') || '',
-      status: searchParams.get('status') ? [searchParams.get('status')!] : [],
+      status: statuses.length > 0 ? statuses : (singleStatus ? [singleStatus] : []),
       marital_status: searchParams.get('marital_status') || '',
       zone_id: searchParams.get('zone_id') || '',
     });
-  }, [searchParams]);
+  }, [searchParams, isOpen]);
 
   // Trap focus escape
   useEffect(() => {
@@ -120,8 +131,10 @@ export function AdvancedFilterDrawer({ zones }: Props) {
     if (localFilters.age_min) params.set('age_min', localFilters.age_min);
     if (localFilters.age_max) params.set('age_max', localFilters.age_max);
     if (localFilters.gender) params.set('gender', localFilters.gender);
-    // Use first selected status (API supports one status currently)
-    if (localFilters.status.length > 0) params.set('status', localFilters.status[0]);
+    
+    // Set all selected statuses
+    localFilters.status.forEach(s => params.append('status', s));
+
     if (localFilters.marital_status) params.set('marital_status', localFilters.marital_status);
     if (localFilters.zone_id) params.set('zone_id', localFilters.zone_id);
 
@@ -207,20 +220,37 @@ export function AdvancedFilterDrawer({ zones }: Props) {
             <label className="block text-[10px] font-bold text-[#78716C] uppercase tracking-[0.12em]">
               Tên Thánh
             </label>
-            <div className="relative">
-              <select
-                value={localFilters.christian_name}
-                onChange={(e) => setLocalFilters((p) => ({ ...p, christian_name: e.target.value }))}
-                className="w-full appearance-none bg-surface border border-[#E7E5E4] rounded px-4 py-3 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all pr-10"
+            <div className="space-y-2">
+              <div className="relative">
+                <select
+                  value={localFilters.christian_name}
+                  onChange={(e) => setLocalFilters((p) => ({ ...p, christian_name: e.target.value }))}
+                  className="w-full appearance-none bg-surface border border-[#E7E5E4] rounded px-4 py-3 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all pr-10"
+                >
+                  <option value="">Tất cả Tên Thánh</option>
+                  {(saintNames.length > 0 ? saintNames : FALLBACK_SAINTS)
+                    .filter((n: any) => {
+                      const matchesPopular = showAllSaints || n.is_popular;
+                      const matchesGender = !localFilters.gender || n.gender === localFilters.gender;
+                      return matchesPopular && matchesGender;
+                    })
+                    .map((n: any) => (
+                      <option key={n.name} value={n.name}>{n.name}</option>
+                    ))
+                  }
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
+                  expand_more
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setShowAllSaints(!showAllSaints)}
+                className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
               >
-                <option value="">Tất cả Tên Thánh</option>
-                {CHRISTIAN_NAMES.map((n) => (
-                  <option key={n} value={n}>{n}</option>
-                ))}
-              </select>
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
-                expand_more
-              </span>
+                <span className="material-symbols-outlined text-sm">{showAllSaints ? 'unfold_less' : 'unfold_more'}</span>
+                {showAllSaints ? 'Chỉ hiện Tên Thánh phổ biến' : 'Hiện tất cả Tên Thánh'}
+              </button>
             </div>
           </div>
 
@@ -280,7 +310,20 @@ export function AdvancedFilterDrawer({ zones }: Props) {
                     name="filter-gender"
                     value={opt.value}
                     checked={localFilters.gender === opt.value}
-                    onChange={() => setLocalFilters((p) => ({ ...p, gender: opt.value }))}
+                    onChange={() => {
+                      setLocalFilters((p) => {
+                        // Optional: Clear saint name if it doesn't match new gender
+                        const currentSaint = (saintNames.length > 0 ? saintNames : FALLBACK_SAINTS)
+                          .find(n => n.name === p.christian_name);
+                        const shouldResetSaint = opt.value && currentSaint && currentSaint.gender !== opt.value;
+
+                        return { 
+                          ...p, 
+                          gender: opt.value,
+                          christian_name: shouldResetSaint ? '' : p.christian_name
+                        };
+                      });
+                    }}
                     className="sr-only"
                   />
                   <span className="material-symbols-outlined text-sm">{opt.icon}</span>

@@ -6,13 +6,7 @@ export default function CertificateBusinessNotes() {
         Lưu ý nghiệp vụ
       </h3>
       <ul className="space-y-3">
-        <li className="flex items-start gap-2 text-sm text-[#9A3412] font-body">
-          <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">info</span>
-          <span>
-            Chứng chỉ Giáo lý Hôn nhân có giá trị trong vòng{' '}
-            <strong>2 năm</strong> kể từ ngày cấp.
-          </span>
-        </li>
+
         <li className="flex items-start gap-2 text-sm text-[#9A3412] font-body">
           <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">info</span>
           <span>

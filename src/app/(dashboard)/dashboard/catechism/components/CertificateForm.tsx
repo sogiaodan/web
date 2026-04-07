@@ -418,7 +418,12 @@ export function CertificateForm({
         {/* Sidebar */}
         <div className="w-full lg:w-80 shrink-0 space-y-4">
           <CertificateBusinessNotes />
-          <CertificatePreviewCard />
+          <CertificatePreviewCard 
+            certificateType={form.certificate_type}
+            issueDate={form.issue_date}
+            certificateNo={form.certificate_no}
+            issuedBy={form.issued_by}
+          />
         </div>
       </div>
     </>

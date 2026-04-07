@@ -162,7 +162,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
       </div>
 
       {/* ── Active Filter Chips (both desktop + mobile) ──────────────────── */}
-      <ActiveFilterChips searchParams={searchParams} pathname={pathname} router={router} />
+      <ActiveFilterChips searchParams={searchParams} pathname={pathname} router={router} zones={zones} />
     </div>
   );
 }
@@ -190,20 +190,24 @@ function ActiveFilterChips({
   searchParams,
   pathname,
   router,
+  zones,
 }: {
   searchParams: ReturnType<typeof useSearchParams>;
   pathname: string;
   router: ReturnType<typeof useRouter>;
+  zones: Zone[];
 }) {
   const [, startTransition] = useTransition();
 
-  const chips: { key: string; label: string }[] = [];
+  const chips: { key: string; label: string; originalKey?: string; value?: string }[] = [];
 
   const christianName = searchParams.get('christian_name');
   if (christianName) chips.push({ key: 'christian_name', label: `Tên Thánh: ${christianName}` });
 
-  const status = searchParams.get('status');
-  if (status) chips.push({ key: 'status', label: STATUS_LABELS[status] ?? status });
+  const statuses = searchParams.getAll('status');
+  statuses.forEach(s => {
+    chips.push({ key: `status:${s}`, label: STATUS_LABELS[s] ?? s, originalKey: 'status', value: s });
+  });
 
   const gender = searchParams.get('gender');
   if (gender) chips.push({ key: 'gender', label: GENDER_LABELS[gender] ?? gender });
@@ -221,17 +225,28 @@ function ActiveFilterChips({
   }
 
   const zoneId = searchParams.get('zone_id');
-  if (zoneId) chips.push({ key: 'zone_id', label: `Giáo khu: ${zoneId.slice(0, 8)}…` });
+  if (zoneId) {
+    const zoneObj = zones.find((z) => z.id === zoneId);
+    chips.push({ 
+      key: 'zone_id', 
+      label: `Giáo khu: ${zoneObj ? zoneObj.name : zoneId.slice(0, 8) + '…'}` 
+    });
+  }
 
   if (chips.length === 0) return null;
 
-  const removeChip = (key: string) => {
+  const removeChip = (chip: { key: string; label: string; originalKey?: string; value?: string }) => {
     const params = new URLSearchParams(searchParams.toString());
-    if (key === '__age') {
+    if (chip.key === '__age') {
       params.delete('age_min');
       params.delete('age_max');
+    } else if (chip.originalKey && chip.value) {
+      // For multi-value params like 'status'
+      const allValues = params.getAll(chip.originalKey).filter(v => v !== chip.value);
+      params.delete(chip.originalKey);
+      allValues.forEach(v => params.append(chip.originalKey!, v));
     } else {
-      params.delete(key);
+      params.delete(chip.key);
     }
     params.delete('page');
     startTransition(() => router.push(`${pathname}?${params.toString()}`));
@@ -257,7 +272,7 @@ function ActiveFilterChips({
         >
           {chip.label}
           <button
-            onClick={() => removeChip(chip.key)}
+            onClick={() => removeChip(chip)}
             className="flex items-center justify-center w-4 h-4 rounded-full hover:bg-primary/20 transition-colors"
             aria-label={`Xóa lọc ${chip.label}`}
           >
