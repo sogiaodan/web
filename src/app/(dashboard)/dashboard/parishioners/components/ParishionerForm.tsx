@@ -4,25 +4,12 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { ParishionerDetail, ParishionerLookup, ParishionerGender } from '@/types/parishioner';
+import { getOrRefreshSaintNames } from '@/lib/cache-saint-names';
 
-// ─── Christian name list ──────────────────────────────────────────────────────
-
-const CHRISTIAN_NAMES = [
-  'Anna', 'Anê', 'Antôn', 'Augustinô', 'Barthôlômêô', 'Barnaba',
-  'Catarina', 'Cecilia', 'Clara', 'Đaminh', 'Elisabeth', 'Evaristo',
-  'Faustina', 'Felicita', 'Phanxicô', 'Phanxicô Xaviê', 'Giêrônimô',
-  'Gioan', 'Gioan Baotixita', 'Gioan Bosco', 'Gioan Maria', 'Gioan Phaolô',
-  'Giuse', 'Giuse Maria', 'G.B', 'Giustina', 'Giuditta',
-  'Heinric', 'Inhaxiô', 'Irênê',
-  'Laxarô', 'Lêô', 'Lucia', 'Luca',
-  'Máccô', 'Marcô', 'Maria', 'Maria Goretti', 'Maria Magdalena',
-  'Martin', 'Matthêu', 'Maurô', 'Micae',
-  'Nicôla', 'Nicolas', 'Perpêtua',
-  'Phaolô', 'Phêrô', 'Philiphê', 'Pio',
-  'Raphael', 'Rôsa', 'Simon',
-  'Stêphanô', 'Têrêsa', 'Têrêsa Avila', 'Tôma', 'Tôma Aquinô',
-  'Ursula', 'Vinh sơn',
-];
+interface SaintName {
+  name: string;
+  gender: 'MALE' | 'FEMALE';
+}
 
 // ─── Reusable form primitives ─────────────────────────────────────────────────
 
@@ -245,6 +232,15 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
+  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
+
+  useEffect(() => {
+    const loadSaints = async () => {
+      const data = await getOrRefreshSaintNames();
+      setSaintNames(data);
+    };
+    loadSaints();
+  }, []);
 
   const [formData, setFormData] = useState<FormData>({
     christian_name: initialData?.christian_name ?? '',
@@ -383,9 +379,10 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   className={`${inputCls(isSubmitting)} appearance-none pr-10`}
                 >
                   <option value="">-- Chọn Tên Thánh --</option>
-                  {CHRISTIAN_NAMES.map((n) => (
-                    <option key={n} value={n}>{n}</option>
-                  ))}
+                  {saintNames
+                    .filter(s => s.gender === formData.gender)
+                    .map(s => <option key={s.name} value={s.name}>{s.name}</option>)
+                  }
                 </select>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
                   expand_more
