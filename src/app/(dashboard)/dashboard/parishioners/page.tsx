@@ -1,3 +1,4 @@
+import { Suspense } from 'react';
 import { Metadata } from 'next';
 import { serverFetch } from '@/lib/api-server';
 import { GetMeResponse } from '@/lib/auth-api';
@@ -5,6 +6,7 @@ import { ParishionerListResponse } from '@/types/parishioner';
 import { ZoneListResponse } from '@/types/zone';
 import { ParishionerListClient } from './components/ParishionerListClient';
 import { ParishionerSummaryCards } from './components/ParishionerSummaryCards';
+import LoadingParishioners from './loading';
 
 export const metadata: Metadata = {
   title: 'Danh sách Giáo dân | Sổ Giáo Dân',
@@ -13,11 +15,7 @@ export const metadata: Metadata = {
 
 export const runtime = 'edge';
 
-export default async function ParishionersPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
+async function ParishionerContent({ searchParams }: { searchParams: any }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
@@ -43,23 +41,50 @@ export default async function ParishionersPage({
     ...(christian_name && { christian_name }),
   });
 
-  const [parishionersRes, zonesRes, meRes] = await Promise.all([
+  const [parishionersRes, zonesRes] = await Promise.all([
     serverFetch<ParishionerListResponse>(`/api/v1/parishioners?${query.toString()}`),
     serverFetch<ZoneListResponse>('/api/v1/zones'),
-    serverFetch<GetMeResponse>('/api/v1/auth/me'),
   ]);
 
   const parishionerData = parishionersRes?.data;
   const zones = zonesRes?.data?.items || [];
-  const user = meRes?.data?.user;
-  const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
+
+  if (!parishionerData) {
+    return (
+      <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant font-body mt-4">
+        Không thể tải dữ liệu giáo dân. Vui lòng thử lại sau.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <ParishionerListClient
+        zones={zones}
+        items={parishionerData.items || []}
+        total={parishionerData.pagination?.total || 0}
+        page={page}
+        limit={limit}
+      />
+      {parishionerData.stats && (
+        <ParishionerSummaryCards stats={parishionerData.stats} />
+      )}
+    </>
+  );
+}
+
+export default async function ParishionersPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
+}) {
+  const params = await searchParams;
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
       <div className="max-w-7xl mx-auto">
         {/* Page Header */}
         <div className="mb-8">
-
           <h1 className="text-3xl md:text-4xl font-display font-bold text-on-surface mb-1">
             Danh sách Giáo dân
           </h1>
@@ -68,26 +93,10 @@ export default async function ParishionersPage({
           </p>
         </div>
 
-        {/* List client: FilterBar + AdvancedFilterDrawer + Table + QuickPreviewDrawer wired together */}
-        {parishionerData ? (
-          <ParishionerListClient
-            zones={zones}
-            canEdit={canEdit}
-            items={parishionerData.items || []}
-            total={parishionerData.pagination?.total || 0}
-            page={page}
-            limit={limit}
-          />
-        ) : (
-          <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant font-body mt-4">
-            Không thể tải dữ liệu giáo dân. Vui lòng thử lại sau.
-          </div>
-        )}
-
-        {/* Summary Cards */}
-        {parishionerData?.stats && (
-          <ParishionerSummaryCards stats={parishionerData.stats} />
-        )}
+        {/* Suspense wrapper for instant transition */}
+        <Suspense fallback={<LoadingParishioners />}>
+          <ParishionerContent searchParams={params} />
+        </Suspense>
       </div>
     </div>
   );

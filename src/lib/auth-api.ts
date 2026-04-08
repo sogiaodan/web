@@ -49,6 +49,7 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   const responseBody = await rs.json().catch(() => null);
 
   if (!rs.ok) {
+    console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody);
     if (responseBody?.message) {
       throw new Error(responseBody.message);
     }
@@ -56,7 +57,10 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   }
 
   // Expect API to return { data, message, status } wrapper
-  return responseBody.data as T;
+  if (!responseBody || responseBody.data === undefined) {
+    console.debug(`[auth-api] Unexpected response body for ${endpoint}:`, responseBody);
+  }
+  return responseBody?.data as T;
 }
 
 export const authApi = {

@@ -605,7 +605,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   type="tel"
                   value={formData.phone_number}
                   onChange={(e) => set('phone_number', e.target.value)}
-                  placeholder=""
+                  placeholder="09xxx..."
                   disabled={isSubmitting}
                   className={`${inputCls(isSubmitting)} pl-10`}
                 />

@@ -5,6 +5,8 @@ import { HouseholdFilterBar } from './components/HouseholdFilterBar';
 import { HouseholdTable } from './components/HouseholdTable';
 import { HouseholdSummaryCards } from './components/HouseholdSummaryCards';
 import Link from 'next/link';
+import { Plus } from 'lucide-react';
+import LoadingHouseholds from './loading';
 
 export const metadata: Metadata = {
   title: 'Danh sách Hộ giáo | Sổ Giáo Dân',
@@ -12,11 +14,7 @@ export const metadata: Metadata = {
 
 export const runtime = 'edge';
 
-export default async function HouseholdsPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
-}) {
+async function HouseholdContent({ searchParams }: { searchParams: any }) {
   const params = await searchParams;
   const page = Number(params.page) || 1;
   const limit = Number(params.limit) || 10;
@@ -41,6 +39,39 @@ export default async function HouseholdsPage({
   const householdData = householdsRes?.data;
   const zonesData = zonesRes?.data?.items || [];
 
+  if (!householdData) {
+    return (
+      <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant">
+        Không thể tải dữ liệu hộ giáo. Vui lòng thử lại sau.
+      </div>
+    );
+  }
+
+  return (
+    <>
+      <HouseholdFilterBar zones={zonesData} />
+      
+      <HouseholdTable 
+        households={householdData.items || []} 
+        total={householdData.pagination?.total || 0}
+        page={page}
+        limit={limit}
+      />
+
+      {householdData?.stats && (
+        <HouseholdSummaryCards stats={householdData.stats} />
+      )}
+    </>
+  );
+}
+
+export default async function HouseholdsPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
+}) {
+  const params = await searchParams;
+
   return (
     <div className="flex-1 overflow-y-auto p-8 bg-background-light">
       <div className="max-w-7xl mx-auto">
@@ -53,31 +84,16 @@ export default async function HouseholdsPage({
 
           <Link 
             href="/dashboard/households/add"
-            className="bg-primary text-white px-6 py-3 rounded shadow-sm flex items-center gap-2 font-bold hover:opacity-90 transition-all active:scale-95"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-6 h-12 rounded-sm font-bold text-sm hover:bg-primary/90 transition-all shadow-sm shrink-0"
           >
-            <span className="material-symbols-outlined text-lg">add_circle</span>
-            <span>Tạo Hộ giáo mới</span>
+            <Plus className="h-5 w-5" />
+            Tạo Hộ giáo mới
           </Link>
         </div>
 
-        <HouseholdFilterBar zones={zonesData} />
-
-        {householdData ? (
-          <HouseholdTable 
-            households={householdData.items || []} 
-            total={householdData.pagination?.total || 0}
-            page={page}
-            limit={limit}
-          />
-        ) : (
-          <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant">
-            Không thể tải dữ liệu hộ giáo. Vui lòng thử lại sau.
-          </div>
-        )}
-
-        {householdData?.stats && (
-          <HouseholdSummaryCards stats={householdData.stats} />
-        )}
+        <Suspense fallback={<LoadingHouseholds />}>
+          <HouseholdContent searchParams={params} />
+        </Suspense>
       </div>
     </div>
   );

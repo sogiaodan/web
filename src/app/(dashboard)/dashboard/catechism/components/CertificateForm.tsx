@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock } from 'lucide-react';
+import { Lock, Edit2, Trash2, Printer, Check, X } from 'lucide-react';
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
 import CertificateBusinessNotes from './CertificateBusinessNotes';
 import CertificatePreviewCard from './CertificatePreviewCard';
@@ -41,7 +41,7 @@ export function CertificateForm({
 }: CertificateFormProps) {
   const router = useRouter();
 
-  const [form, setForm] = useState<FormState>({
+  const [form, setForm] = useState<FormState & { parishioner_name?: string }>({
     parishioner_id: initialData?.parishioner?.id ?? null,
     certificate_type: initialData?.certificate_type ?? '',
     issue_date: initialData?.issue_date
@@ -49,13 +49,19 @@ export function CertificateForm({
       : '',
     certificate_no: initialData?.certificate_no ?? '',
     issued_by: initialData?.issued_by ?? parishName,
+    parishioner_name: initialData?.parishioner
+      ? `${initialData.parishioner.christian_name} ${initialData.parishioner.full_name}`
+      : '',
   });
 
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isEditing, setIsEditing] = useState(mode === 'create'); // Default to true for new, false for edit
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+
+  const canWrite = !isViewer && (isAdmin || mode === 'create'); // Simple check for showing edit/delete
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -153,7 +159,7 @@ export function CertificateForm({
     }
   };
 
-  const disabled = isViewer || isSubmitting;
+  const disabled = isViewer || !isEditing || isSubmitting;
 
   return (
     <>
@@ -229,8 +235,12 @@ export function CertificateForm({
             <ParishionerSearchCombobox
               label="NGƯỜI LÃNH NHẬN (PARISHIONER)"
               value={form.parishioner_id}
-              onChange={(id) => {
-                setForm((prev) => ({ ...prev, parishioner_id: id }));
+              onChange={(id, item) => {
+                setForm((prev) => ({ 
+                  ...prev, 
+                  parishioner_id: id,
+                  parishioner_name: item ? `${item.christian_name} ${item.full_name}` : ''
+                }));
                 if (errors.parishioner_id) setErrors((e) => ({ ...e, parishioner_id: undefined }));
               }}
               placeholder="Tìm kiếm tên hoặc mã số giáo dân..."
@@ -364,51 +374,86 @@ export function CertificateForm({
 
           {/* Footer */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-8 pt-6 border-t border-outline">
-            {/* Delete button (ADMIN + edit mode) */}
-            {isAdmin && mode === 'edit' && (
-              <button
-                type="button"
-                onClick={() => setShowDeleteDialog(true)}
-                className="md:mr-auto text-sm font-medium text-red-600 hover:text-red-700 hover:underline transition-colors h-12 px-4 focus-visible:ring-2 focus-visible:ring-red-500 rounded-sm outline-none"
-              >
-                Xóa chứng chỉ
-              </button>
-            )}
-            {!isAdmin && mode === 'edit' && <div />}
-
-            <div className="flex flex-col md:flex-row items-center gap-3 w-full md:w-auto">
-              <button
-                type="button"
-                onClick={() => router.push('/dashboard/catechism')}
-                disabled={isSubmitting}
-                className="w-full md:w-auto px-6 h-12 border border-outline text-on-surface-variant text-sm font-medium rounded-sm hover:bg-surface-hover transition-colors disabled:opacity-50 focus-visible:ring-2 focus-visible:ring-primary outline-none"
-              >
-                Hủy
-              </button>
-
-              {!isViewer && (
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full md:w-auto flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white text-sm font-bold rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
-                >
-                  {isSubmitting ? (
-                    <>
-                      <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
-                      Đang lưu...
-                    </>
-                  ) : (
-                    <>
-                      <span className="material-symbols-outlined text-sm">lock</span>
-                      Lưu Chứng Chỉ
-                    </>
+            {!isEditing ? (
+              // View Mode Actions
+              <>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                  {!isViewer && (
+                    <button
+                      type="button"
+                      onClick={() => setIsEditing(true)}
+                      className="flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white text-sm font-bold rounded-sm hover:bg-primary/90 transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none shadow-sm"
+                    >
+                      <Edit2 className="h-4 w-4" />
+                      Chỉnh sửa
+                    </button>
                   )}
-                </button>
-              )}
-            </div>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => setShowDeleteDialog(true)}
+                      className="flex items-center justify-center gap-2 px-4 h-12 text-sm font-medium text-red-600 hover:text-red-700 hover:bg-red-50 transition-colors rounded-sm outline-none"
+                    >
+                      <Trash2 className="h-4 w-4" />
+                      Xóa
+                    </button>
+                  )}
+                </div>
+                <div className="flex items-center gap-3 w-full md:w-auto">
+                    <button
+                      type="button"
+                      onClick={() => window.print()}
+                      className="w-full md:w-auto flex items-center justify-center gap-2 px-6 h-12 border border-outline text-on-surface-variant text-sm font-medium rounded-sm hover:bg-surface-hover transition-colors outline-none"
+                    >
+                      <Printer className="h-4 w-4" />
+                      In Chứng Chỉ
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => router.push('/dashboard/catechism')}
+                      className="w-full md:w-auto px-6 h-12 text-on-surface-variant text-sm font-medium rounded-sm hover:bg-surface-hover transition-colors outline-none"
+                    >
+                      Quay lại
+                    </button>
+                </div>
+              </>
+            ) : (
+              // Edit Mode Actions
+              <>
+                <div className="flex items-center items-center gap-3 w-full md:w-auto">
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="w-full md:w-auto flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white text-sm font-bold rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
+                  >
+                    {isSubmitting ? (
+                      <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    Lưu thay đổi
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (mode === 'create') {
+                        router.push('/dashboard/catechism');
+                      } else {
+                        setIsEditing(false);
+                      }
+                    }}
+                    disabled={isSubmitting}
+                    className="w-full md:w-auto flex items-center justify-center gap-2 px-6 h-12 border border-outline text-on-surface-variant text-sm font-medium rounded-sm hover:bg-surface-hover transition-colors disabled:opacity-50 outline-none"
+                  >
+                    <X className="h-4 w-4" />
+                    Hủy
+                  </button>
+                </div>
+              </>
+            )}
           </div>
 
-          {isViewer && (
+          {isViewer && !isEditing && (
             <p className="mt-4 text-xs text-on-surface-variant font-body text-center italic">
               Bạn đang ở chế độ xem. Liên hệ Quản trị viên để chỉnh sửa.
             </p>
@@ -416,13 +461,15 @@ export function CertificateForm({
         </form>
 
         {/* Sidebar */}
-        <div className="w-full lg:w-80 shrink-0 space-y-4">
+        <div className="w-full lg:w-96 shrink-0 space-y-4">
           <CertificateBusinessNotes />
           <CertificatePreviewCard 
             certificateType={form.certificate_type}
             issueDate={form.issue_date}
             certificateNo={form.certificate_no}
             issuedBy={form.issued_by}
+            parishionerName={form.parishioner_name}
+            parishName={parishName}
           />
         </div>
       </div>

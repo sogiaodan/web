@@ -10,11 +10,16 @@ export function middleware(request: NextRequest) {
   
   // API routes or static files don't need this middleware interception usually,
   // but just in case, let's ignore _next and api routes.
+  // ── STATIC ASSET PROTECTION ──────────────────────────────────────────
   if (
     pathname.startsWith('/_next') ||
     pathname.startsWith('/api') ||
     pathname.startsWith('/favicon.ico') ||
-    pathname.startsWith('/images') // static assets
+    pathname.startsWith('/images') ||
+    pathname.startsWith('/brand') || // manifest and icons
+    pathname.endsWith('.json') ||
+    pathname.endsWith('.png') ||
+    pathname.endsWith('.ico')
   ) {
     return NextResponse.next();
   }
@@ -57,6 +62,6 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-  // Apply middleware to all routes except api, _next/static, _next/image, favicon.ico
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico).*)'],
+  // Apply middleware to all routes except absolute statics
+  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|manifest.json|robots.txt).*)'],
 };

@@ -1,9 +1,10 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useTransition, useEffect, useCallback } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/providers/auth-provider';
 import { SacramentTabs } from './SacramentTabs';
 import { SacramentFilterBar } from './SacramentFilterBar';
 import { SacramentTable } from './SacramentTable';
@@ -12,7 +13,6 @@ import { SacramentInfoCards } from './SacramentInfoCards';
 import { SacramentListItem, MarriageListItem, SacramentType } from '@/types/sacrament';
 
 interface SacramentListClientProps {
-  canEdit: boolean;
   items: (SacramentListItem | MarriageListItem)[];
   total: number;
   page: number;
@@ -21,34 +21,52 @@ interface SacramentListClientProps {
 }
 
 export function SacramentListClient({
-  canEdit,
   items,
   total,
   page,
   limit,
-  activeTab
+  activeTab: serverActiveTab
 }: SacramentListClientProps) {
+  const { user } = useAuth();
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [isPending, startTransition] = useTransition();
+  const [localActiveTab, setLocalActiveTab] = useState<SacramentType>(serverActiveTab);
 
-  const handleTabChange = (type: SacramentType) => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.set('type', type);
-    params.delete('page'); // reset page on tab switch
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  // Sync back if server state changes (e.g. from popstate or parent update)
+  useEffect(() => {
+    setLocalActiveTab(serverActiveTab);
+  }, [serverActiveTab]);
 
-  const handleSearch = (search: string) => {
-    const params = new URLSearchParams(searchParams.toString());
-    if (search) {
-      params.set('search', search);
-    } else {
-      params.delete('search');
-    }
-    params.delete('page');
-    router.push(`${pathname}?${params.toString()}`);
-  };
+  const isMarriage = localActiveTab === 'MARRIAGE';
+
+  const handleTabChange = useCallback((type: SacramentType) => {
+    // 0ms feedback: Update the UI tab instantly
+    setLocalActiveTab(type);
+    
+    // Background fetch the data
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      params.set('type', type);
+      params.delete('page'); // reset page on tab switch
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  }, [pathname, router, searchParams]);
+
+  const handleSearch = useCallback((search: string) => {
+    startTransition(() => {
+      const params = new URLSearchParams(searchParams.toString());
+      if (search) {
+        params.set('search', search);
+      } else {
+        params.delete('search');
+      }
+      params.delete('page');
+      router.push(`${pathname}?${params.toString()}`);
+    });
+  }, [pathname, router, searchParams]);
 
   const handleExport = () => {
     const currentParams = new URLSearchParams(searchParams.toString());
@@ -62,36 +80,31 @@ export function SacramentListClient({
     window.open(exportUrl, '_blank');
   };
 
-  const isMarriage = activeTab === 'MARRIAGE';
-
   return (
-    <>
-      {canEdit && (
-        <div className="absolute top-4 right-4 md:top-8 md:right-8 z-10 hidden md:block">
+    <div>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+        <div className="flex items-center gap-4">
+          <SacramentTabs activeTab={localActiveTab} onTabChange={handleTabChange} />
+          
+          {isPending && (
+            <div className="flex items-center gap-2 text-primary/60 transition-opacity whitespace-nowrap">
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+              <span className="text-[11px] font-medium font-display">Cập nhật...</span>
+            </div>
+          )}
+        </div>
+
+        {canEdit && (
           <Link
             href="/dashboard/sacraments/new"
-            className="flex items-center gap-2 bg-primary text-white px-4 h-12 rounded-sm font-bold text-sm hover:bg-primary/90 transition-colors shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-6 h-12 rounded-sm font-bold text-sm hover:bg-primary/90 transition-all shadow-sm shrink-0"
           >
             <Plus className="h-5 w-5" />
             Ghi nhận Bí tích
           </Link>
-        </div>
-      )}
+        )}
+      </div>
 
-      {canEdit && (
-        <div className="md:hidden fixed bottom-6 right-6 z-40">
-          <Link
-            href="/dashboard/sacraments/new"
-            className="flex items-center justify-center bg-primary text-white w-14 h-14 rounded-lg shadow-lg outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 hover:bg-primary/90 transition-all"
-            aria-label="Ghi nhận Bí tích"
-          >
-            <Plus className="h-6 w-6" />
-          </Link>
-        </div>
-      )}
-
-      <SacramentTabs activeTab={activeTab} onTabChange={handleTabChange} />
-      
       <SacramentFilterBar
         search={searchParams.get('search') || ''}
         onSearchChange={handleSearch}
@@ -108,7 +121,7 @@ export function SacramentListClient({
       ) : (
         <SacramentTable
           items={items as SacramentListItem[]}
-          type={activeTab}
+          type={localActiveTab}
           total={total}
           page={page}
           limit={limit}
@@ -116,6 +129,6 @@ export function SacramentListClient({
       )}
 
       <SacramentInfoCards />
-    </>
+    </div>
   );
 }

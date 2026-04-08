@@ -18,7 +18,7 @@ export function HeroSection() {
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0 bg-[#1A1A1A]">
         <Image
-          src="/images/hero-bg.png"
+          src="/images/hero-bg.webp"
           alt="Nội thất nhà thờ"
           fill
           priority

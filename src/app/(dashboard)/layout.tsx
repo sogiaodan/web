@@ -19,12 +19,8 @@ export default function DashboardLayout({
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    // If loading is finished and there's still no user, kick them to login
-    if (!isLoading && !user) {
-      router.push('/login');
-    }
-  }, [user, isLoading, router]);
+  // Redirection logic is now centralized in AuthProvider. 
+  // This prevents conflicting redirects during state transitions.
 
   // While checking auth, show a full-page loader to prevent "FOUC" (Flash of Unauthenticated Content)
   if (isLoading || !user) {

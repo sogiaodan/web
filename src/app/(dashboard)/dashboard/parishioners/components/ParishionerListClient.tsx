@@ -1,8 +1,6 @@
 'use client';
-
 import { useState, useCallback } from 'react';
-import { Zone } from '@/types/zone';
-import { ParishionerListItem } from '@/types/parishioner';
+import { useAuth } from '@/components/providers/auth-provider';
 import { AdvancedFilterDrawer } from './AdvancedFilterDrawer';
 import { QuickPreviewDrawer } from './QuickPreviewDrawer';
 import { ParishionerTable } from './ParishionerTable';
@@ -10,7 +8,6 @@ import { ParishionerFilterBar } from './ParishionerFilterBar';
 
 interface Props {
   zones: Zone[];
-  canEdit: boolean;
   items: ParishionerListItem[];
   total: number;
   page: number;
@@ -21,7 +18,9 @@ interface Props {
  * Client shell that owns the drawer open/close state.
  * Keeps the list page (Server Component) clean.
  */
-export function ParishionerListClient({ zones, canEdit, items, total, page, limit }: Props) {
+export function ParishionerListClient({ zones, items, total, page, limit }: Props) {
+  const { user } = useAuth();
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   const handleOpenPreview = useCallback((id: string) => setPreviewId(id), []);

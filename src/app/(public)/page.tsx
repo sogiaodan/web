@@ -25,7 +25,7 @@ export const metadata: Metadata = {
       'Giải pháp số hóa công tác quản lý giáo xứ, lưu giữ truyền thống và gắn kết mọi thành viên trong đại gia đình đức tin.',
     images: [
       {
-        url: '/images/hero-bg.png',
+        url: '/images/hero-bg.webp',
         width: 1200,
         height: 630,
         alt: 'Sổ Giáo Dân - Hệ thống quản lý giáo xứ',
@@ -37,7 +37,7 @@ export const metadata: Metadata = {
     title: 'Sổ Giáo Dân - Hệ thống quản lý giáo xứ hiện đại',
     description:
       'Giải pháp số hóa công tác quản lý giáo xứ, lưu giữ truyền thống và gắn kết mọi thành viên trong đại gia đình đức tin.',
-    images: ['/images/hero-bg.png'],
+    images: ['/images/hero-bg.webp'],
   },
   alternates: {
     canonical: 'https://giaodan.io.vn',

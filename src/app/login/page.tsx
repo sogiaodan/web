@@ -15,12 +15,8 @@ export default function LoginPage() {
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
-  useEffect(() => {
-    // Only redirect AWAY from login if we have a valid confirmed user
-    if (user && !isLoading) {
-      router.replace('/dashboard');
-    }
-  }, [user, isLoading, router]);
+  // Redirection is now handled centrally by AuthProvider to prevent history loops 
+  // and ensure a single source of truth for auth-based navigation.
 
   // Handle loading state with our new premium spinner
   if (isLoading) {

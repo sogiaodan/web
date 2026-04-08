@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { useState, useRef, useEffect } from 'react';
-import { MoreVertical, FileText } from 'lucide-react';
+import { Eye, FileText } from 'lucide-react';
 import { CertificateListItem, CertificateType } from '@/types/catechism';
 import { PaginationControls } from '@/components/ui/PaginationControls';
 import { formatDate } from '@/lib/utils';
@@ -27,74 +27,16 @@ function CertificateTypeBadge({ type }: { type: CertificateType }) {
   );
 }
 
-function ActionMenu({
-  id,
-  canEdit,
-  isAdmin,
-  onDelete,
-}: {
-  id: string;
-  canEdit: boolean;
-  isAdmin: boolean;
-  onDelete: (id: string) => void;
-}) {
-  const [open, setOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
+function ActionButton({ id }: { id: string }) {
   return (
-    <div className="relative" ref={ref}>
-      <button
-        type="button"
-        onClick={() => setOpen((o) => !o)}
-        className="p-3 min-h-[48px] min-w-[48px] flex items-center justify-center rounded hover:bg-surface-hover text-on-surface-variant hover:text-on-surface transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
-        aria-label="Thao tác"
-      >
-        <MoreVertical className="h-4 w-4" />
-      </button>
-
-      {open && (
-        <div className="absolute right-0 top-full z-30 mt-1 w-40 bg-surface border border-outline rounded-sm shadow-lg py-1">
-          <Link
-            href={`/dashboard/catechism/${id}`}
-            className="flex items-center w-full px-4 py-2 text-sm text-on-surface hover:bg-surface-hover transition-colors"
-            onClick={() => setOpen(false)}
-          >
-            Xem chi tiết
-          </Link>
-          {canEdit && (
-            <Link
-              href={`/dashboard/catechism/${id}`}
-              className="flex items-center w-full px-4 py-2 text-sm text-on-surface hover:bg-surface-hover transition-colors"
-              onClick={() => setOpen(false)}
-            >
-              Chỉnh sửa
-            </Link>
-          )}
-          {isAdmin && (
-            <button
-              type="button"
-              onClick={() => {
-                setOpen(false);
-                onDelete(id);
-              }}
-              className="flex items-center w-full px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-            >
-              Xóa
-            </button>
-          )}
-        </div>
-      )}
-    </div>
+    <Link
+      href={`/dashboard/catechism/${id}`}
+      className="p-3 min-h-[48px] min-w-[48px] flex items-center justify-center rounded hover:bg-surface-hover text-on-surface-variant hover:text-on-surface transition-colors focus-visible:ring-2 focus-visible:ring-primary outline-none"
+      aria-label="Xem chi tiết"
+      title="Xem chi tiết"
+    >
+      <Eye className="h-5 w-5" />
+    </Link>
   );
 }
 
@@ -208,7 +150,7 @@ export function CertificateTable({
       )}
 
       {/* Desktop Table */}
-      <div className="hidden md:block overflow-x-auto border border-outline rounded-sm bg-surface">
+      <div className="hidden md:block overflow-x-auto border border-outline rounded-sm bg-surface min-h-[300px]">
         <table className="w-full text-left border-collapse">
           <thead>
             <tr className="bg-surface-container text-on-surface-variant font-body text-xs font-medium uppercase tracking-wider">
@@ -263,12 +205,7 @@ export function CertificateTable({
                     {item.certificate_no || '—'}
                   </td>
                   <td className="px-4 py-4 text-center">
-                    <ActionMenu
-                      id={item.id}
-                      canEdit={canEdit}
-                      isAdmin={isAdmin}
-                      onDelete={handleDeleteRequest}
-                    />
+                    <ActionButton id={item.id} />
                   </td>
                 </tr>
               );
@@ -309,12 +246,7 @@ export function CertificateTable({
                     <p className="text-xs text-[#A8A29E] font-body mt-0.5">{item.parishioner.parish_name}</p>
                   )}
                 </div>
-                <ActionMenu
-                  id={item.id}
-                  canEdit={canEdit}
-                  isAdmin={isAdmin}
-                  onDelete={handleDeleteRequest}
-                />
+                <ActionButton id={item.id} />
               </div>
 
               <div className="flex items-center gap-2 flex-wrap mb-2">

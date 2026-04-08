@@ -5,6 +5,8 @@ interface CertificatePreviewProps {
   issueDate: string;
   certificateNo: string;
   issuedBy: string;
+  parishionerName?: string;
+  parishName: string;
 }
 
 export default function CertificatePreviewCard({
@@ -12,6 +14,8 @@ export default function CertificatePreviewCard({
   issueDate,
   certificateNo,
   issuedBy,
+  parishionerName,
+  parishName,
 }: CertificatePreviewProps) {
   // Format date if needed
   const formattedDate = issueDate ? new Date(issueDate).toLocaleDateString('vi-VN') : '..../..../.......';
@@ -27,61 +31,75 @@ export default function CertificatePreviewCard({
         <span className="material-symbols-outlined text-sm text-on-surface-variant">print</span>
       </div>
 
-      <div className="relative rounded-sm overflow-hidden flex flex-col items-center aspect-[1/1.4] bg-[#FAF9F6] border border-outline/30 shadow-inner">
-        {/* Background Overlay Image */}
+      <div className="relative rounded-sm overflow-hidden flex flex-col items-center aspect-[3/2] bg-[#FAF9F6] border border-outline/30 shadow-inner">
+        {/* Background Overlay Image (The placeholder with border and top image) */}
         <Image
           src="/certificate-bg.png"
           alt="Nền chứng chỉ"
           fill
           priority
           unoptimized
-          className="object-cover opacity-[0.35] z-0 pointer-events-none mix-blend-multiply" 
+          className="object-cover opacity-90 z-0 pointer-events-none" 
         />
         
-        {/* Decorative elements over background */}
-        <div className="absolute inset-0 border-[12px] border-double border-outline/10 z-0 m-4 pointer-events-none" />
-
-        {/* Overlay Content */}
-        <div className="relative z-10 w-full h-full flex flex-col items-center text-center p-8 pt-12">
-           {/* Church Authority */}
-           <div className="mb-6 space-y-1">
-              <h4 className="text-[9px] uppercase text-on-surface-variant tracking-[0.2em] font-bold font-sans">
-                TỔNG GIÁO PHẬN SÀI GÒN
-              </h4>
-              <p className="text-[10px] uppercase font-bold text-on-surface-variant font-sans tracking-wide">
-                {issuedBy || '................................'}
+        {/* Overlay Content aligned with real sample */}
+        <div className="relative z-10 w-full h-full flex flex-col items-center justify-center text-center p-4">
+           
+           {/* Category Title */}
+           <div className="mt-8 mb-3">
+              <h2 className="text-[15px] font-display font-bold text-[#A52A2A] leading-none tracking-[0.1em] uppercase">
+                {certificateType === 'RCIA' ? 'CHỨNG CHỈ GIÁO LÝ DỰ TÒNG' : 'CHỨNG CHỈ GIÁO LÝ HÔN NHÂN'}
+              </h2>
+              <p className="text-[7px] text-on-surface-variant/80 font-serif italic mt-1.5 px-12 leading-tight">
+                {certificateType === 'RCIA' 
+                  ? 'Chiếu theo kết quả hoàn thành chương trình huấn luyện Giáo lý dự tòng' 
+                  : 'Chiếu theo kết quả hoàn thành chương trình huấn luyện chuẩn bị Bí tích Hôn nhân'}
               </p>
            </div>
-           
-           <div className="mb-6">
-              <span className="material-symbols-outlined text-[#8B0000] text-3xl opacity-80">account_balance</span>
-              <div className="w-10 h-0.5 bg-[#8B0000] mx-auto opacity-20 mt-1" />
+
+           <div className="mb-2">
+              <span className="text-[10px] font-serif font-black text-[#8B0000] tracking-[0.3em] uppercase opacity-90">CHỨNG NHẬN</span>
            </div>
 
-           <h2 className="text-[17px] font-display font-medium text-[#8B0000] leading-snug tracking-wider">
-             CHỨNG CHỈ GIÁO LÝ<br/>
-             <span className="text-[13px] tracking-[0.1em]">{certificateType ? typeDisplay : '...................'}</span>
-           </h2>
+           {/* Recipient Name - Enhanced Calligraphy style */}
+           <div className="mb-4 relative w-full px-12">
+              <h1 className="text-[22px] font-serif italic font-medium text-[#1A1A1A] tracking-wider drop-shadow-[0.5px_0.5px_0px_rgba(0,0,0,0.1)] py-1 min-h-[36px] flex items-end justify-center">
+                {parishionerName || '...........................................'}
+              </h1>
+              <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px] border-b border-dotted border-[#8B0000]/40" />
+           </div>
 
-           <div className="flex-1 min-h-[30px]"></div>
-
-           <div className="w-full space-y-3.5 text-[11px] text-on-surface font-sans px-4 mb-8">
-             <div className="flex justify-between items-end border-b border-[#8B0000]/10 pb-1">
-               <span className="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Ngày cấp:</span>
-               <span className="font-semibold text-right border-0 focus:ring-0 p-0">{formattedDate}</span>
+           {/* Small details in a signature line style */}
+           <div className="grid grid-cols-2 gap-x-10 gap-y-2 text-[8.5px] font-serif text-on-surface-variant w-full px-14 mb-4">
+             <div className="flex items-center gap-1.5 border-b border-dotted border-outline-variant/40 pb-0.5">
+               <span className="opacity-70 whitespace-nowrap">Số hiệu:</span>
+               <span className="text-[#8B0000] font-bold italic">{certificateNo || '.......'}</span>
              </div>
-             <div className="flex justify-between items-end border-b border-[#8B0000]/10 pb-1">
-               <span className="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Số hiệu:</span>
-               <span className="font-semibold truncate max-w-[140px] text-right">{certificateNo || '................'}</span>
-             </div>
-             <div className="flex justify-between items-end border-b border-[#8B0000]/10 pb-1">
-               <span className="text-on-surface-variant text-[10px] uppercase tracking-wider font-bold">Nơi cấp:</span>
-               <span className="font-semibold truncate max-w-[140px] text-right italic">{issuedBy || '................'}</span>
+             <div className="flex items-center gap-1.5 border-b border-dotted border-outline-variant/40 pb-0.5">
+               <span className="opacity-70 whitespace-nowrap">Giáo xứ:</span>
+               <span className="text-on-surface font-bold italic truncate">{issuedBy || '................'}</span>
              </div>
            </div>
 
-           <div className="text-[10px] text-on-surface-variant/60 font-body mb-2">
-             Xác nhận bởi Văn phòng Giáo vụ
+           {/* Footer: Date and Signature Placeholder */}
+           <div className="w-full mt-auto mb-4 px-10 flex justify-end">
+              <div className="text-right">
+                <p className="text-[8px] font-serif text-on-surface-variant mb-6">
+                  {issuedBy || '.......'}, ngày {formattedDate !== '..../..../.......' ? formattedDate.split('/')[0] : '...'} tháng {formattedDate !== '..../..../.......' ? formattedDate.split('/')[1] : '...'} năm {formattedDate !== '..../..../.......' ? formattedDate.split('/')[2] : '...'}
+                </p>
+                
+                {/* Signature area - kept blank for the priest */}
+                <div className="min-h-[35px]" />
+                
+                <div className="text-center">
+                  <p className="text-[9px] font-serif font-bold text-on-surface uppercase">
+                    LM. {issuedBy !== parishName ? 'Quản xứ' : 'Tất Ứng'}
+                  </p>
+                  <p className="text-[7px] font-serif text-on-surface-variant italic opacity-60 mt-0.5 whitespace-nowrap">
+                    (Ký tên và đóng dấu)
+                  </p>
+                </div>
+              </div>
            </div>
         </div>
       </div>

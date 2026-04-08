@@ -54,7 +54,7 @@ export function FeaturesSection() {
           <div className="flex-1 w-full order-2 relative">
             <div className="relative w-full aspect-[4/3] rounded shadow-2xl overflow-hidden group">
               <Image
-                src="/images/features-image.png"
+                src="/images/features-image.webp"
                 alt="Open book in a library setting representing system features"
                 fill
                 className="object-cover transition-transform duration-700 group-hover:scale-105"

@@ -24,11 +24,14 @@ export function CertificateFilterBar({
 
   // 300ms debounce
   useEffect(() => {
+    // Only trigger if localSearch is actually different from the URL state
+    if (localSearch === search) return;
+
     const handler = setTimeout(() => {
       onSearchChange(localSearch);
     }, 300);
     return () => clearTimeout(handler);
-  }, [localSearch, onSearchChange]);
+  }, [localSearch, search, onSearchChange]);
 
   return (
     <div className="flex flex-col md:flex-row md:justify-end gap-2 mb-4">

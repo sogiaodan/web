@@ -3,6 +3,8 @@ import { Lora, Work_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { SystemAdminProvider } from '@/components/providers/system-admin-provider';
+import { serverFetch } from '@/lib/api-server';
+import { GetMeResponse } from '@/lib/auth-api';
 import './globals.css';
 
 const lora = Lora({
@@ -27,11 +29,16 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // Pre-fetch user session once at the root to avoid client-side "pop-in"
+  // and eliminate redundant /me requests across components.
+  const meRes = await serverFetch<GetMeResponse>('/api/v1/auth/me');
+  const initialUser = meRes?.data?.user || null;
+
   return (
     <html
       lang="vi"
@@ -45,7 +52,7 @@ export default function RootLayout({
       </head>
       <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
         <SystemAdminProvider>
-          <AuthProvider>
+          <AuthProvider initialUser={initialUser}>
             {children}
           </AuthProvider>
         </SystemAdminProvider>

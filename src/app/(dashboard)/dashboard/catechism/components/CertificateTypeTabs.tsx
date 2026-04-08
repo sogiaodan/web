@@ -9,8 +9,8 @@ interface CertificateTypeTabsProps {
 }
 
 const TABS: { type: CertificateType; label: string }[] = [
-  { type: 'RCIA', label: 'Giáo lý Dự tòng (RCIA)' },
   { type: 'MARRIAGE_PREP', label: 'Giáo lý Hôn nhân' },
+  { type: 'RCIA', label: 'Giáo lý Dự tòng (RCIA)' },
 ];
 
 export function CertificateTypeTabs({ activeTab, onTabChange }: CertificateTypeTabsProps) {
