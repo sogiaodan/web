@@ -98,7 +98,7 @@ function CertificateDateFilter() {
     params.delete('page');
     if (localFilters.date_from) params.set('date_from', localFilters.date_from);
     if (localFilters.date_to) params.set('date_to', localFilters.date_to);
-    startTransition(() => router.push(`${pathname}?${params.toString()}`));
+    startTransition(() => router.replace(`${pathname}?${params.toString()}`));
     setIsOpen(false);
   };
 
@@ -108,7 +108,7 @@ function CertificateDateFilter() {
     params.delete('date_from');
     params.delete('date_to');
     params.delete('page');
-    startTransition(() => router.push(`${pathname}?${params.toString()}`));
+    startTransition(() => router.replace(`${pathname}?${params.toString()}`));
     setIsOpen(false);
   };
 

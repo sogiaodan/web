@@ -51,7 +51,7 @@ export function SacramentListClient({
       const params = new URLSearchParams(searchParams.toString());
       params.set('type', type);
       params.delete('page'); // reset page on tab switch
-      router.push(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 
@@ -64,7 +64,7 @@ export function SacramentListClient({
         params.delete('search');
       }
       params.delete('page');
-      router.push(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 

@@ -48,7 +48,7 @@ export function CertificateListClient({
       const params = new URLSearchParams(searchParams.toString());
       params.set('type', type);
       params.delete('page');
-      router.push(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 
@@ -61,7 +61,7 @@ export function CertificateListClient({
         params.delete('search');
       }
       params.delete('page');
-      router.push(`${pathname}?${params.toString()}`);
+      router.replace(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 
