@@ -7,14 +7,11 @@ import { Loader2, ArrowLeft, Trash2, Printer, Plus, CheckCircle2 } from 'lucide-
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { HouseholdSearchCombobox } from '@/components/ui/HouseholdSearchCombobox';
-import { getOrRefreshSaintNames } from '@/lib/cache-saint-names';
+import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
+import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 
 // ─── Types ───
-interface SaintName {
-  name: string;
-  gender: 'MALE' | 'FEMALE';
-  is_popular: boolean;
-}
 
 interface GeneralInfo {
   date: string;
@@ -69,16 +66,6 @@ export function BatchSacramentClient() {
   // Array of mixed templates but we only use one type strictly depending on activeTab
   const [participants, setParticipants] = useState<(TempBaptism | TempStandard)[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
-
-  // ── Load & Cache Saint Names ──
-  useEffect(() => {
-    const loadSaints = async () => {
-      const data = await getOrRefreshSaintNames();
-      setSaintNames(data);
-    };
-    loadSaints();
-  }, []);
 
   // -- Forms states --
   // Baptism fields
@@ -244,9 +231,6 @@ export function BatchSacramentClient() {
 
   // ── Render ──
 
-  const inputCls = "w-full bg-surface border border-[#E7E5E4] rounded px-4 py-2.5 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all";
-  const labelCls = "block text-[10px] font-bold text-[#78716C] uppercase tracking-[0.12em] font-body mb-2";
-
   return (
     <div className="max-w-7xl mx-auto space-y-6">
       {/* HEADER */}
@@ -290,17 +274,17 @@ export function BatchSacramentClient() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <label className={labelCls}>Ngày cử hành <span className="text-primary">*</span></label>
+            <FieldLabel required>Ngày cử hành</FieldLabel>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-[18px]">calendar_today</span>
-              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} className={`${inputCls} pl-10`} />
+              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} className={`${getInputCls(isSubmitting)} pl-10`} />
             </div>
           </div>
           <div>
-            <label className={labelCls}>Địa điểm cử hành <span className="text-primary">*</span></label>
+            <FieldLabel required>Địa điểm cử hành</FieldLabel>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-[18px]">location_on</span>
-              <input type="text" value={generalInfo.place} onChange={e => setGeneralInfo({...generalInfo, place: e.target.value})} className={`${inputCls} pl-10`} placeholder="Ví dụ: Tại Giáo xứ" />
+              <input type="text" value={generalInfo.place} onChange={e => setGeneralInfo({...generalInfo, place: e.target.value})} className={`${getInputCls(isSubmitting)} pl-10`} placeholder="Ví dụ: Tại Giáo xứ" />
             </div>
           </div>
           <div>
@@ -315,7 +299,7 @@ export function BatchSacramentClient() {
         {/* LEFT COMPONENT */}
         <div className="lg:col-span-4 bg-surface rounded border border-[#E7E5E4] shadow-sm">
           <div className="p-4 border-b border-[#E7E5E4]">
-             <h3 className="font-display font-bold text-lg text-primary">Thêm Thụ nhân mới</h3>
+             <SectionHeader icon="person_add" title="Thêm Thụ nhân mới" className="mb-0 border-b-0 pb-0" />
           </div>
           <div className="p-5 space-y-5">
             {activeTab === 'BAPTISM' ? (
@@ -335,47 +319,41 @@ export function BatchSacramentClient() {
                    </div>
                  </div>
 
-                 {/* Christian Name */}
-                 <div>
-                   <label className={labelCls}>Tên Thánh</label>
-                   <div className="relative">
-                      <select value={bChristianName} onChange={e => setBChristianName(e.target.value)} className={`${inputCls} appearance-none`}>
-                         <option value="">-- Chọn --</option>
-                         {saintNames
-                           .filter(s => s.gender === bGender)
-                           .map(s => <option key={s.name} value={s.name}>{s.name}</option>)
-                         }
-                      </select>
-                      <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] pointer-events-none">expand_more</span>
-                   </div>
-                 </div>
+                 <SaintNameSelect
+                   value={bChristianName}
+                   onChange={setBChristianName}
+                   gender={bGender}
+                   disabled={isSubmitting}
+                   className="mb-1"
+                 />
                  
                  {/* Full Name */}
-                 <div>
-                   <label className={labelCls}>Họ và tên khai sinh <span className="text-primary">*</span></label>
-                   <input type="text" value={bFullName} onChange={e => setBFullName(e.target.value)} placeholder="Nhập họ và tên..." className={inputCls} />
-                 </div>
+                 <div className="space-y-1.5">
+                    <FieldLabel required>Họ và tên khai sinh</FieldLabel>
+                    <input type="text" value={bFullName} onChange={e => setBFullName(e.target.value)} placeholder="Nhập họ và tên..." className={getInputCls(isSubmitting)} />
+                  </div>
 
-                 {/* Gender & BirthDate */}
-                 <div className="grid grid-cols-2 gap-3">
-                    <div>
-                      <label className={labelCls}>Giới tính <span className="text-primary">*</span></label>
-                      <div className="flex bg-[#F5F5F4] p-1 rounded border border-[#E7E5E4] h-[42px]">
-                         <button onClick={() => setBGender('MALE')} className={`flex-1 rounded text-sm font-bold ${bGender === 'MALE' ? 'bg-white shadow' : 'text-[#78716C]'}`}>Nam</button>
-                         <button onClick={() => setBGender('FEMALE')} className={`flex-1 rounded text-sm font-bold ${bGender === 'FEMALE' ? 'bg-white shadow' : 'text-[#78716C]'}`}>Nữ</button>
-                      </div>
+                  {/* Gender & BirthDate */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
+                    <GenderSelect
+                      value={bGender}
+                      onChange={(g) => setBGender(g as any)}
+                      disabled={isSubmitting}
+                      variant="toggle"
+                      label="Giới tính"
+                      required
+                    />
+                    <div className="flex-1">
+                      <FieldLabel required>Ngày sinh</FieldLabel>
+                      <input type="date" value={bBirthDate} onChange={e => setBBirthDate(e.target.value)} max={new Date().toISOString().substring(0,10)} className={`${getInputCls(isSubmitting)} py-[7px]`} />
                     </div>
-                    <div>
-                      <label className={labelCls}>Ngày sinh <span className="text-primary">*</span></label>
-                      <input type="date" value={bBirthDate} onChange={e => setBBirthDate(e.target.value)} max={new Date().toISOString().substring(0,10)} className={`${inputCls} h-[42px] py-1`} />
-                    </div>
-                 </div>
+                  </div>
 
-                 {/* Godparent */}
-                 <div>
-                   <label className={labelCls}>Người đỡ đầu</label>
-                   <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={inputCls} />
-                 </div>
+                  {/* Godparent */}
+                  <div className="space-y-1.5">
+                    <FieldLabel>Người đỡ đầu</FieldLabel>
+                    <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
+                  </div>
 
                  {/* Add button */}
                  <button onClick={handleAddBaptism} className="w-full flex items-center justify-center gap-2 bg-primary text-white h-11 rounded font-bold hover:bg-primary/90 transition-colors">
@@ -391,9 +369,9 @@ export function BatchSacramentClient() {
                      <ParishionerSearchCombobox value={sParishionerId} onChange={(id, p) => { setSParishionerId(id || ''); setSParishionerData(p); }} />
                   </div>
 
-                  <div className="mb-6">
-                    <label className={labelCls}>Người đỡ đầu (NẾU CÓ)</label>
-                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={inputCls} />
+                  <div className="mb-6 space-y-1.5">
+                    <FieldLabel>Người đỡ đầu (NẾU CÓ)</FieldLabel>
+                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
                   </div>
 
                   <button onClick={handleAddStandard} className="w-full flex items-center justify-center gap-2 bg-primary text-white h-11 rounded font-bold hover:bg-primary/90 transition-colors">

@@ -49,7 +49,7 @@ export default function ParishInformationPage() {
   useEffect(() => {
     // Only ADMIN can access
     if (!isAuthLoading && user && user.role !== 'ADMIN') {
-      router.replace('/dashboard/settings');
+      router.replace('/settings');
     }
   }, [user, isAuthLoading, router]);
 
@@ -153,7 +153,7 @@ export default function ParishInformationPage() {
           
           {/* Breadcrumbs */}
           <nav className="flex items-center space-x-1 text-sm font-medium text-muted mb-6">
-            <Link href="/dashboard/settings" className="hover:text-foreground transition-colors">
+            <Link href="/settings" className="hover:text-foreground transition-colors">
               Settings
             </Link>
             <ChevronRight className="h-4 w-4" />
@@ -342,7 +342,7 @@ export default function ParishInformationPage() {
       <div className="border-t border-outline bg-surface p-4 shrink-0 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] relative z-10 flex items-center justify-end">
         <div className="flex gap-3 w-full md:w-auto">
           <Link
-            href="/dashboard/settings"
+            href="/settings"
             className="flex-1 md:flex-none inline-flex justify-center items-center rounded border border-outline bg-white px-4 py-2 text-sm font-medium text-foreground hover:bg-hover-bg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors"
           >
             Hủy

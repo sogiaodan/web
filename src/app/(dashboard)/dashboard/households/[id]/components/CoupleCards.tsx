@@ -135,7 +135,7 @@ export function CoupleCards({ household }: { household: Household }) {
               </div>
             </div>
           </Link>
-          <Link href={`/dashboard/parishioners/${spouse?.id}?returnTo=household`} className="text-muted/60 self-start mt-1">
+          <Link href={`/dashboard/parishioners/${spouse?.id}?returnTo=household`} className="absolute top-4 right-4 text-muted/60">
             <span className="material-symbols-outlined text-sm">chevron_right</span>
           </Link>
         </div>

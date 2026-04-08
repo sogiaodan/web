@@ -13,13 +13,7 @@ const SACRAMENT_META: Record<
   HOLY_ORDERS: { label: 'Truyền chức Thánh', icon: 'auto_stories', order: 5 },
 };
 
-const SACRAMENT_ORDER: SacramentType[] = [
-  'BAPTISM',
-  'EUCHARIST',
-  'CONFIRMATION',
-  'ANOINTING_OF_SICK',
-  'HOLY_ORDERS',
-];
+
 
 function formatDate(dateStr: string | null | undefined): string {
   if (!dateStr) return '';
@@ -153,28 +147,51 @@ function TimelineEntry({
 
 // ─── Marriage Entry ───────────────────────────────────────────────────────────
 
-function MarriageEntry({ marriage }: { marriage: MarriageInfo }) {
+function MarriageEntry({ marriage, isLast }: { marriage: MarriageInfo | null; isLast: boolean }) {
+  const received = !!marriage;
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center shrink-0">
-        <div className="w-8 h-8 rounded-full flex items-center justify-center border-2 bg-primary border-primary shrink-0">
-          <span className="material-symbols-outlined text-sm text-white">favorite</span>
-        </div>
-      </div>
-      <div className="flex-1 min-w-0">
-        <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
-          {formatDate(marriage.marriage_date)}
-        </p>
-        <p className="font-body font-semibold text-[#1C1917] text-base mb-1 leading-tight">
-          Hôn phối
-        </p>
-        <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
-          <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">person</span>
-          <span className="font-body">
-            {marriage.spouse.christian_name && `${marriage.spouse.christian_name} `}
-            {marriage.spouse.full_name}
+        <div
+          className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+            received
+              ? 'bg-primary border-2 border-primary'
+              : 'bg-[#FAFAF9] border-2 border-dashed border-[#D6D3D1]'
+          }`}
+        >
+          <span
+            className={`material-symbols-outlined text-sm ${
+              received ? 'text-white' : 'text-[#A8A29E]'
+            }`}
+          >
+            favorite
           </span>
         </div>
+        {!isLast && <div className="w-px flex-1 min-h-[24px] bg-[#E7E5E4] mt-1" />}
+      </div>
+      <div className="pb-6 flex-1 min-w-0">
+        {received ? (
+          <>
+            <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
+              {formatDate(marriage.marriage_date)}
+            </p>
+            <p className="font-body font-semibold text-[#1C1917] text-base mb-1 leading-tight">
+              Hôn phối
+            </p>
+            <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
+              <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">person</span>
+              <span className="font-body">
+                {marriage.spouse.christian_name && `${marriage.spouse.christian_name} `}
+                {marriage.spouse.full_name}
+              </span>
+            </div>
+          </>
+        ) : (
+          <div className="pb-4">
+            <p className="font-body font-medium text-base text-[#78716C]">Hôn phối</p>
+            <p className="text-xs text-[#78716C]/50 font-body italic">Chưa ghi nhận</p>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -194,8 +211,17 @@ export function SacramentalTimeline({ sacraments, marriage }: Props) {
     sacramentMap.set(s.type, s);
   }
 
-  const totalEntries = SACRAMENT_ORDER.length + (marriage ? 1 : 0);
-  let entryIndex = 0;
+  const items = [
+    { type: 'BAPTISM', isMarriage: false },
+    { type: 'EUCHARIST', isMarriage: false },
+    { type: 'CONFIRMATION', isMarriage: false },
+    { type: 'MARRIAGE', isMarriage: true },
+    { type: 'ANOINTING_OF_SICK', isMarriage: false },
+  ];
+
+  if (sacramentMap.has('HOLY_ORDERS')) {
+    items.push({ type: 'HOLY_ORDERS', isMarriage: false });
+  }
 
   return (
     <section className="bg-surface border border-outline rounded p-6 lg:sticky lg:top-8">
@@ -205,35 +231,24 @@ export function SacramentalTimeline({ sacraments, marriage }: Props) {
       </h2>
 
       <div className="space-y-0">
-        {SACRAMENT_ORDER.map((type) => {
-          entryIndex++;
-          const sacrament = sacramentMap.get(type) || null;
-          const isLast = entryIndex === totalEntries;
+        {items.map((item, index) => {
+          const isLast = index === items.length - 1;
+
+          if (item.isMarriage) {
+            return <MarriageEntry key="MARRIAGE" marriage={marriage} isLast={isLast} />;
+          }
+
+          const sacrament = sacramentMap.get(item.type as SacramentType) || null;
           return (
             <TimelineEntry
-              key={type}
+              key={item.type}
               sacrament={sacrament}
-              type={type}
+              type={item.type as SacramentType}
               isLast={isLast}
             />
           );
         })}
-
-        {marriage && (
-          <MarriageEntry marriage={marriage} />
-        )}
       </div>
-
-      {sacraments.length === 0 && !marriage && (
-        <div className="text-center py-8">
-          <span className="material-symbols-outlined text-3xl text-[#78716C]/30 block mb-2">
-            timeline
-          </span>
-          <p className="text-sm text-[#78716C] font-body italic">
-            Chưa ghi nhận bí tích nào
-          </p>
-        </div>
-      )}
     </section>
   );
 }

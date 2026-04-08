@@ -74,6 +74,7 @@ export default async function ParishionerDetailPage({
             <GenealogyTree
               genealogy={parishioner.genealogy}
               father={parishioner.father}
+              mother={parishioner.mother}
               currentName={parishioner.full_name}
               christianName={parishioner.christian_name}
             />

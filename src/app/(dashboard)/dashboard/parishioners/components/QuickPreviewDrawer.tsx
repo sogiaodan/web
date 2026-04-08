@@ -174,6 +174,9 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
                     )}
                     <p className="font-display font-bold text-xl text-[#1C1917] leading-tight truncate">
                       {preview.full_name}
+                      {preview.nick_name && (
+                        <span className="text-muted font-normal ml-2 text-base">({preview.nick_name})</span>
+                      )}
                     </p>
                     {statusMeta && (
                       <span

@@ -8,20 +8,20 @@ interface ActivityFeedProps {
 
 export default function ActivityFeed({ activities = [] }: ActivityFeedProps) {
   return (
-    <div className="flex flex-col overflow-hidden rounded-sm border border-outline bg-surface w-full mt-6 h-auto md:h-[400px] max-h-[500px]">
+    <div className="flex flex-col overflow-hidden rounded-sm border border-outline bg-surface w-full mt-6 h-auto">
       <div className="sticky top-0 z-10 flex items-center justify-between border-b border-outline bg-vellum px-4 py-4 md:px-6 shrink-0">
         <h2 className="font-serif text-lg font-bold text-foreground">
           Hoạt động gần đây
         </h2>
         <Link 
-          href="/dashboard/activity-logs" 
+          href="/dashboard/activities" 
           className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
         >
           Xem tất cả
         </Link>
       </div>
 
-      <div className="flex-1 overflow-y-auto no-scrollbar pb-2">
+      <div className="flex-1 pb-2">
         {activities.length > 0 ? (
           activities.map((activity) => (
             <ActivityRow key={activity.id} activity={activity} />

@@ -49,7 +49,13 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   const responseBody = await rs.json().catch(() => null);
 
   if (!rs.ok) {
-    console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody);
+    // Only log as error if it's not a common auth/session failure
+    const isSessionCheck = endpoint === '/me' && (rs.status === 401 || rs.status === 404);
+    
+    if (!isSessionCheck) {
+      console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody);
+    }
+    
     if (responseBody?.message) {
       throw new Error(responseBody.message);
     }

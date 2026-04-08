@@ -51,6 +51,11 @@ export async function refreshSaintNamesCache(): Promise<SaintName[]> {
  */
 export async function getOrRefreshSaintNames(): Promise<SaintName[]> {
   const cached = getCachedSaintNames();
-  if (cached.length > 0) return cached;
+  const ts = typeof window !== 'undefined' ? localStorage.getItem(`${CACHE_KEY}_ts`) : null;
+  const isExpired = !ts || (Date.now() - parseInt(ts)) > CACHE_TTL;
+
+  if (cached.length > 0 && !isExpired) {
+    return cached;
+  }
   return await refreshSaintNamesCache();
 }

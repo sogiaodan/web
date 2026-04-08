@@ -16,6 +16,7 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { SettingsSaintsAPI, SaintName } from '@/lib/api/settings';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { refreshSaintNamesCache } from '@/lib/cache-saint-names';
 
 export default function SaintsPage() {
   const { user } = useAuth();
@@ -50,16 +51,19 @@ export default function SaintsPage() {
   const handleAddSuccess = () => {
     setIsAddOpen(false);
     mutate();
+    refreshSaintNamesCache();
   };
 
   const handleEditSuccess = () => {
     setEditingSaint(null);
     mutate();
+    refreshSaintNamesCache();
   };
 
   const handleDeleteSuccess = () => {
     setDeletingSaint(null);
     mutate();
+    refreshSaintNamesCache();
   };
 
   return (
@@ -521,7 +525,7 @@ function DeleteConfirmationModal({
             </p>
           </div>
           
-          <div className="px-6 py-4 bg-surface border-t border-outline flex flex-col md:flex-row items-center justify-end gap-3">
+          <div className="px-6 py-4 bg-surface border-t border-outline flex flex-col-reverse md:flex-row items-center justify-end gap-3 pb-[calc(1rem+env(safe-area-inset-bottom))] md:pb-4">
             <button
               type="button"
               onClick={onClose}
@@ -534,9 +538,13 @@ function DeleteConfirmationModal({
               type="button"
               onClick={handleDelete}
               disabled={isSubmitting}
-              className="w-full md:w-auto px-6 py-2 text-sm font-medium text-white bg-error hover:bg-error/90 rounded min-h-[48px] flex items-center justify-center gap-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full md:w-auto px-6 py-2 text-sm font-bold text-white bg-error hover:opacity-90 rounded min-h-[48px] flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isSubmitting ? <LoadingSpinner className="h-4 w-4" /> : null}
+              {isSubmitting ? (
+                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-lg">delete_forever</span>
+              )}
               Xóa tên thánh
             </button>
           </div>

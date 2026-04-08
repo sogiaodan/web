@@ -27,6 +27,9 @@
   --color-secondary: #B45309;
   --color-secondary-container: #FFFBEB;
 
+  --color-error: #B91C1C;
+  --color-error-bg: #FEF2F2;
+
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --font-body: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
@@ -48,6 +51,8 @@
   --outline: #E7E5E4;
   --on-surface-variant: #78716C;
   --hover-bg: #F5F5F4;
+  --error: #B91C1C;
+  --error-bg: #FEF2F2;
 }
 
 body {

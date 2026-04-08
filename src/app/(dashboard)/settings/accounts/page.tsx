@@ -70,7 +70,7 @@ export default function AccountManagementPage() {
   return (
     <div className="flex-1 p-4 md:p-6 lg:p-8 max-w-7xl mx-auto space-y-6">
       <nav className="flex items-center text-sm font-sans text-muted mb-4">
-        <Link href="/dashboard/settings" className="hover:text-foreground transition-colors">
+        <Link href="/settings" className="hover:text-foreground transition-colors">
           Cài đặt
         </Link>
         <ChevronRight className="h-4 w-4 mx-2" />

@@ -28,7 +28,7 @@ export default async function SplitHouseholdPage({
   ]);
 
   const householdData = householdRes?.data;
-  const zonesData = zonesRes?.data || [];
+  const zonesData = zonesRes?.data?.items || [];
 
   if (!householdData) {
     notFound();

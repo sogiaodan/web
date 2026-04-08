@@ -23,6 +23,7 @@ export interface SplitMemberSummary {
   split_date: string;
   new_household_code: string;
   new_household_id: string;
+  gender?: 'MALE' | 'FEMALE';
   avatar_url?: string;
 }
 

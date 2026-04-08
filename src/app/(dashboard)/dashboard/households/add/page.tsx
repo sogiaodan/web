@@ -16,6 +16,9 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useZones } from '@/components/providers/zones-provider';
+import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
+import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 
 export default function AddHouseholdPage() {
   const router = useRouter();
@@ -123,28 +126,24 @@ export default function AddHouseholdPage() {
 
         {/* SECTION: HOUSEHOLD */}
         <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center">
-            <div className="w-8 h-8 rounded-lg bg-sacred-crimson/10 flex items-center justify-center mr-3">
-              <Home className="w-5 h-5 text-sacred-crimson" />
-            </div>
-            <h2 className="font-bold text-slate-800 text-lg font-serif">Thông Tin Hộ Giáo</h2>
-          </div>
+          <SectionHeader
+            icon="home"
+            title="Thông Tin Hộ Giáo"
+          />
           
           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Mã Hộ Giáo <span className="text-sacred-crimson">*</span>
-              </label>
-              <input 
-                type="text"
-                name="household_code"
-                required
-                placeholder="Ví dụ: HG-001"
-                value={formData.household_code}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
-              />
-            </div>
+              <div className="space-y-1.5 flex flex-col">
+                <FieldLabel required>Mã Hộ Giáo</FieldLabel>
+                <input 
+                  type="text"
+                  name="household_code"
+                  required
+                  placeholder="Ví dụ: HG-001"
+                  value={formData.household_code}
+                  onChange={handleChange}
+                  className={getInputCls(isSubmitting)}
+                />
+              </div>
 
             {zones.length > 0 && (
               <div className="space-y-2">
@@ -280,28 +279,19 @@ export default function AddHouseholdPage() {
 
         {/* SECTION: HEAD OF HOUSEHOLD */}
         <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-          <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/50 flex items-center">
-            <div className="w-8 h-8 rounded-lg bg-sacred-gold/10 flex items-center justify-center mr-3">
-              <User className="w-5 h-5 text-sacred-gold" />
-            </div>
-            <h2 className="font-bold text-slate-800 text-lg font-serif">Thông Tin Chủ Hộ</h2>
-          </div>
+          <SectionHeader
+            icon="person"
+            title="Thông Tin Chủ Hộ"
+          />
           
           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Tên Thánh <span className="text-sacred-crimson">*</span>
-              </label>
-              <input 
-                type="text"
-                name="christian_name"
-                required
-                placeholder="VD: Gioan, Maria..."
-                value={formData.christian_name}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
-              />
-            </div>
+            <SaintNameSelect
+              value={formData.christian_name}
+              onChange={(val) => setFormData(p => ({ ...p, christian_name: val }))}
+              gender={formData.gender}
+              disabled={isSubmitting}
+              required
+            />
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
@@ -318,27 +308,13 @@ export default function AddHouseholdPage() {
               />
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Giới Tính
-              </label>
-              <div className="flex bg-slate-100 rounded-xl p-1.5 w-max">
-                <button
-                  type="button"
-                  onClick={() => setFormData(p => ({...p, gender: 'MALE'}))}
-                  className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${formData.gender === 'MALE' ? 'bg-white text-sacred-crimson shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Nam
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setFormData(p => ({...p, gender: 'FEMALE'}))}
-                  className={`px-6 py-2 rounded-lg text-sm font-bold transition-all ${formData.gender === 'FEMALE' ? 'bg-white text-sacred-crimson shadow-sm' : 'text-slate-500 hover:text-slate-700'}`}
-                >
-                  Nữ
-                </button>
-              </div>
-            </div>
+            <GenderSelect
+              value={formData.gender}
+              onChange={(g) => setFormData(p => ({...p, gender: g}))}
+              disabled={isSubmitting}
+              variant="toggle"
+              label="Giới Tính"
+            />
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">

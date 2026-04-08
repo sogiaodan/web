@@ -81,7 +81,7 @@ export default function DashboardOverviewPage() {
       </div>
 
       {isActuallyLoading ? (
-        <div className="mt-6 h-[400px] rounded-sm border border-outline bg-surface p-0 shadow-sm animate-pulse w-full overflow-hidden flex flex-col">
+        <div className="mt-6 min-h-[400px] rounded-sm border border-outline bg-surface p-0 shadow-sm animate-pulse w-full flex flex-col">
           <div className="h-14 bg-vellum border-b border-outline shrink-0"></div>
           <div className="flex-1 flex flex-col pt-2">
             {[...Array(4)].map((_, i) => (

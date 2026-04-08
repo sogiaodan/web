@@ -11,6 +11,7 @@ export interface ParishionerListItem {
   id: string;
   christian_name: string;
   full_name: string;
+  nick_name: string | null;
   birth_date: string;
   gender: ParishionerGender;
   zone_name: string;
@@ -41,8 +42,16 @@ export interface GenealogyNode {
   id: string;
   christian_name: string | null;
   full_name: string;
-  role: 'PATERNAL_GRANDFATHER' | 'PATERNAL_GRANDMOTHER' | 'FATHER' | 'MOTHER';
+  gender?: 'MALE' | 'FEMALE';
+  role: 'PATERNAL_GRANDFATHER' | 'PATERNAL_GRANDMOTHER' | 'FATHER' | 'MOTHER' | 'CHILD' | 'GRANDCHILD';
   generation: number;
+  /** Relative generation vs self: -2=grandparent, -1=parent, 0=parent(direct), 1=child, 2=grandchild */
+  rel_gen?: number;
+  /** Spouse of this node (populated for rel_gen=1 children) */
+  child_spouse_id?: string | null;
+  child_spouse_christian_name?: string | null;
+  child_spouse_full_name?: string | null;
+  child_spouse_gender?: 'MALE' | 'FEMALE' | null;
 }
 
 export interface MarriageInfo {
@@ -90,6 +99,7 @@ export interface ParishionerPreview {
   id: string;
   christian_name: string;
   full_name: string;
+  nick_name: string | null;
   status: ParishionerStatus;
   birth_date: string;
   gender: ParishionerGender;
@@ -125,5 +135,6 @@ export interface ParishionerLookup {
   id: string;
   christian_name: string;
   full_name: string;
+  nick_name: string | null;
   birth_date: string;
 }

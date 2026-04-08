@@ -67,7 +67,9 @@ export function AuthProvider({
       const isAuthError = error.message?.includes('401') || 
                           error.message?.includes('403') || 
                           error.message?.includes('User not found') ||
-                          error.message?.includes('Unauthorized');
+                          error.message?.includes('Unauthorized') ||
+                          error.message?.includes('Phiên đăng nhập không hợp lệ') ||
+                          error.message?.includes('Thông tin giáo xứ không hợp lệ');
       
       if (isAuthError) {
         setUser(null);
@@ -126,6 +128,12 @@ export function AuthProvider({
     if (user && isAuthRoute) {
       console.log("[auth] User detected on auth route, moving to dashboard");
       performRedirect('/dashboard');
+    }
+
+    // Redirect to login if on a private route without a session
+    if (!user && isPrivateRoute) {
+      console.log("[auth] No user on private route, moving to login");
+      performRedirect('/login');
     }
   }, [user, isLoading, pathname, router]);
 

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/zone';
-import { getOrRefreshSaintNames, SaintName } from '@/lib/cache-saint-names';
+import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 
 const STATUS_OPTIONS = [
   { value: 'RESIDING', label: 'Đang cư trú' },
@@ -12,15 +12,6 @@ const STATUS_OPTIONS = [
   { value: 'DECEASED', label: 'Đã qua đời' },
 ];
 
-const FALLBACK_SAINTS = [
-  { name: 'Giuse', is_popular: true, gender: 'MALE' },
-  { name: 'Maria', is_popular: true, gender: 'FEMALE' },
-  { name: 'Phêrô', is_popular: true, gender: 'MALE' },
-  { name: 'Phaolô', is_popular: true, gender: 'MALE' },
-  { name: 'Anna', is_popular: true, gender: 'FEMALE' },
-  { name: 'Gioan', is_popular: true, gender: 'MALE' },
-  { name: 'Têrêsa', is_popular: true, gender: 'FEMALE' },
-];
 
 interface Props {
   zones: Zone[];
@@ -49,15 +40,6 @@ export function AdvancedFilterDrawer({ zones }: Props) {
     zone_id: searchParams.get('zone_id') || '',
   });
 
-  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
-  const [showAllSaints, setShowAllSaints] = useState(false);
-
-  // Fetch Saint Names from Cache/API
-  useEffect(() => {
-    if (isOpen) {
-      getOrRefreshSaintNames().then(setSaintNames);
-    }
-  }, [isOpen]);
 
   // Sync local state when URL changes
   useEffect(() => {
@@ -215,44 +197,11 @@ export function AdvancedFilterDrawer({ zones }: Props) {
         {/* Body */}
         <div className="flex-1 overflow-y-auto px-6 py-6 space-y-8">
 
-          {/* ── Tên Thánh ── */}
-          <div className="space-y-2">
-            <label className="block text-[10px] font-bold text-[#78716C] uppercase tracking-[0.12em]">
-              Tên Thánh
-            </label>
-            <div className="space-y-2">
-              <div className="relative">
-                <select
-                  value={localFilters.christian_name}
-                  onChange={(e) => setLocalFilters((p) => ({ ...p, christian_name: e.target.value }))}
-                  className="w-full appearance-none bg-surface border border-[#E7E5E4] rounded px-4 py-3 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all pr-10"
-                >
-                  <option value="">Tất cả Tên Thánh</option>
-                  {(saintNames.length > 0 ? saintNames : FALLBACK_SAINTS)
-                    .filter((n: any) => {
-                      const matchesPopular = showAllSaints || n.is_popular;
-                      const matchesGender = !localFilters.gender || n.gender === localFilters.gender;
-                      return matchesPopular && matchesGender;
-                    })
-                    .map((n: any) => (
-                      <option key={n.name} value={n.name}>{n.name}</option>
-                    ))
-                  }
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
-                  expand_more
-                </span>
-              </div>
-              <button
-                type="button"
-                onClick={() => setShowAllSaints(!showAllSaints)}
-                className="text-xs text-primary font-medium hover:underline flex items-center gap-1"
-              >
-                <span className="material-symbols-outlined text-sm">{showAllSaints ? 'unfold_less' : 'unfold_more'}</span>
-                {showAllSaints ? 'Chỉ hiện Tên Thánh phổ biến' : 'Hiện tất cả Tên Thánh'}
-              </button>
-            </div>
-          </div>
+            <SaintNameSelect
+              value={localFilters.christian_name}
+              onChange={(val) => setLocalFilters(p => ({ ...p, christian_name: val }))}
+              gender={localFilters.gender}
+            />
 
           {/* ── Độ tuổi ── */}
           <div className="space-y-2">

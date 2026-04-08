@@ -161,6 +161,9 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                       className="font-body font-semibold text-[#1C1917] hover:text-primary hover:underline underline-offset-2 transition-colors text-base"
                     >
                       {item.full_name}
+                      {item.nick_name && (
+                        <span className="text-muted font-normal ml-2 text-sm italic">({item.nick_name})</span>
+                      )}
                     </Link>
                   </td>
                   <td className="px-5 py-4 text-sm text-on-surface-variant font-body">
@@ -248,6 +251,9 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                 </span>
                 <h3 className="font-display font-bold text-[#1C1917] text-base leading-tight mt-0.5">
                   {item.full_name}
+                  {item.nick_name && (
+                    <span className="text-muted font-normal ml-1.5 text-xs italic">({item.nick_name})</span>
+                  )}
                 </h3>
               </div>
               <StatusBadge status={item.status} />

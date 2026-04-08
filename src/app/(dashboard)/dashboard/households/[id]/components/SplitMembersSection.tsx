@@ -15,69 +15,61 @@ export function SplitMembersSection({ members }: { members: SplitMemberSummary[]
   if (!members || members.length === 0) return null;
 
   return (
-    <section className="space-y-4 pt-8 md:pt-10">
+    <section className="space-y-4 pt-4 border-t border-outline-variant">
       <div className="flex items-center gap-3">
-        <span className="material-symbols-outlined text-muted">account_tree</span>
-        <h3 className="text-lg md:text-xl font-display font-bold text-muted">Đã tách hộ / Di cư</h3>
+        <span className="material-symbols-outlined text-muted text-2xl">person_remove</span>
+        <h3 className="text-lg md:text-xl font-display font-bold text-muted">Thành viên đã tách hộ</h3>
       </div>
 
-      {/* ── DESKTOP GRID (md: 2 cols) ── */}
-      <div className="hidden md:grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {members.map((member) => (
-          <div key={member.id} className="border border-border-color p-4 bg-surface rounded shadow-sm flex justify-between items-center group hover:border-primary/50 transition-all">
+          <div 
+            key={member.id} 
+            className="group relative bg-surface border border-outline rounded-xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all hover:border-primary/40 hover:shadow-md"
+          >
+            {/* Left side: Avatar + Info */}
             <div className="flex items-center gap-4">
-              <div className="w-10 h-10 rounded-full bg-background-light flex items-center justify-center text-primary shrink-0">
-                <span className="material-symbols-outlined">person_remove</span>
+              <div className={`relative w-12 h-12 rounded-full border flex items-center justify-center shrink-0 ${
+                member.gender === 'MALE' 
+                  ? 'bg-blue-50 border-blue-100 text-blue-600' 
+                  : member.gender === 'FEMALE'
+                  ? 'bg-rose-50 border-rose-100 text-rose-600'
+                  : 'bg-[#F5F5F4] border-outline text-[#78716C]'
+              }`}>
+                <span className="material-symbols-outlined text-2xl">
+                  {member.gender === 'MALE' ? 'male' : member.gender === 'FEMALE' ? 'female' : 'person'}
+                </span>
+                <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-red-50 text-red-500 border border-red-100 flex items-center justify-center">
+                   <span className="material-symbols-outlined text-[10px] font-bold">remove</span>
+                </div>
               </div>
-              <div>
-                <div className="font-display font-bold text-text-main line-clamp-1">
-                  {member.christian_name} {member.full_name}
+              
+              <div className="min-w-0">
+                <div className="flex items-center gap-2">
+                   <p className="font-display font-bold text-text-main text-base truncate">
+                     {member.christian_name} {member.full_name}
+                   </p>
                 </div>
-                <div className="text-xs text-muted">
-                  {member.relationship} • Tách hộ: {formatDate(member.split_date)}
-                </div>
+                <p className="text-xs text-muted font-body mt-0.5">
+                  {member.relationship} <span className="mx-1">•</span> Tách hộ: {formatDate(member.split_date)}
+                </p>
               </div>
             </div>
-            <div className="flex flex-col items-end gap-2 shrink-0">
-              <span className="bg-hover-bg text-muted text-[10px] font-bold px-2 py-0.5 border border-border-color uppercase rounded-sm">
-                Tách hộ
-              </span>
-              <Link
-                href={`/dashboard/households/${member.new_household_id}`}
-                className="text-xs text-primary font-bold flex items-center gap-1 hover:underline"
-              >
-                Xem hộ mới: {member.new_household_code}
-                <span className="material-symbols-outlined text-[14px]">open_in_new</span>
-              </Link>
-            </div>
-          </div>
-        ))}
-      </div>
 
-      {/* ── MOBILE CARD LIST (hidden on md+) ── */}
-      <div className="md:hidden bg-surface-container-low border border-outline divide-y divide-outline-variant rounded">
-        {members.map((member, idx) => (
-          <div key={member.id} className="flex items-center justify-between px-4 py-3 min-h-[64px] opacity-70">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-surface-variant flex items-center justify-center font-display font-bold text-on-surface-variant text-sm shrink-0">
-                {member.christian_name?.charAt(0) || String(idx + 1)}
-              </div>
-              <div>
-                <p className="font-bold text-sm text-on-surface leading-tight">
-                  {member.christian_name} {member.full_name}
-                </p>
-                <p className="text-xs text-on-surface-variant mt-0.5">
-                  {member.relationship} • Đã lập gia đình
-                  {member.split_date ? ` (${new Date(member.split_date).getFullYear()})` : ''}
-                </p>
-              </div>
+            {/* Right side: Badge + Link */}
+            <div className="flex flex-col items-end justify-between gap-2 self-start sm:self-center">
+               <span className="text-[10px] font-bold text-[#78716C] bg-[#F5F5F4] border border-[#D6D3D1] px-2 py-0.5 rounded tracking-wider uppercase">
+                 Tách hộ
+               </span>
+               <Link
+                 href={`/dashboard/households/${member.new_household_id}`}
+                 className="flex items-center gap-1.5 text-xs font-bold text-primary hover:underline group/link"
+               >
+                 <span className="text-muted font-normal">Xem hộ mới:</span>
+                 <span className="text-inherit">{member.new_household_code}</span>
+                 <span className="material-symbols-outlined text-sm group-hover/link:translate-x-0.5 transition-transform">open_in_new</span>
+               </Link>
             </div>
-            <Link
-              href={`/dashboard/households/${member.new_household_id}`}
-              className="ml-2 shrink-0 w-12 h-12 flex items-center justify-center"
-            >
-              <span className="material-symbols-outlined text-on-surface-variant text-sm">open_in_new</span>
-            </Link>
           </div>
         ))}
       </div>

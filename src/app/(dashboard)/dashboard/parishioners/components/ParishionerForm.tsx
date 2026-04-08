@@ -4,53 +4,10 @@ import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { ParishionerDetail, ParishionerLookup, ParishionerGender } from '@/types/parishioner';
-import { getOrRefreshSaintNames } from '@/lib/cache-saint-names';
+import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
+import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 
-interface SaintName {
-  name: string;
-  gender: 'MALE' | 'FEMALE';
-}
-
-// ─── Reusable form primitives ─────────────────────────────────────────────────
-
-function FieldLabel({ children, required }: { children: React.ReactNode; required?: boolean }) {
-  return (
-    <label className="block text-[10px] font-bold text-[#78716C] uppercase tracking-[0.12em] font-body mb-2">
-      {children}
-      {required && <span className="text-primary ml-0.5">*</span>}
-    </label>
-  );
-}
-
-function FieldError({ message }: { message?: string }) {
-  if (!message) return null;
-  return (
-    <p className="mt-1.5 text-xs font-body text-[#B91C1C] flex items-center gap-1">
-      <span className="material-symbols-outlined text-xs">error</span>
-      {message}
-    </p>
-  );
-}
-
-function inputCls(disabled?: boolean) {
-  return `w-full bg-surface border border-[#E7E5E4] rounded px-4 py-3 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${
-    disabled ? 'opacity-50 cursor-not-allowed' : 'hover:border-[#A8A29E]'
-  }`;
-}
-
-function SectionHeader({ icon, title, subtitle }: { icon: string; title: string; subtitle?: string }) {
-  return (
-    <div className="flex items-start gap-3 mb-6 pb-4 border-b border-[#E7E5E4]">
-      <div className="w-9 h-9 rounded bg-primary/10 flex items-center justify-center shrink-0">
-        <span className="material-symbols-outlined text-primary text-lg">{icon}</span>
-      </div>
-      <div>
-        <h2 className="font-display font-bold text-[#1C1917] text-base">{title}</h2>
-        {subtitle && <p className="text-xs font-body text-[#78716C] mt-0.5">{subtitle}</p>}
-      </div>
-    </div>
-  );
-}
 
 // ─── Typeahead Lookup ─────────────────────────────────────────────────────────
 
@@ -69,9 +26,11 @@ function TypeaheadInput({
   onSelect,
   onClear,
   fetchUrl,
+  mapResult,
   placeholder,
   disabled,
   error,
+  gender,
 }: {
   label: string;
   required?: boolean;
@@ -81,9 +40,11 @@ function TypeaheadInput({
   onSelect: (item: TypeaheadResult) => void;
   onClear: () => void;
   fetchUrl: (q: string) => string;
+  mapResult: (data: any) => TypeaheadResult;
   placeholder: string;
   disabled?: boolean;
   error?: string;
+  gender?: 'MALE' | 'FEMALE';
 }) {
   const [results, setResults] = useState<TypeaheadResult[]>([]);
   const [open, setOpen] = useState(false);
@@ -113,10 +74,12 @@ function TypeaheadInput({
       setOpen(true);
       debounceRef.current = setTimeout(async () => {
         try {
-          const res = await fetch(fetchUrl(q), { credentials: 'include' });
+          let url = fetchUrl(q);
+          if (gender) url += `&gender=${gender}`;
+          const res = await fetch(url, { credentials: 'include' });
           if (res.ok) {
             const body = await res.json();
-            const data = body.data || [];
+            const data = (body.data?.items || body.data || []).map(mapResult);
             setResults(data);
           }
         } catch {
@@ -126,7 +89,7 @@ function TypeaheadInput({
         }
       }, 350);
     },
-    [fetchUrl]
+    [fetchUrl, mapResult, gender]
   );
 
   const handleChange = (v: string) => {
@@ -153,7 +116,7 @@ function TypeaheadInput({
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`${inputCls(disabled)} pl-10 pr-10`}
+          className={`${getInputCls(disabled, !!error)} pl-10 pr-10`}
         />
         {value && (
           <button
@@ -232,15 +195,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
   const router = useRouter();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
-  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
 
-  useEffect(() => {
-    const loadSaints = async () => {
-      const data = await getOrRefreshSaintNames();
-      setSaintNames(data);
-    };
-    loadSaints();
-  }, []);
 
   const [formData, setFormData] = useState<FormData>({
     christian_name: initialData?.christian_name ?? '',
@@ -346,7 +301,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
 
   const mapParishioner = (p: ParishionerLookup): TypeaheadResult => ({
     id: p.id,
-    label: [p.christian_name, p.full_name].filter(Boolean).join(' '),
+    label: [p.christian_name, p.full_name].filter(Boolean).join(' ') + (p.nick_name ? ` (${p.nick_name})` : ''),
     sub: p.birth_date
       ? `Ngày sinh: ${new Date(p.birth_date).toLocaleDateString('vi-VN')}`
       : undefined,
@@ -355,6 +310,25 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
   // ── Household search factory ──────────────────────────────────────────────
   const householdFetchUrl = (q: string) =>
     `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
+
+  const mapHousehold = (h: any): TypeaheadResult => ({
+    id: h.id,
+    label: `Mã hộ: ${h.household_code}`,
+    sub: h.head ? `Chủ hộ: ${h.head.full_name}` : undefined,
+  });
+
+  const handleClearParent = (type: 'FATHER' | 'MOTHER') => {
+    set(type === 'FATHER' ? 'father_id' : 'mother_id', '');
+
+    if (formData.household_id) {
+      const parentLabel = type === 'FATHER' ? 'Thân phụ' : 'Thân mẫu';
+      toast.warning(
+        `Cảnh báo: Giáo dân sẽ tự động bị xóa khỏi Hộ giáo do mất kết nối với ${parentLabel}.`
+      );
+      set('household_id', '');
+      setHouseholdText('');
+    }
+  };
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -368,27 +342,13 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Christian Name */}
-            <div className="space-y-1.5">
-              <FieldLabel>Tên Thánh</FieldLabel>
-              <div className="relative">
-                <select
-                  value={formData.christian_name}
-                  onChange={(e) => set('christian_name', e.target.value)}
-                  disabled={isSubmitting}
-                  className={`${inputCls(isSubmitting)} appearance-none pr-10`}
-                >
-                  <option value="">-- Chọn Tên Thánh --</option>
-                  {saintNames
-                    .filter(s => s.gender === formData.gender)
-                    .map(s => <option key={s.name} value={s.name}>{s.name}</option>)
-                  }
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
-                  expand_more
-                </span>
-              </div>
-            </div>
+            <SaintNameSelect
+              value={formData.christian_name}
+              onChange={(val) => set('christian_name', val)}
+              gender={formData.gender}
+              disabled={isSubmitting}
+              required
+            />
 
             {/* Full Name */}
             <div className="space-y-1.5">
@@ -399,7 +359,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                 onChange={(e) => { set('full_name', e.target.value); if (errors.full_name) setErrors(p => ({ ...p, full_name: undefined })); }}
                 placeholder="Nguyễn Văn An"
                 disabled={isSubmitting}
-                className={`${inputCls(isSubmitting)} ${errors.full_name ? 'border-[#B91C1C] focus:border-[#B91C1C] focus:ring-[#B91C1C]' : ''}`}
+                className={getInputCls(isSubmitting, !!errors.full_name)}
               />
               <FieldError message={errors.full_name} />
             </div>
@@ -412,8 +372,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                 value={formData.nick_name}
                 onChange={(e) => set('nick_name', e.target.value)}
                 placeholder="Tên hay gọi (nếu có)"
-                disabled={isSubmitting}
-                className={inputCls(isSubmitting)}
+                className={getInputCls(isSubmitting)}
               />
             </div>
 
@@ -426,7 +385,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                 onChange={(e) => set('birth_date', e.target.value)}
                 disabled={isSubmitting}
                 max={new Date().toISOString().split('T')[0]}
-                className={inputCls(isSubmitting)}
+                className={getInputCls(isSubmitting, !!errors.birth_date)}
               />
               <FieldError message={errors.birth_date} />
             </div>
@@ -439,7 +398,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   value={formData.status}
                   onChange={(e) => set('status', e.target.value)}
                   disabled={isSubmitting}
-                  className={`${inputCls(isSubmitting)} appearance-none pr-10`}
+                  className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
                 >
                   <option value="RESIDING">Đang sinh hoạt</option>
                   <option value="ABSENT">Vắng mặt</option>
@@ -462,52 +421,20 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   onChange={(e) => set('date_of_death', e.target.value)}
                   disabled={isSubmitting}
                   max={new Date().toISOString().split('T')[0]}
-                  className={inputCls(isSubmitting)}
+                  className={getInputCls(isSubmitting)}
                 />
               </div>
             )}
           </div>
 
-          {/* Gender */}
-          <div className="mt-6 space-y-2">
-            <FieldLabel required>Giới tính</FieldLabel>
-            <div className="flex flex-wrap gap-3">
-              {(['MALE', 'FEMALE'] as const).map((g) => (
-                <label
-                  key={g}
-                  className={`flex-1 min-w-[120px] flex items-center gap-3 px-5 py-3 border rounded cursor-pointer transition-all group ${
-                    formData.gender === g
-                      ? 'border-primary bg-primary/5'
-                      : 'border-[#E7E5E4] hover:border-primary/40 hover:bg-[#F5F5F4]'
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="gender"
-                    value={g}
-                    checked={formData.gender === g}
-                    onChange={() => { set('gender', g); if (errors.gender) setErrors(p => ({ ...p, gender: undefined })); }}
-                    disabled={isSubmitting}
-                    className="sr-only"
-                  />
-                  <span
-                    className={`material-symbols-outlined text-xl ${formData.gender === g ? 'text-primary' : 'text-[#78716C]'}`}
-                  >
-                    {g === 'MALE' ? 'male' : 'female'}
-                  </span>
-                  <span
-                    className={`font-body font-semibold text-sm ${formData.gender === g ? 'text-primary' : 'text-[#1C1917]'}`}
-                  >
-                    {g === 'MALE' ? 'Nam' : 'Nữ'}
-                  </span>
-                  {formData.gender === g && (
-                    <span className="material-symbols-outlined text-primary text-sm ml-auto">check_circle</span>
-                  )}
-                </label>
-              ))}
-            </div>
-            <FieldError message={errors.gender} />
-          </div>
+          <GenderSelect
+            value={formData.gender}
+            onChange={(g) => { set('gender', g); if (errors.gender) setErrors(p => ({ ...p, gender: undefined })); }}
+            disabled={isSubmitting}
+            required
+            error={errors.gender}
+            className="mt-6"
+          />
 
           {/* Non-Catholic checkbox */}
           <div className="mt-4">
@@ -547,10 +474,12 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
               displayText={fatherText}
               onDisplayTextChange={setFatherText}
               onSelect={(item) => set('father_id', item.id)}
-              onClear={() => set('father_id', '')}
+              onClear={() => handleClearParent('FATHER')}
               fetchUrl={parishionerFetchUrl}
-              placeholder="Tìm kiếm giáo dân..."
+              mapResult={mapParishioner}
+              placeholder="Tìm kiếm giáo dân nam..."
               disabled={isSubmitting}
+              gender="MALE"
             />
 
             {/* Mother */}
@@ -560,10 +489,12 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
               displayText={motherText}
               onDisplayTextChange={setMotherText}
               onSelect={(item) => set('mother_id', item.id)}
-              onClear={() => set('mother_id', '')}
+              onClear={() => handleClearParent('MOTHER')}
               fetchUrl={parishionerFetchUrl}
-              placeholder="Tìm kiếm giáo dân..."
+              mapResult={mapParishioner}
+              placeholder="Tìm kiếm giáo dân nữ..."
               disabled={isSubmitting}
+              gender="FEMALE"
             />
           </div>
 
@@ -577,6 +508,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
               onSelect={(item) => set('household_id', item.id)}
               onClear={() => set('household_id', '')}
               fetchUrl={householdFetchUrl}
+              mapResult={mapHousehold}
               placeholder="Tìm kiếm mã hộ giáo..."
               disabled={isSubmitting}
             />
@@ -607,7 +539,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   onChange={(e) => set('phone_number', e.target.value)}
                   placeholder="09xxx..."
                   disabled={isSubmitting}
-                  className={`${inputCls(isSubmitting)} pl-10`}
+                  className={`${getInputCls(isSubmitting)} pl-10`}
                 />
               </div>
             </div>
@@ -624,7 +556,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   onChange={(e) => set('occupation', e.target.value)}
                   placeholder="Kỹ sư, Giáo viên, Nông dân..."
                   disabled={isSubmitting}
-                  className={`${inputCls(isSubmitting)} pl-10`}
+                  className={`${getInputCls(isSubmitting)} pl-10`}
                 />
               </div>
             </div>

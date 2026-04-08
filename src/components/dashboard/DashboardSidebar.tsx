@@ -97,11 +97,11 @@ export default function DashboardSidebar({ isOpen, onClose, onOpenAccountPanel }
 
       <div className="mt-auto flex flex-col pt-4">
         <Link
-          href="/dashboard/settings"
+          href="/settings"
           onClick={() => onClose()}
           className={clsx(
             'group flex items-center gap-x-3 px-7 py-3 text-sm font-medium transition-duration-150',
-            pathname.startsWith('/dashboard/settings')
+            pathname.startsWith('/settings')
               ? 'bg-[#FAF6F6] text-primary font-semibold border-r-4 border-primary'
               : 'text-primary hover:bg-hover-bg'
           )}
@@ -109,7 +109,7 @@ export default function DashboardSidebar({ isOpen, onClose, onOpenAccountPanel }
           <Settings 
             className={clsx(
               'h-5 w-5',
-              pathname.startsWith('/dashboard/settings') ? 'fill-primary/10 text-primary' : ''
+              pathname.startsWith('/settings') ? 'fill-primary/10 text-primary' : ''
             )} 
           />
           Cài đặt

@@ -39,6 +39,13 @@ export async function serverFetch<T = any>(endpoint: string, options: RequestIni
     const body = await res.json().catch(() => null);
 
     if (!res.ok) {
+      // Suppress error logging for expected auth failures or missing user sessions
+      // (Common when session expires or database is reset during development)
+      const isAuthPath = fullUrl.includes('/auth/me');
+      if (res.status === 401 || (res.status === 404 && isAuthPath)) {
+        return null;
+      }
+
       console.error(`serverFetch failed:`, fullUrl, res.status, body?.message);
       return null;
     }

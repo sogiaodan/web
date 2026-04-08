@@ -78,7 +78,7 @@ export default function SettingsPage() {
       icon: Shield,
       label: 'Account Management',
       subtitle: 'Manage permissions and system users',
-      href: '/dashboard/settings/accounts',
+      href: '/settings/accounts',
       show: isAdmin,
     },
     {
@@ -86,7 +86,7 @@ export default function SettingsPage() {
       icon: BookHeart,
       label: 'Saint Names',
       subtitle: 'Directory of Christian names used in records',
-      href: '/dashboard/settings/saints',
+      href: '/settings/saints',
       show: isAdmin || isEditor,
     },
     {
@@ -94,7 +94,7 @@ export default function SettingsPage() {
       icon: Church,
       label: 'Parish Information',
       subtitle: 'Update basic info and parish address',
-      href: '/dashboard/settings/parish',
+      href: '/settings/parish',
       show: isAdmin,
     },
   ];

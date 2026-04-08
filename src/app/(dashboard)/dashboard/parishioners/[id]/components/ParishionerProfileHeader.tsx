@@ -85,7 +85,7 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
     },
     {
       label: 'GIÁO KHU',
-      value: parishioner.zone?.name ?? '—',
+      value: parishioner.household?.zone?.name ?? '—',
       icon: 'location_on',
     },
   ];
@@ -130,6 +130,9 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
             {/* Full name */}
             <h1 className="font-display font-bold text-3xl md:text-[36px] text-[#1C1917] leading-tight mb-3">
               {parishioner.full_name}
+              {parishioner.nick_name && (
+                <span className="text-muted font-normal ml-3">({parishioner.nick_name})</span>
+              )}
             </h1>
             {/* Pills row */}
             <div className="flex flex-wrap items-center gap-2">
