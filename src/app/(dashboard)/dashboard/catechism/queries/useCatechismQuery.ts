@@ -5,7 +5,7 @@ import { CertificateListResponse, CertificateDetail, CertificateType } from '@/t
 export function useCatechismQuery(params?: Record<string, string>) {
   const queryString = new URLSearchParams(params).toString();
   
-  return useQuery({
+  return useQuery<CertificateListResponse, Error>({
     queryKey: ['catechism', params],
     queryFn: () => apiFetch<CertificateListResponse>(`/api/v1/catechism-certificates?${queryString}`),
     staleTime: 60_000,
@@ -13,7 +13,7 @@ export function useCatechismQuery(params?: Record<string, string>) {
 }
 
 export function useCatechismDetailQuery(id: string) {
-  return useQuery({
+  return useQuery<CertificateDetail, Error>({
     queryKey: ['catechism', id],
     queryFn: () => apiFetch<CertificateDetail>(`/api/v1/catechism-certificates/${id}`),
     enabled: !!id,

@@ -22,7 +22,7 @@ export function useParishionersQuery(params?: Record<string, string | string[]>)
     });
   }
   
-  return useQuery({
+  return useQuery<ParishionerListResponse, Error>({
     queryKey: ['parishioners', params],
     queryFn: () => apiFetch<ParishionerListResponse>(`/api/v1/parishioners?${queryString.toString()}`),
   });
@@ -32,7 +32,7 @@ export function useParishionersQuery(params?: Record<string, string | string[]>)
  * Hook for fetching a single parishioner's full details.
  */
 export function useParishionerDetailQuery(id: string) {
-  return useQuery({
+  return useQuery<ParishionerDetail, Error>({
     queryKey: ['parishioners', id],
     queryFn: () => apiFetch<ParishionerDetail>(`/api/v1/parishioners/${id}`),
     enabled: !!id,

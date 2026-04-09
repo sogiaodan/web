@@ -16,7 +16,7 @@ export function useSacramentsQuery(params?: Record<string, string>) {
     ? `/api/v1/sacraments/marriages?${queryString}`
     : `/api/v1/sacraments?${queryString}`;
 
-  return useQuery({
+  return useQuery<SacramentListResponse | MarriageListResponse, Error>({
     queryKey: ["sacraments", isMarriage ? "marriages" : "standard", params],
     queryFn: () => apiFetch<SacramentListResponse | MarriageListResponse>(endpoint),
     staleTime: 60_000,
@@ -28,7 +28,7 @@ export function useSacramentDetailQuery(id: string, isMarriage: boolean) {
     ? `/api/v1/sacraments/marriages/${id}`
     : `/api/v1/sacraments/${id}`;
 
-  return useQuery({
+  return useQuery<any, Error>({
     queryKey: ["sacraments", isMarriage ? "marriages" : "standard", id],
     queryFn: () => apiFetch<any>(endpoint),
     enabled: !!id,

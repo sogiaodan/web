@@ -5,7 +5,7 @@ import type { NextRequest } from 'next/server';
 const PUBLIC_ROUTES = ['/'];
 const AUTH_ROUTES = ['/login', '/forgot-password', '/reset-password'];
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   
   // API routes or static files don't need this middleware interception usually,

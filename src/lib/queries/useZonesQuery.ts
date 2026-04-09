@@ -14,7 +14,7 @@ export function useZonesQuery(params?: UseZonesParams, options?: any) {
   const queryString = queryParams.toString();
   const url = `/api/v1/zones${queryString ? `?${queryString}` : ""}`;
 
-  return useQuery({
+  return useQuery<ZoneListResponse, Error>({
     queryKey: ["zones", params],
     queryFn: () => apiFetch<ZoneListResponse>(url),
     ...options,
