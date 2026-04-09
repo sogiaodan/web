@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import ParishInformationPage from './client-page';
 
 export default function Page() {

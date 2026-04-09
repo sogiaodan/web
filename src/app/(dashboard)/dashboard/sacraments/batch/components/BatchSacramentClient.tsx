@@ -10,8 +10,7 @@ import { HouseholdSearchCombobox } from '@/components/ui/HouseholdSearchCombobox
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
-
-// ─── Types ───
+import { useBatchCreateSacraments } from '../../queries/useSacramentMutations';
 
 interface GeneralInfo {
   date: string;
@@ -168,6 +167,8 @@ export function BatchSacramentClient() {
     setParticipants(p => p.filter(x => x.tempId !== tempId));
   };
 
+  const batchMutation = useBatchCreateSacraments();
+
   const handleSubmitBatch = async () => {
     if (participants.length === 0) return toast.error('Danh sách trống!');
     if (!generalInfo.date) return toast.error('Vui lòng chọn Ngày cử hành.');
@@ -209,16 +210,7 @@ export function BatchSacramentClient() {
         };
       }
 
-      const res = await fetch(endpoint, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.message || 'Lỗi khi lưu danh sách bí tích');
-      }
+      await batchMutation.mutateAsync({ endpoint, payload });
 
       toast.success(`Đã ghi nhận ${participants.length} hồ sơ thành công!`);
       router.push('/dashboard/sacraments');

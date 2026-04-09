@@ -2,7 +2,6 @@
 
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import useSWR from 'swr';
 import { 
   ArrowLeft, 
   Save, 
@@ -19,13 +18,14 @@ import { useZones } from '@/components/providers/zones-provider';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
+import { useCreateHousehold } from '../queries/useHouseholdMutations';
 
 export default function AddHouseholdPage() {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const { zones } = useZones();
+  const createHousehold = useCreateHousehold();
 
   const [showOptional, setShowOptional] = useState(false);
   const [showHeadOptional, setShowHeadOptional] = useState(false);
@@ -56,15 +56,11 @@ export default function AddHouseholdPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setIsSubmitting(true);
     setError(null);
 
     try {
       // Create Household and Head in a single atomic request
-      const res = await fetch('/api/v1/households', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+      const payload = {
           household_code: formData.household_code,
           address: formData.address,
           phone_number: formData.phone_number,
@@ -81,22 +77,22 @@ export default function AddHouseholdPage() {
             gender: formData.gender,
             birth_date: formData.birth_date,
           }
-        }),
-      });
+      };
 
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || 'Lỗi khi tạo hộ giáo và chủ hộ');
+      const result = await createHousehold.mutateAsync(payload);
 
       // Success! Redirect to household detail
-      const newId = result.id || result.data?.id;
+      // Note: apiFetch wrapper returns the 'data' field of the response, so result IS the data object if successful, or it contains the id.
+      // E.g., result.id
+      const newId = result.id;
       router.push(`/dashboard/households/${newId}`);
-      router.refresh();
       
     } catch (err: any) {
       setError(err.message);
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = createHousehold.isPending;
 
   return (
     <div className="max-w-4xl mx-auto py-8 px-4 sm:px-6">

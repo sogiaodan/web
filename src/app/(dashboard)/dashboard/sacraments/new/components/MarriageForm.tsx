@@ -41,10 +41,14 @@ interface MarriageFormProps {
   readOnly?: boolean;
 }
 
+import { useCreateMarriage, useUpdateMarriage } from '../../queries/useSacramentMutations';
+
 export function MarriageForm({ id, initialData, initialHusband, initialWife, readOnly = false }: MarriageFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const createMutation = useCreateMarriage();
+  const updateMutation = useUpdateMarriage(id || '');
+
   const {
     control,
     register,
@@ -78,32 +82,24 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
 
   const onSubmit = async (data: MarriageFormValues) => {
     if (readOnly) return;
-    setIsSubmitting(true);
     try {
-      // In production, backend handles creating non-catholic parishioner 
-      // if is_mixed_religion is true and fields are provided.
-      // Or it expects household creation flag.
       const payload = { ...data, type: 'MARRIAGE' };
-      const endpoint = isEdit ? `/api/v1/sacraments/marriages/${id}` : `/api/v1/sacraments/marriages`;
-      const res = await fetch(endpoint, {
-        method: isEdit ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error(isEdit ? 'Lỗi khi cập nhật Hôn phối' : 'Lỗi khi lưu Hôn phối');
+      
+      if (isEdit) {
+        await updateMutation.mutateAsync(payload);
+      } else {
+        await createMutation.mutateAsync(payload);
       }
 
       toast.success(isEdit ? 'Cập nhật Hôn phối thành công!' : 'Ghi nhận Hôn phối thành công!');
       router.push('/dashboard/sacraments?type=MARRIAGE');
-    } catch (err) {
-      toast.error('Có lỗi xảy ra khi lưu Hôn phối.');
+    } catch (err: any) {
+      toast.error(err.message || 'Có lỗi xảy ra khi lưu Hôn phối.');
       console.error(err);
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">

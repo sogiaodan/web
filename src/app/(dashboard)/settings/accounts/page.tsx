@@ -1,5 +1,3 @@
-export const runtime = 'edge';
-
 import AccountManagementPage from './client-page';
 
 export default function Page() {

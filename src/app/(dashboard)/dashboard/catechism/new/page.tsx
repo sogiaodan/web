@@ -1,29 +1,13 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { serverFetch } from '@/lib/api-server';
-import { GetMeResponse } from '@/lib/auth-api';
-import { redirect } from 'next/navigation';
 import { CertificateForm } from '../components/CertificateForm';
 
 export const metadata: Metadata = {
   title: 'Ghi nhận Chứng chỉ Giáo lý | Sổ Giáo Dân',
-  description: 'Điền thông tin để lưu trữ hồ sơ chứng chỉ vào cơ sở dữ liệu của Giáo xứ.',
+  description: 'Điền thông ক্রিম để lưu trữ hồ sơ chứng chỉ vào cơ sở dữ liệu của Giáo xứ.',
 };
 
-export const runtime = 'edge';
-
-export default async function NewCertificatePage() {
-  const meRes = await serverFetch<GetMeResponse>('/api/v1/auth/me');
-  const user = meRes?.data?.user;
-  const role = user?.role;
-
-  if (role === 'VIEWER') {
-    redirect('/dashboard/catechism');
-  }
-
-  const parishName = user?.church_name || 'Giáo xứ Thánh Mẫu Hạ Hồi';
-  const isAdmin = role === 'ADMIN';
-
+export default function NewCertificatePage() {
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
       <div className="max-w-5xl mx-auto">
@@ -49,12 +33,7 @@ export default async function NewCertificatePage() {
           </p>
         </div>
 
-        <CertificateForm
-          mode="create"
-          isViewer={false}
-          isAdmin={isAdmin}
-          parishName={parishName}
-        />
+        <CertificateForm mode="create" />
       </div>
     </div>
   );

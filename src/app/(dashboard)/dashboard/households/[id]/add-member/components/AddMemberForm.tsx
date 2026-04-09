@@ -26,10 +26,13 @@ const newbornSchema = z.object({
 
 type NewbornFormValues = z.infer<typeof newbornSchema>;
 
+import { useAddMemberToHousehold } from '../../queries/useHouseholdMutations';
+
+// ... (in the component)
 export function AddMemberForm({ household }: { household: Household }) {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const addMemberMutation = useAddMemberToHousehold(household.id);
 
   // Lấy các giá trị từ URL nếu có
   const paramRel = searchParams.get('relationship');
@@ -56,32 +59,18 @@ export function AddMemberForm({ household }: { household: Household }) {
   }, [paramRel, paramGender, setValue]);
 
   const onSubmit = async (data: NewbornFormValues) => {
-    setIsSubmitting(true);
     try {
-      const res = await fetch(`/api/v1/households/${household.id}/members`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(data),
-      });
-
-      const body = await res.json();
-
-      if (!res.ok) {
-        throw new Error(body.message || 'Lỗi server');
-      }
+      await addMemberMutation.mutateAsync(data);
 
       toast.success('Thêm thành viên mới thành công!');
       router.push(`/dashboard/households/${household.id}`);
-      router.refresh();
       
     } catch (err: any) {
       toast.error(err.message || 'Đã có lỗi xảy ra');
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = addMemberMutation.isPending;
 
   return (
     <>

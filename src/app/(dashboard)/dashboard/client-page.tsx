@@ -1,6 +1,7 @@
 'use client';
 
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api-client';
 import { Users, Home, RefreshCcw } from 'lucide-react';
 import MetricCard from '@/components/dashboard/MetricCard';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
@@ -8,16 +9,13 @@ import OnboardingState from '@/components/dashboard/OnboardingState';
 import { ApiResponse } from '@/lib/auth-api';
 import { DashboardSummaryResponse } from '@/components/dashboard/DashboardHeader';
 
-const fetcher = (url: string) => fetch(url).then(r => r.json()).then((res: ApiResponse<DashboardSummaryResponse>) => {
-  if (res.status !== 200) throw new Error(res.message || 'Lỗi không xác định khi tải dữ liệu');
-  return res.data;
-});
+
 
 export default function DashboardOverviewPage() {
-  const { data, error, isLoading, mutate } = useSWR('/api/v1/dashboard/summary', fetcher, {
-    dedupingInterval: 30000,
-    revalidateOnFocus: false,
-    keepPreviousData: true,
+  const { data, error, isLoading, refetch: mutate } = useQuery({
+    queryKey: ['dashboard_summary'],
+    queryFn: () => apiFetch<DashboardSummaryResponse>('/api/v1/dashboard/summary'),
+    staleTime: 30000,
   });
 
   // Handle Loading state with skeleton

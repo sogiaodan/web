@@ -1,19 +1,19 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { Lock, Edit2, Trash2, Printer, Check, X } from 'lucide-react';
+import { Lock, Edit2, Trash2, Printer, Check, X, Loader2 } from 'lucide-react';
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
 import CertificateBusinessNotes from './CertificateBusinessNotes';
 import CertificatePreviewCard from './CertificatePreviewCard';
 import { CertificateDetail, CertificateType } from '@/types/catechism';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useCatechismDetailQuery } from '../queries/useCatechismQuery';
+import { useCreateCatechism, useUpdateCatechism, useDeleteCatechism } from '../queries/useCatechismMutations';
 
 interface CertificateFormProps {
   mode: 'create' | 'edit';
-  initialData?: CertificateDetail;
-  isViewer: boolean;
-  isAdmin: boolean;
-  parishName: string;
+  id?: string;
 }
 
 interface FormState {
@@ -34,34 +34,53 @@ interface FormErrors {
 
 export function CertificateForm({
   mode,
-  initialData,
-  isViewer,
-  isAdmin,
-  parishName,
+  id,
 }: CertificateFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
+  
+  const parishName = user?.church_name || 'Giáo xứ Thánh Mẫu Hạ Hồi';
+  const isAdmin = user?.role === 'ADMIN';
+  const isViewer = user?.role === 'VIEWER';
+
+  const { data: initialData, isLoading: isLoadingDetail } = useCatechismDetailQuery(id || '');
+
+  const createMutation = useCreateCatechism();
+  const updateMutation = useUpdateCatechism(id || '');
+  const deleteMutation = useDeleteCatechism();
 
   const [form, setForm] = useState<FormState & { parishioner_name?: string }>({
-    parishioner_id: initialData?.parishioner?.id ?? null,
-    certificate_type: initialData?.certificate_type ?? '',
-    issue_date: initialData?.issue_date
-      ? initialData.issue_date.slice(0, 10)
-      : '',
-    certificate_no: initialData?.certificate_no ?? '',
-    issued_by: initialData?.issued_by ?? parishName,
-    parishioner_name: initialData?.parishioner
-      ? `${initialData.parishioner.christian_name} ${initialData.parishioner.full_name}`
-      : '',
+    parishioner_id: null,
+    certificate_type: '',
+    issue_date: '',
+    certificate_no: '',
+    issued_by: parishName,
+    parishioner_name: '',
   });
 
+  useEffect(() => {
+    if (mode === 'edit' && initialData) {
+      setForm({
+        parishioner_id: initialData.parishioner?.id ?? null,
+        certificate_type: initialData.certificate_type ?? '',
+        issue_date: initialData.issue_date
+          ? initialData.issue_date.slice(0, 10)
+          : '',
+        certificate_no: initialData.certificate_no ?? '',
+        issued_by: initialData.issued_by ?? parishName,
+        parishioner_name: initialData.parishioner
+          ? `${initialData.parishioner.christian_name} ${initialData.parishioner.full_name}`
+          : '',
+      });
+    }
+  }, [initialData, mode, parishName]);
+
   const [errors, setErrors] = useState<FormErrors>({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isEditing, setIsEditing] = useState(mode === 'create'); // Default to true for new, false for edit
+  const [isEditing, setIsEditing] = useState(mode === 'create');
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
 
-  const canWrite = !isViewer && (isAdmin || mode === 'create'); // Simple check for showing edit/delete
+  const canWrite = !isViewer && (isAdmin || mode === 'create');
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -82,7 +101,6 @@ export function CertificateForm({
     e.preventDefault();
     if (!validate()) return;
 
-    setIsSubmitting(true);
     setErrors({});
 
     const payload = {
@@ -94,29 +112,10 @@ export function CertificateForm({
     };
 
     try {
-      const url =
-        mode === 'edit'
-          ? `/api/v1/catechism-certificates/${initialData!.id}`
-          : '/api/v1/catechism-certificates';
-      const method = mode === 'edit' ? 'PATCH' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      const body = await res.json().catch(() => null);
-
-      if (!res.ok) {
-        if (res.status === 409) {
-          const typeLabel =
-            form.certificate_type === 'RCIA' ? 'RCIA' : 'Hôn nhân';
-          showToast('error', `Giáo dân này đã có chứng chỉ ${typeLabel} trong hệ thống.`);
-        } else {
-          showToast('error', body?.message || 'Đã xảy ra lỗi. Vui lòng thử lại.');
-        }
-        return;
+      if (mode === 'edit') {
+        await updateMutation.mutateAsync(payload);
+      } else {
+        await createMutation.mutateAsync(payload);
       }
 
       const successMsg =
@@ -129,41 +128,45 @@ export function CertificateForm({
         router.push('/dashboard/catechism');
         router.refresh();
       }, 1200);
-    } catch {
-      showToast('error', 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
-    } finally {
-      setIsSubmitting(false);
+    } catch (err: any) {
+      if (err.message?.includes('409') || err.message?.includes('Conflict')) {
+        const typeLabel = form.certificate_type === 'RCIA' ? 'RCIA' : 'Hôn nhân';
+        showToast('error', `Giáo dân này đã có chứng chỉ ${typeLabel} trong hệ thống.`);
+      } else {
+        showToast('error', err.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
+      }
     }
   };
 
   const handleDelete = async () => {
-    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/v1/catechism-certificates/${initialData!.id}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        showToast('success', 'Đã xóa chứng chỉ thành công.');
-        setTimeout(() => {
-          router.push('/dashboard/catechism');
-          router.refresh();
-        }, 1200);
-      } else {
-        showToast('error', 'Không thể xóa chứng chỉ. Vui lòng thử lại.');
-      }
+      await deleteMutation.mutateAsync(id!);
+      showToast('success', 'Đã xóa chứng chỉ thành công.');
+      setTimeout(() => {
+        router.push('/dashboard/catechism');
+        router.refresh();
+      }, 1200);
     } catch {
-      showToast('error', 'Không thể kết nối đến máy chủ.');
+      showToast('error', 'Không thể xóa chứng chỉ. Vui lòng thử lại.');
     } finally {
-      setIsDeleting(false);
       setShowDeleteDialog(false);
     }
   };
 
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
+  const isDeleting = deleteMutation.isPending;
   const disabled = isViewer || !isEditing || isSubmitting;
+
+  if (mode === 'edit' && isLoadingDetail) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
-      {/* Toast Notification */}
       {toast && (
         <div
           className={`fixed top-4 right-4 z-[100] flex items-center gap-3 px-5 py-3 rounded-sm shadow-xl text-sm font-medium font-body transition-all ${
@@ -179,7 +182,6 @@ export function CertificateForm({
         </div>
       )}
 
-      {/* Delete Confirmation Dialog */}
       {showDeleteDialog && (
         <>
           <div
@@ -223,22 +225,19 @@ export function CertificateForm({
         </>
       )}
 
-      {/* Main layout: form + sidebar */}
       <div className="flex flex-col lg:flex-row gap-6 items-start">
-        {/* Form Card */}
         <form
           onSubmit={handleSubmit}
           className="flex-1 bg-surface border border-outline rounded-sm p-6 md:p-8 min-w-0"
         >
-          {/* Parishioner Field — full width, spans both columns */}
           <div className="mb-6">
             <ParishionerSearchCombobox
               label="NGƯỜI LÃNH NHẬN (PARISHIONER)"
-              value={form.parishioner_id}
+              value={form.parishioner_id || ''}
               onChange={(id, item) => {
                 setForm((prev) => ({ 
                   ...prev, 
-                  parishioner_id: id,
+                  parishioner_id: id || null,
                   parishioner_name: item ? `${item.christian_name} ${item.full_name}` : ''
                 }));
                 if (errors.parishioner_id) setErrors((e) => ({ ...e, parishioner_id: undefined }));
@@ -254,7 +253,7 @@ export function CertificateForm({
                       full_name: initialData.parishioner.full_name,
                       birth_date: initialData.parishioner.birth_date,
                     }
-                  : null
+                  : undefined
               }
             />
             {!errors.parishioner_id && (
@@ -265,9 +264,7 @@ export function CertificateForm({
             )}
           </div>
 
-          {/* 2-column grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-            {/* Certificate Type */}
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                 Loại Chứng Chỉ <span className="text-primary">*</span>
@@ -298,7 +295,6 @@ export function CertificateForm({
               )}
             </div>
 
-            {/* Issue Date */}
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                 Ngày Cấp <span className="text-primary">*</span>
@@ -322,7 +318,6 @@ export function CertificateForm({
               )}
             </div>
 
-            {/* Certificate Number */}
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                 Số Hiệu Chứng Chỉ
@@ -339,7 +334,6 @@ export function CertificateForm({
               />
             </div>
 
-            {/* Issued By */}
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
                 Nơi Cấp <span className="text-primary">*</span>
@@ -365,17 +359,14 @@ export function CertificateForm({
             </div>
           </div>
 
-          {/* Form error */}
           {errors._form && (
             <div className="mt-4 p-3 bg-red-50 border border-red-200 rounded-sm text-sm text-red-600 font-body">
               {errors._form}
             </div>
           )}
 
-          {/* Footer */}
           <div className="flex flex-col md:flex-row items-center justify-between gap-3 mt-8 pt-6 border-t border-outline">
             {!isEditing ? (
-              // View Mode Actions
               <>
                 <div className="flex items-center gap-3 w-full md:w-auto">
                   {!isViewer && (
@@ -418,16 +409,15 @@ export function CertificateForm({
                 </div>
               </>
             ) : (
-              // Edit Mode Actions
               <>
-                <div className="flex items-center items-center gap-3 w-full md:w-auto">
+                <div className="flex items-center gap-3 w-full md:w-auto">
                   <button
                     type="submit"
                     disabled={isSubmitting}
                     className="w-full md:w-auto flex items-center justify-center gap-2 px-6 h-12 bg-primary text-white text-sm font-bold rounded-sm hover:bg-primary/90 transition-colors disabled:opacity-60 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 outline-none"
                   >
                     {isSubmitting ? (
-                      <span className="material-symbols-outlined animate-spin text-sm">autorenew</span>
+                      <Loader2 className="h-4 w-4 animate-spin text-white" />
                     ) : (
                       <Check className="h-4 w-4" />
                     )}
@@ -460,11 +450,10 @@ export function CertificateForm({
           )}
         </form>
 
-        {/* Sidebar */}
         <div className="w-full lg:w-96 shrink-0 space-y-4">
           <CertificateBusinessNotes />
           <CertificatePreviewCard 
-            certificateType={form.certificate_type}
+            certificateType={form.certificate_type || 'MARRIAGE_PREP'}
             issueDate={form.issue_date}
             certificateNo={form.certificate_no}
             issuedBy={form.issued_by}

@@ -1,7 +1,8 @@
 'use client';
 
 import { Menu, Bell } from 'lucide-react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api-client';
 import { ApiResponse } from '@/lib/auth-api';
 
 export interface DashboardSummaryResponse {
@@ -13,19 +14,16 @@ export interface DashboardSummaryResponse {
   activities: any[];
 }
 
-const fetcher = (url: string) => fetch(url).then(r => r.json()).then((res: ApiResponse<DashboardSummaryResponse>) => {
-  if (res.status !== 200) throw new Error(res.message);
-  return res.data;
-});
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
 }
 
 export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
-  const { data, isLoading } = useSWR('/api/v1/dashboard/summary', fetcher, {
-    dedupingInterval: 30000,
-    revalidateOnFocus: false,
+  const { data, isLoading } = useQuery({
+    queryKey: ['dashboard_summary'],
+    queryFn: () => apiFetch<DashboardSummaryResponse>('/api/v1/dashboard/summary'),
+    staleTime: 30000,
   });
 
   return (

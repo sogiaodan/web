@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { 
   ChevronRight, 
   Search, 
@@ -28,10 +28,10 @@ export default function SaintsPage() {
   const [deletingSaint, setDeletingSaint] = useState<SaintName | null>(null);
   
   // Fetch data
-  const { data: response, error, isLoading, mutate } = useSWR(
-    '/settings/saints',
-    SettingsSaintsAPI.list
-  );
+  const { data: response, error, isLoading, refetch: mutate } = useQuery({
+    queryKey: ['saints'],
+    queryFn: () => SettingsSaintsAPI.list(),
+  });
 
   const saints = response?.data || [];
 

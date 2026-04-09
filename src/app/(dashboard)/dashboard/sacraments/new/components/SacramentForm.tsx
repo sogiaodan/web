@@ -34,10 +34,14 @@ interface SacramentFormProps {
   readOnly?: boolean;
 }
 
+import { useCreateSacrament, useUpdateSacrament } from '../../queries/useSacramentMutations';
+
 export function SacramentForm({ type, id, initialData, initialParishioner, readOnly = false }: SacramentFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   
+  const createMutation = useCreateSacrament();
+  const updateMutation = useUpdateSacrament(id || '');
+
   const {
     control,
     register,
@@ -62,29 +66,24 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
 
   const onSubmit = async (data: SacramentFormValues) => {
     if (readOnly) return;
-    setIsSubmitting(true);
     try {
       const payload = { ...data, type };
-      const endpoint = isEdit ? `/api/v1/sacraments/${id}` : `/api/v1/sacraments`;
-      const res = await fetch(endpoint, {
-        method: isEdit ? 'PATCH' : 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
-
-      if (!res.ok) {
-        throw new Error(isEdit ? 'Lỗi khi cập nhật bí tích' : 'Lỗi khi lưu bí tích');
+      
+      if (isEdit) {
+        await updateMutation.mutateAsync(payload);
+      } else {
+        await createMutation.mutateAsync(payload);
       }
 
       toast.success(isEdit ? 'Cập nhật bí tích thành công!' : 'Ghi nhận bí tích thành công!');
       router.push('/dashboard/sacraments');
-    } catch (err) {
-      toast.error('Có lỗi xảy ra khi lưu bí tích.');
+    } catch (err: any) {
+      toast.error(err.message || 'Có lỗi xảy ra khi lưu bí tích.');
       console.error(err);
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
