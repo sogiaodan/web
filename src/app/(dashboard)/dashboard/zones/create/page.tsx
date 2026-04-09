@@ -2,6 +2,8 @@ import { Metadata } from 'next';
 import { ZoneForm } from '../components/ZoneForm';
 import Link from 'next/link';
 
+export const runtime = 'edge';
+
 export const metadata: Metadata = {
   title: 'Thêm Giáo khu mới | Sổ Giáo Dân',
 };

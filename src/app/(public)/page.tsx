@@ -9,6 +9,8 @@ import { VaticanNewsSection } from '@/components/landing/VaticanNewsSection';
 import { ContactCTASection } from '@/components/landing/ContactCTASection';
 import { LandingFooter } from '@/components/landing/LandingFooter';
 
+export const runtime = 'edge';
+
 // ─── SEO & Open Graph Metadata ────────────────────────────────────────────────
 export const metadata: Metadata = {
   metadataBase: new URL(APP_BASE_URL),

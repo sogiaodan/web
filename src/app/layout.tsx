@@ -7,6 +7,8 @@ import { serverFetch } from '@/lib/api-server';
 import { GetMeResponse } from '@/lib/auth-api';
 import './globals.css';
 
+export const runtime = 'edge';
+
 const lora = Lora({
   subsets: ['vietnamese', 'latin'],
   variable: '--font-lora',

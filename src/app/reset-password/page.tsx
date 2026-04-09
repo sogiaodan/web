@@ -7,6 +7,8 @@ import { ResetPasswordForm } from './reset-password-form';
 import { LockKeyhole } from 'lucide-react';
 import Link from 'next/link';
 
+export const runtime = 'edge';
+
 export default function ResetPasswordPage() {
   return (
     <AuthLayout>
