@@ -7,7 +7,7 @@ import { QuickPreviewDrawer } from './QuickPreviewDrawer';
 import { ParishionerTable } from './ParishionerTable';
 import { ParishionerFilterBar } from './ParishionerFilterBar';
 import { ParishionerSummaryCards } from './ParishionerSummaryCards';
-import { useParishionersQuery } from '../queries/useParishionersQuery';
+import { useParishionersQuery } from '../queries/useParishionerQueries';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
 
 export function ParishionerListClient() {

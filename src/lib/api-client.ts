@@ -1,3 +1,13 @@
+export class ApiError extends Error {
+  status: number;
+
+  constructor(message: string, status: number) {
+    super(message);
+    this.name = "ApiError";
+    this.status = status;
+  }
+}
+
 /**
  * Client-side fetch wrapper for React Query hooks.
  * Automatically includes credentials (HttpOnly cookies via rewrite proxy)
@@ -22,7 +32,7 @@ export async function apiFetch<T = any>(
 
   if (!res.ok) {
     const message = json?.message || `Request failed with status ${res.status}`;
-    throw new Error(message);
+    throw new ApiError(message, res.status);
   }
 
   return json?.data as T;

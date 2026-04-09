@@ -129,7 +129,7 @@ export function CertificateForm({
         router.refresh();
       }, 1200);
     } catch (err: any) {
-      if (err.message?.includes('409') || err.message?.includes('Conflict')) {
+      if (err.status === 409) {
         const typeLabel = form.certificate_type === 'RCIA' ? 'RCIA' : 'Hôn nhân';
         showToast('error', `Giáo dân này đã có chứng chỉ ${typeLabel} trong hệ thống.`);
       } else {

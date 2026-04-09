@@ -149,7 +149,7 @@ export default function ParishInformationPage() {
               <div className="relative group rounded-xl overflow-hidden mb-3 border-2 border-dashed border-outline hover:border-primary/50 transition-colors w-40 h-40 flex items-center justify-center bg-surface-container">
                 {parishInfo?.logo_url ? (
                   <img 
-                    src={parishInfo.logo_url.startsWith('http') ? parishInfo.logo_url : `${process.env.NEXT_PUBLIC_API_URL || ''}${parishInfo.logo_url}`} 
+                    src={parishInfo.logo_url.startsWith('http') ? parishInfo.logo_url : (parishInfo.logo_url.startsWith('/') ? parishInfo.logo_url : `/storage/${parishInfo.logo_url}`)} 
                     alt="Parish Logo" 
                     className="w-full h-full object-contain p-2"
                     crossOrigin="anonymous"

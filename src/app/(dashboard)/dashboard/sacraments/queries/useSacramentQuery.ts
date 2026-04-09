@@ -3,9 +3,14 @@ import { apiFetch } from "@/lib/api-client";
 import { SacramentListResponse, MarriageListResponse, SacramentType } from "@/types/sacrament";
 
 export function useSacramentsQuery(params?: Record<string, string>) {
-  const queryString = new URLSearchParams(params).toString();
   const type = params?.type || 'BAPTISM';
   const isMarriage = type === 'MARRIAGE';
+  
+  const searchParams = new URLSearchParams(params);
+  if (isMarriage) {
+    searchParams.delete('type');
+  }
+  const queryString = searchParams.toString();
   
   const endpoint = isMarriage
     ? `/api/v1/sacraments/marriages?${queryString}`

@@ -1,7 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, ReactNode } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useZonesQuery } from '@/lib/queries/useZonesQuery';
 import { apiFetch } from '@/lib/api-client';
 
 interface Zone {
@@ -20,16 +20,13 @@ interface ZonesContextType {
 
 const ZonesContext = createContext<ZonesContextType | undefined>(undefined);
 
-
-
 export function ZonesProvider({ children }: { children: ReactNode }) {
-  // We use SWR at the provider level to fetch the static data once
-  // Revalidate options are set to prevent unnecessary refetching
-  const { data, error, refetch: mutate, isLoading } = useQuery({
-    queryKey: ['zones'],
-    queryFn: () => apiFetch<any>('/api/v1/zones?limit=100'),
-    staleTime: 1000 * 60 * 60, // 1 hour
-  });
+  // We use React Query at the provider level to fetch the static data once.
+  // staleTime is set to 1 hour to prevent unnecessary refetching of static dictionary data.
+  const { data, error, refetch: mutate, isLoading } = useZonesQuery(
+    { limit: 100 }, 
+    { staleTime: 1000 * 60 * 60 }
+  );
 
   const zones = data?.data?.items || [];
 

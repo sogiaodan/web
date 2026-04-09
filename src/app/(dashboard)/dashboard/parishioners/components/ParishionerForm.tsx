@@ -273,7 +273,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
         await updateMutation.mutateAsync(payload);
       } else {
         const result = await createMutation.mutateAsync(payload);
-        const targetId = result.data?.id;
+        const targetId = result.id;
         router.push(`/dashboard/parishioners/${targetId}`);
         router.refresh();
       }

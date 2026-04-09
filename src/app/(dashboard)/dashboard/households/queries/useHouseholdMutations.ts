@@ -23,7 +23,7 @@ export function useCreateHousehold() {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/households`, {
+      return apiFetch<{ id: string }>(`/api/v1/households`, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -39,7 +39,7 @@ export function useAddMemberToHousehold(id: string) {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/households/${id}/members`, {
+      return apiFetch<{ id: string }>(`/api/v1/households/${id}/members`, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -56,7 +56,7 @@ export function useSplitHousehold(id: string) {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/households/${id}/split`, {
+      return apiFetch<{ id: string }>(`/api/v1/households/${id}/split`, {
         method: "POST",
         body: JSON.stringify(payload),
       });

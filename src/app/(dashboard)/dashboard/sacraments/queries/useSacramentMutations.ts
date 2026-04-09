@@ -6,7 +6,7 @@ export function useCreateSacrament() {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/sacraments`, {
+      return apiFetch<{ id: string }>(`/api/v1/sacraments`, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -22,7 +22,7 @@ export function useUpdateSacrament(id: string) {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/sacraments/${id}`, {
+      return apiFetch<{ id: string }>(`/api/v1/sacraments/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });
@@ -38,7 +38,7 @@ export function useCreateMarriage() {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/sacraments/marriages`, {
+      return apiFetch<{ id: string }>(`/api/v1/sacraments/marriages`, {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -54,7 +54,7 @@ export function useUpdateMarriage(id: string) {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/sacraments/marriages/${id}`, {
+      return apiFetch<{ id: string }>(`/api/v1/sacraments/marriages/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });

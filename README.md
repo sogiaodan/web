@@ -85,11 +85,12 @@ The Web Frontend is hosted on **Vercel** with an automated Git-to-Deploy pipelin
 
 ### 🛠️ Build Configuration (Vercel)
 - **Framework Preset:** Next.js
-- **Root Directory:** `web/`
+- **Root Directory:** `./` (If connected directly to `web` repo) or `web/` (If connected to `platform` repo)
 - **Build Command:** `npm run build`
 - **Output Directory:** `.next` (default — managed by Vercel automatically)
 - **Install Command:** `npm ci`
 - **Node.js Version:** `20.x`
+
 
 ### 📡 Environment Variables (Vercel Dashboard)
 Configure under **Project Settings > Environment Variables**:
@@ -109,7 +110,7 @@ Configure under **Project Settings > Environment Variables**:
     - Once merged, changes are live on `giaodan.io.vn`.
 
 > [!IMPORTANT]
-> **Vercel Connection:** The project must be connected to the `web/` subdirectory as the root. In the Vercel project settings, set **Root Directory** to `web/`. All builds run standard `npm run build` — no Cloudflare adapters or Edge Runtime required.
+> **Vercel Connection:** If connecting the standalone `web` repo, the **Root Directory** is `./`. If connecting the parent `platform` repo, set it to `web/`. All builds run standard `npm run build` — no Cloudflare adapters or Edge Runtime required.
 
 > [!NOTE]
 > **API Proxying:** `next.config.ts` rewrites `/api/:path*` to the backend, making all client-side `fetch('/api/v1/...')` calls same-origin. The browser automatically attaches `SameSite=Strict` cookies, so `credentials: "include"` works without CORS issues.

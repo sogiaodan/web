@@ -6,7 +6,7 @@ export function useCreateParishioner() {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/parishioners`, {
+      return apiFetch<{ id: string }>(`/api/v1/parishioners`, {
         method: 'POST',
         body: JSON.stringify(payload),
       });
@@ -22,7 +22,7 @@ export function useUpdateParishioner(id: string) {
   
   return useMutation({
     mutationFn: async (payload: any) => {
-      return apiFetch(`/api/v1/parishioners/${id}`, {
+      return apiFetch<{ id: string }>(`/api/v1/parishioners/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),
       });

@@ -9,7 +9,7 @@ export function useCreateZone() {
   
   return useMutation({
     mutationFn: async (payload: CreateZoneDto) => {
-      return apiFetch("/api/v1/zones", {
+      return apiFetch<{ id: string }>("/api/v1/zones", {
         method: "POST",
         body: JSON.stringify(payload),
       });
@@ -25,7 +25,7 @@ export function useUpdateZone(id: string) {
   
   return useMutation({
     mutationFn: async (payload: UpdateZoneDto) => {
-      return apiFetch(`/api/v1/zones/${id}`, {
+      return apiFetch<{ id: string }>(`/api/v1/zones/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
       });

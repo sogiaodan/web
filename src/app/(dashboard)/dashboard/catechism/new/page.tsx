@@ -4,7 +4,7 @@ import { CertificateForm } from '../components/CertificateForm';
 
 export const metadata: Metadata = {
   title: 'Ghi nhận Chứng chỉ Giáo lý | Sổ Giáo Dân',
-  description: 'Điền thông ক্রিম để lưu trữ hồ sơ chứng chỉ vào cơ sở dữ liệu của Giáo xứ.',
+  description: 'Điền thông tin để lưu trữ hồ sơ chứng chỉ vào cơ sở dữ liệu của Giáo xứ.',
 };
 
 export default function NewCertificatePage() {

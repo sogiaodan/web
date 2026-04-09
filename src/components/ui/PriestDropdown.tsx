@@ -29,7 +29,7 @@ export function PriestDropdown({
   error,
   disabled = false,
 }: PriestDropdownProps) {
-  // Client-side cache with staleTime handled by SWR inside the hook (default deduping interval is 2s, we override it to 5 min)
+  // Client-side cache with staleTime handled by React Query (set to 5 minutes to prevent unnecessary refetching of the priest list)
   const { data: priests, isLoading } = useQuery({
     queryKey: ['priests_dropdown'],
     queryFn: () => apiFetch<Priest[]>('/api/v1/priests?is_active=true'),

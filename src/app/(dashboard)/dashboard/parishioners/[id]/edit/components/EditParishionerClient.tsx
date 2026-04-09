@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { ParishionerForm } from '../../../components/ParishionerForm';
-import { useParishionerDetailQuery } from '../../../queries/useParishionerQuery';
+import { useParishionerDetailQuery } from '../../../queries/useParishionerQueries';
 
 export function EditParishionerClient({ id }: { id: string }) {
   const { data: parishioner, isLoading, error } = useParishionerDetailQuery(id);

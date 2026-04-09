@@ -63,7 +63,7 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
       const result = await splitHouseholdMutation.mutateAsync(payload);
 
       toast.success('Tách hộ thành công');
-      router.push(`/dashboard/households/${result.id || result.data?.id || ''}`);
+      router.push(`/dashboard/households/${result.id || ''}`);
       
     } catch (err: any) {
       toast.error(err.message || 'Đã có lỗi xảy ra');
