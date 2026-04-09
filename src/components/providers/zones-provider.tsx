@@ -4,12 +4,7 @@ import React, { createContext, useContext, ReactNode } from 'react';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
 import { apiFetch } from '@/lib/api-client';
 
-interface Zone {
-  id: string;
-  name: string;
-  total_parishioners: number;
-  total_households: number;
-}
+import { Zone } from '@/types/zone';
 
 interface ZonesContextType {
   zones: Zone[];
