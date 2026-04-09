@@ -43,6 +43,8 @@ export interface GenealogyNode {
   christian_name: string | null;
   full_name: string;
   gender?: 'MALE' | 'FEMALE';
+  father_id?: string | null;
+  mother_id?: string | null;
   role: 'PATERNAL_GRANDFATHER' | 'PATERNAL_GRANDMOTHER' | 'FATHER' | 'MOTHER' | 'CHILD' | 'GRANDCHILD';
   generation: number;
   /** Relative generation vs self: -2=grandparent, -1=parent, 0=parent(direct), 1=child, 2=grandchild */
