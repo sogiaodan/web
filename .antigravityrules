@@ -12,11 +12,14 @@
 - **COLORS:** Stick to the established palette: Primary (Sacred Crimson), Surface (White/Warm Grey), and Text (#1C1917).
 
 ## 🚦 ROUTING & AUTH (CRITICAL)
-- **REDIRECTS:** NEVER implement manual redirects to `/login` within page components; rely strictly on `middleware.ts`.
-- **MIDDLEWARE:** ALWAYS keep the `middleware.ts` matcher updated to exclude all public static assets (brand, manifest, robots.txt, etc).
+- **REDIRECTS:** NEVER implement manual redirects to `/login` within page components; rely strictly on `src/proxy.ts` (formerly `middleware.ts`).
+- **PROXY:** ALWAYS keep the `proxy.ts` matcher updated to exclude all public static assets (brand, manifest, robots.txt, etc).
 - **AUTH STATE:** ALWAYS use the pre-fetched `initialUser` pattern in `RootLayout -> AuthProvider` to avoid redundant API hits.
 
 ## 📡 DATA FETCHING (Vercel Architecture)
 - **REACT QUERY:** ALWAYS use `@tanstack/react-query` for client-side data fetching and mutations. NEVER use SWR or `useEffect` for fetching.
-- **THIN SERVER:** `page.tsx` files should be thin Server Components (just rendering `<FeatureClient />`). Keep data fetching in the thick client.
+- **EXPLICIT TYPING (MANDATORY):** ALWAYS provide explicit generic types to `useQuery<Data, Error>` and `apiFetch<Data>` to prevent build-time inference failures (e.g., getting inferred as `{}`).
+- **QUERY CONSOLIDATION:** Consolidate related hooks into a single `use<Feature>Queries.ts` file per module (e.g., list and detail in one file). Do not fracture them.
+- **RELATIVE URLS (MANDATORY):** Client-side `apiFetch` MUST use relative paths (`/api/v1/...`) to leverage the same-origin Next.js proxy, ensuring `SameSite=Strict` cookies are sent.
+- **THIN SERVER:** `page.tsx` files should be thin Server Components. Keep data fetching in the thick client.
 - **NO EDGE RUNTIME:** The project runs on Vercel Node.js runtime. Do NOT export `runtime = 'edge'` anywhere.
