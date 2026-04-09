@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
-import { useParishionerDetailQuery } from '../queries/useParishionerQuery';
+import { useParishionerDetailQuery } from '../../queries/useParishionerQuery';
 import { ParishionerProfileHeader } from './ParishionerProfileHeader';
 import { FamilyCards } from './FamilyCards';
 import { SiblingsSection } from './SiblingsSection';

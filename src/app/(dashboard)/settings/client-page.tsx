@@ -18,41 +18,24 @@ import { authApi } from '@/lib/auth-api';
 import { SettingsAPI, BackupStatusResponse } from '@/lib/api/settings';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { 
+  useBackupStatusQuery, 
+  useBackupMutation 
+} from '@/lib/queries/useSettingsQueries';
 
 export default function SettingsPage() {
   const { user, refreshContext } = useAuth();
   const router = useRouter();
   
-  const [backupStatus, setBackupStatus] = useState<BackupStatusResponse['data'] | null>(null);
-  const [isBackingUp, setIsBackingUp] = useState(false);
+  const { data: backupData } = useBackupStatusQuery();
+  const backupMutation = useBackupMutation();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   
-  useEffect(() => {
-    const fetchStatus = async () => {
-      try {
-        const response = await SettingsAPI.getBackupStatus();
-        setBackupStatus(response.data);
-      } catch (err) {
-        console.error('Failed to fetch backup status', err);
-      }
-    };
-    fetchStatus();
-  }, []);
+  const backupStatus = backupData?.data;
 
   const handleBackup = async () => {
-    setIsBackingUp(true);
-    try {
-      await SettingsAPI.triggerBackup();
-      toast.success('Data backup successful');
-      // Refresh status after backup
-      const response = await SettingsAPI.getBackupStatus();
-      setBackupStatus(response.data);
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra trong quá trình sao lưu');
-    } finally {
-      setIsBackingUp(false);
-    }
+    backupMutation.mutate();
   };
 
   const handleLogout = async () => {
@@ -161,10 +144,10 @@ export default function SettingsPage() {
               </div>
               <button
                 onClick={handleBackup}
-                disabled={isBackingUp}
+                disabled={backupMutation.isPending}
                 className="shrink-0 inline-flex items-center justify-center rounded bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] md:min-h-[36px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {isBackingUp ? (
+                {backupMutation.isPending ? (
                   <span className="flex items-center gap-2">
                     <LoadingSpinner className="h-4 w-4 text-white" />
                     Đang xử lý...

@@ -1,6 +1,6 @@
 "use client";
 
-import { useHouseholdDetailQuery } from "./queries/useHouseholdDetailQuery";
+import { useHouseholdDetailQuery } from "../queries/useHouseholdDetailQuery";
 import { HouseholdDetailHeader } from "./components/HouseholdDetailHeader";
 import { StatusSyncAlert } from "./components/StatusSyncAlert";
 import { CoupleCards } from "./components/CoupleCards";

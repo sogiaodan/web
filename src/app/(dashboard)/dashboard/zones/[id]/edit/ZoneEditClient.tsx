@@ -1,6 +1,6 @@
 "use client";
 
-import { useZoneDetailQuery } from "../queries/useZoneDetailQuery";
+import { useZoneDetailQuery } from "../../queries/useZoneDetailQuery";
 import { ZoneForm } from "../../components/ZoneForm";
 import Link from "next/link";
 import { useAuth } from "@/components/providers/auth-provider";

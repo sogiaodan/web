@@ -16,7 +16,7 @@ type WizardState = {
   bookIssueDate: string;
 }
 
-import { useSplitHousehold } from '../../queries/useHouseholdMutations';
+import { useSplitHousehold } from '../../../queries/useHouseholdMutations';
 
 export function SplitWizard({ originHousehold, zones }: { originHousehold: Household, zones: Zone[] }) {
   const router = useRouter();

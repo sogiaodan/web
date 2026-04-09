@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { MarriageForm } from '../../new/components/MarriageForm';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
-import { useSacramentDetailQuery } from '../queries/useSacramentQuery';
+import { useSacramentDetailQuery } from '../../queries/useSacramentQuery';
 
 export function MarriageDetailClient({ id }: { id: string }) {
   const { user } = useAuth();

@@ -26,7 +26,7 @@ const newbornSchema = z.object({
 
 type NewbornFormValues = z.infer<typeof newbornSchema>;
 
-import { useAddMemberToHousehold } from '../../queries/useHouseholdMutations';
+import { useAddMemberToHousehold } from '../../../queries/useHouseholdMutations';
 
 // ... (in the component)
 export function AddMemberForm({ household }: { household: Household }) {

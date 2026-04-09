@@ -1,6 +1,6 @@
 "use client";
 
-import { useZoneDetailQuery } from "./queries/useZoneDetailQuery";
+import { useZoneDetailQuery } from "../queries/useZoneDetailQuery";
 import { useAuth } from "@/components/providers/auth-provider";
 import { ZoneDetailHeader } from "./components/ZoneDetailHeader";
 import { ZoneInfoCard } from "./components/ZoneInfoCard";

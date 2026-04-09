@@ -1,7 +1,7 @@
 'use client';
 
-import React, { useEffect, useState, useMemo } from 'react';
-import { getOrRefreshSaintNames, SaintName } from '@/lib/cache-saint-names';
+import React, { useState, useMemo } from 'react';
+import { useSaintNamesQuery } from '@/lib/queries/useSaintNamesQuery';
 
 interface SaintNameSelectProps {
   value: string;
@@ -14,7 +14,8 @@ interface SaintNameSelectProps {
   className?: string;
 }
 
-const FALLBACK_SAINTS: SaintName[] = [
+// Fallback data while query loads — keeps the UI functional offline or on first paint
+const FALLBACK_SAINTS = [
   { name: 'Giuse', is_popular: true, gender: 'MALE' },
   { name: 'Maria', is_popular: true, gender: 'FEMALE' },
   { name: 'Phêrô', is_popular: true, gender: 'MALE' },
@@ -34,18 +35,14 @@ export function SaintNameSelect({
   error,
   className = '',
 }: SaintNameSelectProps) {
-  const [saintNames, setSaintNames] = useState<SaintName[]>([]);
   const [showAllSaints, setShowAllSaints] = useState(false);
+  const { data: saintNamesRaw } = useSaintNamesQuery();
 
-  useEffect(() => {
-    getOrRefreshSaintNames().then(setSaintNames);
-  }, []);
+  const saintNames = saintNamesRaw ?? FALLBACK_SAINTS;
 
   const filteredSaints = useMemo(() => {
-    const pool = saintNames.length > 0 ? saintNames : FALLBACK_SAINTS;
-    return pool.filter((n) => {
+    return saintNames.filter((n: { name: string; is_popular: boolean; gender: string }) => {
       const matchesPopular = showAllSaints || n.is_popular;
-      // If gender is set, only show matching gender. If not set, show all.
       const matchesGender = !gender || n.gender === gender;
       return matchesPopular && matchesGender;
     });
@@ -70,7 +67,7 @@ export function SaintNameSelect({
             } ${error ? 'border-red-500' : ''}`}
           >
             <option value="">{required ? '-- Chọn Tên Thánh --' : 'Tất cả Tên Thánh'}</option>
-            {filteredSaints.map((n) => (
+            {filteredSaints.map((n: { name: string }) => (
               <option key={n.name} value={n.name}>
                 {n.name}
               </option>

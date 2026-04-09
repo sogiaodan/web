@@ -1,6 +1,6 @@
 "use client";
 
-import { useHouseholdDetailQuery } from "../queries/useHouseholdDetailQuery";
+import { useHouseholdDetailQuery } from "../../queries/useHouseholdDetailQuery";
 import { AddMemberForm } from "./components/AddMemberForm";
 
 export default function HouseholdAddMemberClient({ id }: { id: string }) {

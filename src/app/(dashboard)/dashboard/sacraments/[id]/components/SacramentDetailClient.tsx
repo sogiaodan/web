@@ -6,7 +6,7 @@ import { SacramentForm } from '../../new/components/SacramentForm';
 import { Edit3, Share2, Info, User, Calendar, MapPin, Download, Loader2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/components/providers/auth-provider';
-import { useSacramentDetailQuery } from '../queries/useSacramentQuery';
+import { useSacramentDetailQuery } from '../../queries/useSacramentQuery';
 
 export function SacramentDetailClient({ id }: { id: string }) {
   const { user } = useAuth();

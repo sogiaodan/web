@@ -1,6 +1,6 @@
 "use client";
 
-import { useHouseholdDetailQuery } from "../queries/useHouseholdDetailQuery";
+import { useHouseholdDetailQuery } from "../../queries/useHouseholdDetailQuery";
 import { useZonesQuery } from "@/lib/queries/useZonesQuery";
 import { SplitWizard } from "./components/SplitWizard";
 

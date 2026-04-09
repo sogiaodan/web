@@ -10,8 +10,12 @@ import { ChevronRight, Upload, Church } from 'lucide-react';
 import { toast } from 'sonner';
 
 import { useAuth } from '@/components/providers/auth-provider';
-import { SettingsAPI, ParishInfo } from '@/lib/api/settings';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { 
+  useParishQuery, 
+  useUpdateParishMutation, 
+  useLogoUploadMutation 
+} from '@/lib/queries/useSettingsQueries';
 
 const parishFormSchema = z.object({
   name: z.string().min(1, 'Vui lòng nhập tên giáo xứ'),
@@ -30,10 +34,9 @@ export default function ParishInformationPage() {
   const { user, isLoading: isAuthLoading } = useAuth();
   const router = useRouter();
   
-  const [isLoading, setIsLoading] = useState(true);
-  const [isSaving, setIsSaving] = useState(false);
-  const [isUploading, setIsUploading] = useState(false);
-  const [parishInfo, setParishInfo] = useState<ParishInfo | null>(null);
+  const { data: parishData, isLoading: isParishLoading } = useParishQuery(user?.role === 'ADMIN');
+  const updateParish = useUpdateParishMutation();
+  const uploadLogo = useLogoUploadMutation();
   
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -54,51 +57,33 @@ export default function ParishInformationPage() {
   }, [user, isAuthLoading, router]);
 
   useEffect(() => {
-    const fetchParishInfo = async () => {
-      try {
-        const response = await SettingsAPI.getParishInfo();
-        setParishInfo(response.data);
-        reset({
-          name: response.data.name || '',
-          diocese: response.data.diocese || '',
-          deanery: response.data.deanery || '',
-          patron_saint: response.data.patron_saint || '',
-          established_year: response.data.established_year || null,
-          address: response.data.address || '',
-          phone_number: response.data.phone_number || '',
-          pastor_name: response.data.pastor_name || '',
-        });
-      } catch (error: any) {
-        toast.error('Không thể tải thông tin giáo xứ');
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    if (user?.role === 'ADMIN') {
-      fetchParishInfo();
+    if (parishData?.data) {
+      const info = parishData.data;
+      reset({
+        name: info.name || '',
+        diocese: info.diocese || '',
+        deanery: info.deanery || '',
+        patron_saint: info.patron_saint || '',
+        established_year: info.established_year || null,
+        address: info.address || '',
+        phone_number: info.phone_number || '',
+        pastor_name: info.pastor_name || '',
+      });
     }
-  }, [user, reset]);
+  }, [parishData, reset]);
 
   const onSubmit = async (data: ParishFormData) => {
-    setIsSaving(true);
-    
     // Transform NaN to null in case valueAsNumber parses empty input as NaN
     const payload = {
       ...data,
       established_year: Number.isNaN(data.established_year) ? null : data.established_year,
     };
 
-    try {
-      await SettingsAPI.updateParishInfo(payload as any);
-      toast.success('Parish information updated successfully');
-      setParishInfo(prev => prev ? { ...prev, ...payload as any } : null);
-      reset(data); // Reset isDirty
-    } catch (error: any) {
-      toast.error(error.message || 'Lỗi cập nhật thông tin');
-    } finally {
-      setIsSaving(false);
-    }
+    updateParish.mutate(payload as any, {
+      onSuccess: () => {
+        reset(data); // Reset isDirty
+      }
+    });
   };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -115,26 +100,18 @@ export default function ParishInformationPage() {
       return;
     }
 
-    setIsUploading(true);
-    try {
-      const response = await SettingsAPI.uploadLogo(file);
-      // Construct logo_url assuming typical file serving setup or if backend returned it
-      // Let's assume the API returns the updated church obj or at least the logo route inside response.data.logo_url?
-      // Re-fetch or trust API response to update logo UI.
-      const updatedInfo = await SettingsAPI.getParishInfo();
-      setParishInfo(updatedInfo.data);
-      toast.success('Logo uploaded successfully');
-    } catch (error: any) {
-      toast.error(error.message || 'Lỗi tải ảnh lên');
-    } finally {
-      setIsUploading(false);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = '';
+    uploadLogo.mutate(file, {
+      onSettled: () => {
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
+        }
       }
-    }
+    });
   };
 
-  if (isAuthLoading || (user?.role === 'ADMIN' && isLoading)) {
+  const parishInfo = parishData?.data;
+
+  if (isAuthLoading || (user?.role === 'ADMIN' && isParishLoading)) {
     return (
       <div className="flex h-[50vh] items-center justify-center">
         <LoadingSpinner className="h-8 w-8 text-primary" />
@@ -192,11 +169,11 @@ export default function ParishInformationPage() {
                   onChange={handleLogoUpload}
                   accept="image/png, image/jpeg"
                   className="absolute inset-0 opacity-0 cursor-pointer w-full h-full"
-                  disabled={isUploading}
+                  disabled={uploadLogo.isPending}
                 />
               </div>
 
-              {isUploading ? (
+              {uploadLogo.isPending ? (
                 <div className="flex items-center text-xs text-primary font-medium">
                   <LoadingSpinner className="h-3 w-3 mr-2" /> Uploading...
                 </div>
@@ -350,10 +327,10 @@ export default function ParishInformationPage() {
           <button
             type="submit"
             form="parish-form"
-            disabled={!isDirty || isSaving}
+            disabled={!isDirty || updateParish.isPending}
             className="flex-1 md:flex-none inline-flex justify-center items-center rounded bg-primary px-6 py-2 text-sm font-medium text-white shadow-sm hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed min-w-[120px]"
           >
-            {isSaving ? (
+            {updateParish.isPending ? (
               <span className="flex items-center gap-2">
                 <LoadingSpinner className="h-4 w-4" />
                 Lưu lại
