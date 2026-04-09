@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateZoneDto, UpdateZoneDto, ZoneDetail, ParishionerLookup } from '@/types/zone';
 import { toast } from 'sonner';
+import { useCreateZone, useUpdateZone } from '../queries/useZoneMutations';
 
 interface ZoneFormProps {
   initialData?: ZoneDetail;
@@ -12,12 +13,14 @@ interface ZoneFormProps {
 
 export function ZoneForm({ initialData, isEdit }: ZoneFormProps) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<CreateZoneDto>({
     name: initialData?.name || '',
     head_id: initialData?.head?.id || '',
     description: initialData?.description || '',
   });
+
+  const createZone = useCreateZone();
+  const updateZone = useUpdateZone(initialData?.id || '');
 
   // Searching parishioners
   const [headSearchText, setHeadSearchText] = useState(
@@ -79,36 +82,29 @@ export function ZoneForm({ initialData, isEdit }: ZoneFormProps) {
     e.preventDefault();
     if (!formData.name.trim()) return toast.error('Vui lòng nhập tên giáo khu');
 
-    setIsSubmitting(true);
     try {
-      const url = isEdit ? `/api/v1/zones/${initialData?.id}` : `/api/v1/zones`;
-      const method = isEdit ? 'PATCH' : 'POST';
+      const payload = {
+        ...formData,
+        head_id: formData.head_id || undefined, // Allow nulling out head if cleared
+        description: formData.description || undefined
+      };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          head_id: formData.head_id || undefined, // Allow nulling out head if cleared
-          description: formData.description || undefined
-        }),
-      });
-
-      const result = await res.json();
-
-      if (!res.ok) {
-        throw new Error(result.message || 'Có lỗi xảy ra');
+      if (isEdit) {
+        await updateZone.mutateAsync(payload);
+        toast.success('Cập nhật giáo khu thành công');
+      } else {
+        await createZone.mutateAsync(payload);
+        toast.success('Tạo giáo khu mới thành công');
       }
 
-      toast.success(isEdit ? 'Cập nhật giáo khu thành công' : 'Tạo giáo khu mới thành công');
       router.push(isEdit ? `/dashboard/zones/${initialData?.id}` : '/dashboard/zones');
-      router.refresh();
       
     } catch (err: any) {
       toast.error(err.message || 'Lỗi kết nối');
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = createZone.isPending || updateZone.isPending;
 
   return (
     <div className="bg-surface border border-outline rounded p-4 md:p-12 max-w-3xl mx-auto shadow-sm relative corner-accent mt-6">

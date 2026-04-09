@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api-client';
 import { RefreshCcw, Search, FilterX } from 'lucide-react';
 import { ActivityLog } from '@/components/dashboard/ActivityRow';
 import ActivityRow from '@/components/dashboard/ActivityRow';
@@ -18,13 +19,6 @@ interface ActivitiesResponse {
   };
 }
 
-const fetcher = (url: string) =>
-  fetch(url)
-    .then((r) => r.json())
-    .then((res: ApiResponse<ActivitiesResponse>) => {
-      if (res.status !== 200) throw new Error(res.message || 'Lỗi lấy dữ liệu');
-      return res.data;
-    });
 
 export default function ActivitiesPage() {
   const [page, setPage] = useState(1);
@@ -48,17 +42,17 @@ export default function ActivitiesPage() {
     return params.toString();
   };
 
-  const { data, error, isLoading, mutate } = useSWR(
-    `/api/v1/dashboard/activities?${buildQuery()}`,
-    fetcher,
-    { keepPreviousData: true }
-  );
+  const { data, error, isLoading, refetch: mutate } = useQuery({
+    queryKey: ['activities', buildQuery()],
+    queryFn: () => apiFetch<ActivitiesResponse>(`/api/v1/dashboard/activities?${buildQuery()}`),
+  });
 
   // Fetch users for the filter dropdown
-  const { data: usersData } = useSWR(
-    '/api/v1/settings/accounts',
-    (url: string) => fetch(url).then(r => r.json()).then(res => res.data?.items || [])
-  );
+  const { data: usersDataObj } = useQuery({
+    queryKey: ['accounts'],
+    queryFn: () => apiFetch<any>('/api/v1/settings/accounts'),
+  });
+  const usersData = usersDataObj?.items || [];
 
   const resetFilters = useCallback(() => {
     setActionType('');

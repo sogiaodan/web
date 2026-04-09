@@ -1,22 +1,38 @@
 'use client';
 
 import { useState } from 'react';
-import { SacramentListItem, SacramentType } from '@/types/sacrament';
+import { SacramentType } from '@/types/sacrament';
 import { SacramentForm } from '../../new/components/SacramentForm';
-import { Edit3, Share2, Info, User, Calendar, MapPin, Download } from 'lucide-react';
+import { Edit3, Share2, Info, User, Calendar, MapPin, Download, Loader2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
-import Image from 'next/image';
+import { useAuth } from '@/components/providers/auth-provider';
+import { useSacramentDetailQuery } from '../../queries/useSacramentQuery';
 
-interface SacramentDetailClientProps {
-  sacrament: SacramentListItem;
-  canEdit: boolean;
-}
-
-export function SacramentDetailClient({ sacrament, canEdit }: SacramentDetailClientProps) {
+export function SacramentDetailClient({ id }: { id: string }) {
+  const { user } = useAuth();
+  const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const [isEditing, setIsEditing] = useState(false);
 
+  const { data: sacrament, isLoading, error } = useSacramentDetailQuery(id, false);
+
+  if (isLoading) {
+    return (
+      <div className="flex justify-center p-12">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (error || !sacrament) {
+    return (
+      <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant font-body">
+        Không thể tải dữ liệu bí tích.
+      </div>
+    );
+  }
+
   const initialData = {
-    parishioner_id: sacrament.parishioner.id,
+    parishioner_id: sacrament.parishioner?.id || '',
     date: sacrament.date || '',
     place: '',
     minister_id: sacrament.minister?.id || '',
@@ -60,9 +76,16 @@ export function SacramentDetailClient({ sacrament, canEdit }: SacramentDetailCli
     );
   }
 
-  // Detail View (matches Desktop & Mobile specs)
   return (
     <div className="space-y-6">
+      <div className="mb-6">
+        <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
+          {canEdit ? 'Chỉnh sửa Bí tích' : 'Chi tiết Bí tích'}
+        </h1>
+        <p className="text-on-surface-variant font-body text-sm">
+          Hồ sơ Bí tích của: <span className="font-bold">{sacrament.parishioner?.christian_name} {sacrament.parishioner?.full_name}</span>
+        </p>
+      </div>
       {/* Mobile Distinctive Header */}
       <div className="md:hidden relative bg-gradient-to-br from-[#E2A45C] to-[#C2410C] rounded-lg p-6 shadow-sm overflow-hidden text-center mb-6">
         <div className="relative z-10">

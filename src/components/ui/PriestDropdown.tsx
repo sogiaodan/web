@@ -1,7 +1,8 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
+import { apiFetch } from '@/lib/api-client';
 
 interface Priest {
   id: string;
@@ -18,7 +19,7 @@ interface PriestDropdownProps {
   disabled?: boolean;
 }
 
-const fetcher = (url: string) => fetch(url).then(res => res.json()).then(res => res.data);
+
 
 export function PriestDropdown({
   value,
@@ -28,12 +29,12 @@ export function PriestDropdown({
   error,
   disabled = false,
 }: PriestDropdownProps) {
-  // Client-side cache with staleTime handled by SWR inside the hook (default deduping interval is 2s, we override it to 5 min)
-  const { data: priests, isLoading } = useSWR<Priest[]>(
-    '/api/v1/priests?is_active=true',
-    fetcher,
-    { dedupingInterval: 300000, revalidateOnFocus: false }
-  );
+  // Client-side cache with staleTime handled by React Query (set to 5 minutes to prevent unnecessary refetching of the priest list)
+  const { data: priests, isLoading } = useQuery({
+    queryKey: ['priests_dropdown'],
+    queryFn: () => apiFetch<Priest[]>('/api/v1/priests?is_active=true'),
+    staleTime: 300000,
+  });
 
   return (
     <div className="w-full">

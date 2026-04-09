@@ -49,7 +49,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
-      }, 500);
+      }, 300);
     }
   };
 

@@ -191,11 +191,15 @@ interface Props {
   isEdit?: boolean;
 }
 
+import { useCreateParishioner, useUpdateParishioner } from '../queries/useParishionerMutations';
+
 export function ParishionerForm({ initialData, isEdit = false }: Props) {
   const router = useRouter();
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [errors, setErrors] = useState<FormErrors>({});
+  
+  const createMutation = useCreateParishioner();
+  const updateMutation = useUpdateParishioner(initialData?.id || '');
 
+  const [errors, setErrors] = useState<FormErrors>({});
 
   const [formData, setFormData] = useState<FormData>({
     christian_name: initialData?.christian_name ?? '',
@@ -248,13 +252,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
       return;
     }
 
-    setIsSubmitting(true);
     try {
-      const url = isEdit
-        ? `/api/v1/parishioners/${initialData?.id}`
-        : '/api/v1/parishioners';
-      const method = isEdit ? 'PATCH' : 'POST';
-
       const payload = {
         christian_name: formData.christian_name || undefined,
         full_name: formData.full_name,
@@ -271,29 +269,29 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
         date_of_death: formData.status === 'DECEASED' ? (formData.date_of_death || undefined) : null,
       };
 
-      const res = await fetch(url, {
-        method,
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(payload),
-      });
-
-      const result = await res.json();
-      if (!res.ok) throw new Error(result.message || 'Có lỗi xảy ra');
+      if (isEdit) {
+        await updateMutation.mutateAsync(payload);
+      } else {
+        const result = await createMutation.mutateAsync(payload);
+        const targetId = result.id;
+        router.push(`/dashboard/parishioners/${targetId}`);
+        router.refresh();
+      }
 
       toast.success(
         isEdit ? 'Cập nhật thông tin giáo dân thành công' : 'Thêm giáo dân mới thành công'
       );
 
-      const targetId = isEdit ? initialData?.id : result.data?.id;
-      router.push(`/dashboard/parishioners/${targetId}`);
-      router.refresh();
-    } catch (err: unknown) {
-      const message = err instanceof Error ? err.message : 'Lỗi kết nối máy chủ';
-      toast.error(message);
-      setIsSubmitting(false);
+      if (isEdit) {
+        router.push(`/dashboard/parishioners/${initialData?.id}`);
+        router.refresh();
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Lỗi hệ thống');
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   // ── Parishioner search factory ────────────────────────────────────────────
   const parishionerFetchUrl = (q: string) =>

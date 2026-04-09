@@ -11,47 +11,40 @@ import { SacramentTable } from './SacramentTable';
 import { MarriageTable } from './MarriageTable';
 import { SacramentInfoCards } from './SacramentInfoCards';
 import { SacramentListItem, MarriageListItem, SacramentType } from '@/types/sacrament';
+import { useSacramentsQuery } from '../queries/useSacramentQuery';
 
-interface SacramentListClientProps {
-  items: (SacramentListItem | MarriageListItem)[];
-  total: number;
-  page: number;
-  limit: number;
-  activeTab: SacramentType;
-}
-
-export function SacramentListClient({
-  items,
-  total,
-  page,
-  limit,
-  activeTab: serverActiveTab
-}: SacramentListClientProps) {
+export function SacramentListClient() {
   const { user } = useAuth();
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
-  const [localActiveTab, setLocalActiveTab] = useState<SacramentType>(serverActiveTab);
 
-  // Sync back if server state changes (e.g. from popstate or parent update)
-  useEffect(() => {
-    setLocalActiveTab(serverActiveTab);
-  }, [serverActiveTab]);
+  const activeTab: SacramentType = (searchParams.get('type') as SacramentType) || 'BAPTISM';
+  const isMarriage = activeTab === 'MARRIAGE';
+  
+  const page = Number(searchParams.get('page')) || 1;
+  const limit = Number(searchParams.get('limit')) || 10;
+  
+  // Construct params object for query key and fetch
+  const queryParams: Record<string, string> = {
+    page: page.toString(),
+    limit: limit.toString(),
+    ...(searchParams.get('search') ? { search: searchParams.get('search') as string } : {}),
+    ...(searchParams.get('date_from') ? { date_from: searchParams.get('date_from') as string } : {}),
+    ...(searchParams.get('date_to') ? { date_to: searchParams.get('date_to') as string } : {}),
+    type: activeTab,
+  };
 
-  const isMarriage = localActiveTab === 'MARRIAGE';
+  const { data: response, isLoading } = useSacramentsQuery(queryParams);
 
   const handleTabChange = useCallback((type: SacramentType) => {
-    // 0ms feedback: Update the UI tab instantly
-    setLocalActiveTab(type);
-    
-    // Background fetch the data
     startTransition(() => {
       const params = new URLSearchParams(searchParams.toString());
       params.set('type', type);
       params.delete('page'); // reset page on tab switch
-      router.replace(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 
@@ -64,29 +57,29 @@ export function SacramentListClient({
         params.delete('search');
       }
       params.delete('page');
-      router.replace(`${pathname}?${params.toString()}`);
+      router.push(`${pathname}?${params.toString()}`);
     });
   }, [pathname, router, searchParams]);
 
   const handleExport = () => {
     const currentParams = new URLSearchParams(searchParams.toString());
     const type = currentParams.get('type') || 'BAPTISM';
-    
-    // Using explicit file download
-    const isMarriage = type === 'MARRIAGE';
-    const baseUrl = isMarriage ? '/api/v1/sacraments/marriages/export' : '/api/v1/sacraments/export';
+    const isMarriageExport = type === 'MARRIAGE';
+    const baseUrl = isMarriageExport ? '/api/v1/sacraments/marriages/export' : '/api/v1/sacraments/export';
     const exportUrl = `${baseUrl}?${currentParams.toString()}`;
-    
     window.open(exportUrl, '_blank');
   };
+
+  const items = response?.items || [];
+  const total = response?.pagination?.total || 0;
 
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
-          <SacramentTabs activeTab={localActiveTab} onTabChange={handleTabChange} />
+          <SacramentTabs activeTab={activeTab} onTabChange={handleTabChange} />
           
-          {isPending && (
+          {(isPending || isLoading) && (
             <div className="flex items-center gap-2 text-primary/60 transition-opacity whitespace-nowrap">
               <Loader2 className="h-3.5 w-3.5 animate-spin" />
               <span className="text-[11px] font-medium font-display">Cập nhật...</span>
@@ -121,7 +114,7 @@ export function SacramentListClient({
       ) : (
         <SacramentTable
           items={items as SacramentListItem[]}
-          type={localActiveTab}
+          type={activeTab}
           total={total}
           page={page}
           limit={limit}

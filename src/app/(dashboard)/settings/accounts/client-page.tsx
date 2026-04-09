@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { 
   ChevronRight, 
@@ -32,11 +32,10 @@ export default function AccountManagementPage() {
   const [searchTerm, setSearchTerm] = useState('');
   const limit = 10;
 
-  const { data, error, mutate, isLoading } = useSWR(
-    JSON.stringify({ page, limit, role: roleFilter }),
-    fetchAccounts,
-    { keepPreviousData: true }
-  );
+  const { data, error, refetch: mutate, isLoading } = useQuery({
+    queryKey: ['accounts', { page, limit, role: roleFilter }],
+    queryFn: () => fetchAccounts(JSON.stringify({ page, limit, role: roleFilter })),
+  });
 
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<Account | null>(null);

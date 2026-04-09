@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import useSWR from 'swr';
+import { useQuery } from '@tanstack/react-query';
 import { 
   ChevronRight, 
   Search, 
@@ -16,7 +16,6 @@ import { useAuth } from '@/components/providers/auth-provider';
 import { SettingsSaintsAPI, SaintName } from '@/lib/api/settings';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
-import { refreshSaintNamesCache } from '@/lib/cache-saint-names';
 
 export default function SaintsPage() {
   const { user } = useAuth();
@@ -28,10 +27,10 @@ export default function SaintsPage() {
   const [deletingSaint, setDeletingSaint] = useState<SaintName | null>(null);
   
   // Fetch data
-  const { data: response, error, isLoading, mutate } = useSWR(
-    '/settings/saints',
-    SettingsSaintsAPI.list
-  );
+  const { data: response, error, isLoading, refetch: mutate } = useQuery({
+    queryKey: ['saints'],
+    queryFn: () => SettingsSaintsAPI.list(),
+  });
 
   const saints = response?.data || [];
 
@@ -51,19 +50,16 @@ export default function SaintsPage() {
   const handleAddSuccess = () => {
     setIsAddOpen(false);
     mutate();
-    refreshSaintNamesCache();
   };
 
   const handleEditSuccess = () => {
     setEditingSaint(null);
     mutate();
-    refreshSaintNamesCache();
   };
 
   const handleDeleteSuccess = () => {
     setDeletingSaint(null);
     mutate();
-    refreshSaintNamesCache();
   };
 
   return (
@@ -112,10 +108,22 @@ export default function SaintsPage() {
         </div>
       </div>
 
-      {/* Loading & Error States */}
+      {/* Loading skeleton — matches the 4-column name card grid */}
       {isLoading && (
-        <div className="flex justify-center py-12">
-          <LoadingSpinner className="h-8 w-8 text-primary" />
+        <div className="space-y-8">
+          {[1, 2].map((section) => (
+            <div key={section}>
+              <div className="h-6 w-40 bg-foreground/10 rounded animate-pulse mb-4" />
+              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                {Array.from({ length: 8 }).map((_, i) => (
+                  <div key={i} className="bg-surface border border-outline rounded p-4 flex flex-col gap-2 animate-pulse">
+                    <div className="h-5 w-3/4 bg-foreground/10 rounded" />
+                    <div className="h-4 w-10 bg-foreground/5 rounded" />
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
         </div>
       )}
 

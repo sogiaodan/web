@@ -7,6 +7,7 @@ import { Eye, FileText } from 'lucide-react';
 import { CertificateListItem, CertificateType } from '@/types/catechism';
 import { PaginationControls } from '@/components/ui/PaginationControls';
 import { formatDate } from '@/lib/utils';
+import { useDeleteCatechism } from '../queries/useCatechismMutations';
 
 interface CertificateTableProps {
   items: CertificateListItem[];
@@ -54,7 +55,7 @@ export function CertificateTable({
   const pathname = usePathname();
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
+  const deleteMutation = useDeleteCatechism();
 
   const totalPages = Math.ceil(total / limit) || 1;
   const startIdx = (page - 1) * limit + 1;
@@ -74,22 +75,17 @@ export function CertificateTable({
 
   const handleDeleteConfirm = async () => {
     if (!deletingId) return;
-    setIsDeleting(true);
     try {
-      const res = await fetch(`/api/v1/catechism-certificates/${deletingId}`, {
-        method: 'DELETE',
-      });
-      if (res.ok) {
-        router.refresh();
-      }
+      await deleteMutation.mutateAsync(deletingId);
     } catch {
       // silently fail, let user retry
     } finally {
-      setIsDeleting(false);
       setDeleteDialogOpen(false);
       setDeletingId(null);
     }
   };
+
+  const isDeleting = deleteMutation.isPending;
 
   if (items.length === 0) {
     return (

@@ -1,26 +1,5 @@
-const BASE_URL = '/api/v1';
+import { apiFetch } from '@/lib/api-client';
 
-async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-  const rs = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: options.credentials || 'include',
-  });
-
-  const responseBody = await rs.json().catch(() => null);
-
-  if (!rs.ok) {
-    if (responseBody?.message) {
-      throw new Error(responseBody.message);
-    }
-    throw new Error(`Request failed with status ${rs.status}`);
-  }
-
-  return responseBody.data as T;
-}
 export interface UserProfileResponse {
   data: {
     id: string;
@@ -73,32 +52,32 @@ export interface ParishInfoResponse {
 
 export const SettingsAPI = {
   getProfile: async (): Promise<UserProfileResponse> => {
-    const data = await apiFetch<UserProfileResponse['data']>('/settings/profile');
+    const data = await apiFetch<UserProfileResponse['data']>('/api/v1/settings/profile');
     return { data, message: '', status: 200 };
   },
 
   updateProfile: async (data: UpdateProfileParams): Promise<any> => {
-    return apiFetch<any>('/settings/profile', {
+    return apiFetch<any>('/api/v1/settings/profile', {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
   changePassword: async (data: any): Promise<any> => {
-    return apiFetch<any>('/settings/change-password', {
+    return apiFetch<any>('/api/v1/settings/change-password', {
       method: 'POST',
       body: JSON.stringify(data)
     });
   },
 
   getBackupStatus: async (): Promise<BackupStatusResponse> => {
-    const data = await apiFetch<BackupStatusResponse['data']>('/settings/backup/status');
+    const data = await apiFetch<BackupStatusResponse['data']>('/api/v1/settings/backup/status');
     return { data, message: '', status: 200 };
   },
   
   triggerBackup: async (): Promise<void> => {
     // Handling binary download via standard fetch to trigger browser download
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/v1/settings/backup`, {
+    const response = await fetch('/api/v1/settings/backup', {
       method: 'POST',
       headers: {
       },
@@ -128,16 +107,17 @@ export const SettingsAPI = {
   },
 
   getParishInfo: async (): Promise<ParishInfoResponse> => {
-    const data = await apiFetch<ParishInfo>('/settings/parish');
+    const data = await apiFetch<ParishInfo>('/api/v1/settings/parish');
     return { data, message: '', status: 200 };
   },
 
   updateParishInfo: async (data: Partial<ParishInfo>): Promise<any> => {
-    return apiFetch<any>('/settings/parish', {
+    return apiFetch<any>('/api/v1/settings/parish', {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
+
 
   uploadLogo: async (file: File): Promise<any> => {
     const formData = new FormData();
@@ -194,26 +174,26 @@ export const SettingsAccountsAPI = {
     if (params.limit) query.append('limit', params.limit.toString());
     if (params.role) query.append('role', params.role);
     
-    const data = await apiFetch<AccountsResponse['data']>(`/settings/accounts?${query.toString()}`);
+    const data = await apiFetch<AccountsResponse['data']>(`/api/v1/settings/accounts?${query.toString()}`);
     return { data } as AccountsResponse;
   },
 
   create: async (data: any): Promise<any> => {
-    return apiFetch<any>('/settings/accounts', {
+    return apiFetch<any>('/api/v1/settings/accounts', {
       method: 'POST',
       body: JSON.stringify(data)
     });
   },
 
   update: async (id: string, data: any): Promise<any> => {
-    return apiFetch<any>(`/settings/accounts/${id}`, {
+    return apiFetch<any>(`/api/v1/settings/accounts/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
   toggleStatus: async (id: string, status: string): Promise<any> => {
-    return apiFetch<any>(`/settings/accounts/${id}/status`, {
+    return apiFetch<any>(`/api/v1/settings/accounts/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status })
     });
@@ -249,27 +229,28 @@ export interface SaintNamesResponse {
 
 export const SettingsSaintsAPI = {
   list: async (): Promise<SaintNamesResponse> => {
-    const data = await apiFetch<SaintName[]>('/settings/saints');
+    const data = await apiFetch<SaintName[]>('/api/v1/settings/saints');
     return { data, message: '', status: 200 };
   },
 
   create: async (data: { name: string; gender: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
-    return apiFetch<any>('/settings/saints', {
+    return apiFetch<any>('/api/v1/settings/saints', {
       method: 'POST',
       body: JSON.stringify(data)
     });
   },
 
   update: async (name: string, data: { new_name?: string; gender?: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
-    return apiFetch<any>(`/settings/saints/${encodeURIComponent(name)}`, {
+    return apiFetch<any>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
   delete: async (name: string): Promise<any> => {
-    return apiFetch<any>(`/settings/saints/${encodeURIComponent(name)}`, {
+    return apiFetch<any>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     });
   }
+
 };

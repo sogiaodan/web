@@ -55,40 +55,62 @@ Before writing any CSS, Tailwind classes, or UI components, you MUST consult:
 ---
 
 ## 📡 API COMMUNICATION
-- **Base URL:** Defined via environment variables (pointing to the Cloudflare Tunnel/Mac Mini).
+- **Base URL:** Defined via environment variables (pointing to the backend via Cloudflare Tunnel).
 - **Tenant Context:** Every request must include the `church_id` (extracted by BE from Cookie) to ensure **Schema-based isolation** via `SET search_path`.
+- **Client Fetch:** All client-side fetch calls MUST use `credentials: "include"` to forward the HttpOnly JWT cookie through Next.js API rewrites.
+
+---
+
+## 🏗️ ARCHITECTURE: THIN SERVER / THICK CLIENT
+
+This project follows the **"Thin Server / Thick Client"** pattern for Vercel deployment:
+
+- **`page.tsx` files** are thin Server Components. They export `metadata` and render a `<FeatureClient />` component. They do NOT fetch data directly.
+- **`FeatureClient.tsx` files** are `"use client"` components. They manage all interactive state, data fetching (via React Query hooks), and mutations.
+- **`queries/` directories** contain React Query hooks (`useFeatureQuery.ts`, `useFeatureMutation.ts`) per feature.
+- **`/lib/queries/`** contains shared query hooks reused across multiple features (`useZonesQuery`, `usePriestsQuery`, `useSaintNamesQuery`).
 
 ---
 
 ## 🚀 CI/CD & DEPLOYMENT WORKFLOW
 
-The Web Frontend is hosted on **Cloudflare Pages** with an automated Git-to-Deploy pipeline.
+The Web Frontend is hosted on **Vercel** with an automated Git-to-Deploy pipeline.
 
 ### 🌳 Branch Strategy & Environments
 | Branch | Environment | Domain | Purpose |
 | :--- | :--- | :--- | :--- |
 | `main` | **Production** | [giaodan.io.vn](https://giaodan.io.vn) | Live application for end-users. |
-| `develop` | **Staging** | [staging.giaodan.io.vn](https://staging.giaodan.io.vn) | Pre-release testing with Staging API. |
-| `feature/*` | **Preview** | `*.web-8u0.pages.dev` | Individual feature testing. |
+| `develop` | **Staging Preview** | [staging.giaodan.io.vn](https://staging.giaodan.io.vn) | Pre-release testing with Staging API. |
+| `feature/*` | **Preview** | Auto-generated `.vercel.app` URL | Individual feature testing. |
 
-### 🛠️ Build Configuration (Cloudflare)
+### 🛠️ Build Configuration (Vercel)
 - **Framework Preset:** Next.js
-- **Build Command:** `npx @cloudflare/next-on-pages@1`
-- **Output Directory:** `.vercel/output/static`
-- **Compatibility Flag:** `nodejs_compat` (Required for Next.js runtime).
+- **Root Directory:** `./` (If connected directly to `web` repo) or `web/` (If connected to `platform` repo)
+- **Build Command:** `npm run build`
+- **Output Directory:** `.next` (default — managed by Vercel automatically)
+- **Install Command:** `npm ci`
+- **Node.js Version:** `20.x`
 
-### 📡 Environment Variables (Public API)
-Variables are configured in the Cloudflare Dashboard under **Settings > Environment variables**:
-- **Production (`main`):** `NEXT_PUBLIC_API_URL=https://api.giaodan.io.vn`
-- **Preview (`develop`):** `NEXT_PUBLIC_API_URL=https://api-staging.giaodan.io.vn`
+
+### 📡 Environment Variables (Vercel Dashboard)
+Configure under **Project Settings > Environment Variables**:
+
+| Variable | Value | Scope |
+| :--- | :--- | :--- |
+| `NEXT_PUBLIC_API_URL` | `https://api.giaodan.io.vn` | **Production** |
+| `NEXT_PUBLIC_API_URL` | `https://staging-api.giaodan.io.vn` | **Preview** |
+| `NEXT_PUBLIC_APP_URL` | `https://giaodan.io.vn` | **Production** |
 
 ### 🔄 Deployment Steps
-1.  **Local Development:** Create a `feature/your-feature` branch from `develop`.
-2.  **Pull Request (to `develop`):** Create an MR to merge into `develop`. 
-    - Cloudflare will generate a **Preview URL** for code review.
-3.  **Staging Deployment:** Once merged into `develop`, Cloudflare automatically builds and deploys to `staging.giaodan.io.vn`.
-4.  **Production Deployment:** Create an MR from `develop` into `main`.
-    - Once merged, the changes are live on `giaodan.io.vn`.
+1. **Local Development:** Create a `feature/your-feature` branch from `develop`.
+2. **Pull Request (to `develop`):** Create a PR to merge into `develop`.
+    - Vercel will automatically generate a **Preview URL** for code review.
+3. **Staging Deployment:** Once merged into `develop`, Vercel auto-deploys to the staging preview environment.
+4. **Production Deployment:** Create a PR from `develop` into `main`.
+    - Once merged, changes are live on `giaodan.io.vn`.
 
 > [!IMPORTANT]
-> **Manual Trigger:** If a build doesn't start automatically, go to Cloudflare Dashboard > **Deployments** and select **Retry deployment**.
+> **Vercel Connection:** If connecting the standalone `web` repo, the **Root Directory** is `./`. If connecting the parent `platform` repo, set it to `web/`. All builds run standard `npm run build` — no Cloudflare adapters or Edge Runtime required.
+
+> [!NOTE]
+> **API Proxying:** `next.config.ts` rewrites `/api/:path*` to the backend, making all client-side `fetch('/api/v1/...')` calls same-origin. The browser automatically attaches `SameSite=Strict` cookies, so `credentials: "include"` works without CORS issues.

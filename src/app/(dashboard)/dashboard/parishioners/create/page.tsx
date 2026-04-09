@@ -1,8 +1,5 @@
 import { Metadata } from 'next';
 import Link from 'next/link';
-import { redirect } from 'next/navigation';
-import { serverFetch } from '@/lib/api-server';
-import { GetMeResponse } from '@/lib/auth-api';
 import { ParishionerForm } from '../components/ParishionerForm';
 
 export const metadata: Metadata = {
@@ -10,17 +7,7 @@ export const metadata: Metadata = {
   description: 'Tạo hồ sơ giáo dân mới trong hệ thống Sổ Giáo Dân.',
 };
 
-export const runtime = 'edge';
-
-export default async function CreateParishionerPage() {
-  const meRes = await serverFetch<GetMeResponse>('/api/v1/auth/me');
-  const user = meRes?.data?.user;
-
-  // Role guard: only ADMIN and EDITOR can create
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'EDITOR')) {
-    redirect('/dashboard/parishioners');
-  }
-
+export default function CreateParishionerPage() {
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
       <div className="max-w-4xl mx-auto">

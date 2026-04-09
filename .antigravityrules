@@ -15,3 +15,8 @@
 - **REDIRECTS:** NEVER implement manual redirects to `/login` within page components; rely strictly on `middleware.ts`.
 - **MIDDLEWARE:** ALWAYS keep the `middleware.ts` matcher updated to exclude all public static assets (brand, manifest, robots.txt, etc).
 - **AUTH STATE:** ALWAYS use the pre-fetched `initialUser` pattern in `RootLayout -> AuthProvider` to avoid redundant API hits.
+
+## 📡 DATA FETCHING (Vercel Architecture)
+- **REACT QUERY:** ALWAYS use `@tanstack/react-query` for client-side data fetching and mutations. NEVER use SWR or `useEffect` for fetching.
+- **THIN SERVER:** `page.tsx` files should be thin Server Components (just rendering `<FeatureClient />`). Keep data fetching in the thick client.
+- **NO EDGE RUNTIME:** The project runs on Vercel Node.js runtime. Do NOT export `runtime = 'edge'` anywhere.

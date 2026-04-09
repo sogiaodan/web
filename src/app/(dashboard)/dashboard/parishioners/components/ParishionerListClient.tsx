@@ -1,32 +1,71 @@
 'use client';
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
+import { useSearchParams } from 'next/navigation';
 import { useAuth } from '@/components/providers/auth-provider';
 import { AdvancedFilterDrawer } from './AdvancedFilterDrawer';
 import { QuickPreviewDrawer } from './QuickPreviewDrawer';
 import { ParishionerTable } from './ParishionerTable';
 import { ParishionerFilterBar } from './ParishionerFilterBar';
-import { Zone } from '@/types/zone';
-import { ParishionerListItem } from '@/types/parishioner';
+import { ParishionerSummaryCards } from './ParishionerSummaryCards';
+import { useParishionersQuery } from '../queries/useParishionerQueries';
+import { useZonesQuery } from '@/lib/queries/useZonesQuery';
 
-interface Props {
-  zones: Zone[];
-  items: ParishionerListItem[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-/**
- * Client shell that owns the drawer open/close state.
- * Keeps the list page (Server Component) clean.
- */
-export function ParishionerListClient({ zones, items, total, page, limit }: Props) {
+export function ParishionerListClient() {
   const { user } = useAuth();
+  const searchParams = useSearchParams();
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
   const [previewId, setPreviewId] = useState<string | null>(null);
 
   const handleOpenPreview = useCallback((id: string) => setPreviewId(id), []);
   const handleClosePreview = useCallback(() => setPreviewId(null), []);
+
+  const { data: zonesData } = useZonesQuery();
+  const zones = zonesData?.items || [];
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, string | string[]> = {};
+    searchParams.forEach((value, key) => {
+      if (params[key]) {
+        if (Array.isArray(params[key])) {
+          (params[key] as string[]).push(value);
+        } else {
+          params[key] = [params[key] as string, value];
+        }
+      } else {
+        params[key] = value;
+      }
+    });
+
+    params.page = params.page || '1';
+    params.limit = params.limit || '10';
+    return params;
+  }, [searchParams]);
+
+  const { data, isLoading, error } = useParishionersQuery(queryParams);
+
+  if (isLoading) {
+    return (
+      <div className="h-[50vh] flex flex-col items-center justify-center space-y-4">
+        <span className="material-symbols-outlined text-3xl text-primary animate-spin">progress_activity</span>
+        <p className="text-sm font-medium text-muted-foreground animate-pulse font-display">
+          Đang tải dữ liệu giáo dân...
+        </p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant font-body mt-4">
+        Không thể tải dữ liệu giáo dân. Vui lòng thử lại sau.
+      </div>
+    );
+  }
+
+  const items = data?.items || [];
+  const total = data?.pagination?.total || 0;
+  const page = data?.pagination?.page || Number(queryParams.page);
+  const limit = data?.pagination?.limit || Number(queryParams.limit);
 
   return (
     <>
@@ -43,6 +82,9 @@ export function ParishionerListClient({ zones, items, total, page, limit }: Prop
         canEdit={canEdit}
         onPreview={handleOpenPreview}
       />
+      {data?.stats && (
+        <ParishionerSummaryCards stats={data.stats} />
+      )}
       <QuickPreviewDrawer
         parishionerId={previewId}
         onClose={handleClosePreview}

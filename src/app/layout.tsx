@@ -5,9 +5,8 @@ import { AuthProvider } from '@/components/providers/auth-provider';
 import { SystemAdminProvider } from '@/components/providers/system-admin-provider';
 import { serverFetch } from '@/lib/api-server';
 import { GetMeResponse } from '@/lib/auth-api';
+import Providers from './providers';
 import './globals.css';
-
-export const runtime = 'edge';
 
 const lora = Lora({
   subsets: ['vietnamese', 'latin'],
@@ -55,7 +54,9 @@ export default async function RootLayout({
       <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
         <SystemAdminProvider>
           <AuthProvider initialUser={initialUser}>
-            {children}
+            <Providers>
+              {children}
+            </Providers>
           </AuthProvider>
         </SystemAdminProvider>
         <Toaster position="top-right" richColors />

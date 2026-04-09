@@ -16,10 +16,13 @@ type WizardState = {
   bookIssueDate: string;
 }
 
+import { useSplitHousehold } from '../../../queries/useHouseholdMutations';
+
 export function SplitWizard({ originHousehold, zones }: { originHousehold: Household, zones: Zone[] }) {
   const router = useRouter();
   const [step, setStep] = useState(2); // Start at 2 to match HTML design precisely
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  const splitHouseholdMutation = useSplitHousehold(originHousehold.id);
 
   // Initial mock state to render step 2 exactly like HTML
   const members = originHousehold.current_members || [];
@@ -44,7 +47,6 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
   };
 
   const handleConfirm = async () => {
-    setIsSubmitting(true);
     try {
       const payload = {
         new_household: {
@@ -58,27 +60,17 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
         member_ids: [wizardData.personA?.id, wizardData.personB?.id].filter(Boolean)
       };
 
-      const res = await fetch(`/api/v1/households/${originHousehold.id}/split`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(payload),
-      });
-
-      const body = await res.json();
-      if (!res.ok) throw new Error(body.message || 'Lỗi server');
+      const result = await splitHouseholdMutation.mutateAsync(payload);
 
       toast.success('Tách hộ thành công');
-      router.push(`/dashboard/households/${body.data?.id || ''}`);
-      router.refresh();
+      router.push(`/dashboard/households/${result.id || ''}`);
       
     } catch (err: any) {
       toast.error(err.message || 'Đã có lỗi xảy ra');
-    } finally {
-      setIsSubmitting(false);
     }
   };
+
+  const isSubmitting = splitHouseholdMutation.isPending;
 
   return (
     <div className="relative min-h-screen">

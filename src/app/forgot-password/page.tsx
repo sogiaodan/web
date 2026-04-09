@@ -6,8 +6,6 @@ import { ForgotPasswordForm } from './forgot-password-form';
 import { KeyRound, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 
-export const runtime = 'edge';
-
 export default function ForgotPasswordPage() {
   return (
     <AuthLayout>
