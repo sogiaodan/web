@@ -260,18 +260,12 @@ export function AdvancedFilterDrawer({ zones }: Props) {
                     value={opt.value}
                     checked={localFilters.gender === opt.value}
                     onChange={() => {
-                      setLocalFilters((p) => {
-                        // Optional: Clear saint name if it doesn't match new gender
-                        const currentSaint = (saintNames.length > 0 ? saintNames : FALLBACK_SAINTS)
-                          .find(n => n.name === p.christian_name);
-                        const shouldResetSaint = opt.value && currentSaint && currentSaint.gender !== opt.value;
-
-                        return { 
-                          ...p, 
-                          gender: opt.value,
-                          christian_name: shouldResetSaint ? '' : p.christian_name
-                        };
-                      });
+                      setLocalFilters((p) => ({
+                        ...p,
+                        gender: opt.value,
+                        // Reset saint name when gender filter changes
+                        christian_name: p.gender !== opt.value ? '' : p.christian_name
+                      }));
                     }}
                     className="sr-only"
                   />
