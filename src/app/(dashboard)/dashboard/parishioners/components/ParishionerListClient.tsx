@@ -5,6 +5,8 @@ import { AdvancedFilterDrawer } from './AdvancedFilterDrawer';
 import { QuickPreviewDrawer } from './QuickPreviewDrawer';
 import { ParishionerTable } from './ParishionerTable';
 import { ParishionerFilterBar } from './ParishionerFilterBar';
+import { Zone } from '@/types/zone';
+import { ParishionerListItem } from '@/types/parishioner';
 
 interface Props {
   zones: Zone[];
