@@ -14,12 +14,16 @@ const nextConfig: NextConfig = {
     ],
   },
   async rewrites() {
+    const apiBase = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3000';
     return [
       {
         source: "/api/:path*",
-        destination: process.env.NEXT_PUBLIC_API_URL
-          ? `${process.env.NEXT_PUBLIC_API_URL}/api/:path*`
-          : "http://localhost:3000/api/:path*",
+        destination: `${apiBase}/api/:path*`,
+      },
+      {
+        // Proxy static assets (logos, certificates, etc.) served by the API
+        source: "/storage/:path*",
+        destination: `${apiBase}/storage/:path*`,
       },
     ];
   },

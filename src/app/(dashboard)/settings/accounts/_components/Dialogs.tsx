@@ -1,21 +1,40 @@
 import { useState, useEffect } from 'react';
-import { X, AlertTriangle } from 'lucide-react';
+import { X, AlertTriangle, Copy, Check } from 'lucide-react';
 import { toast } from 'sonner';
 import { FormInput } from '@/components/ui/FormInput';
 import { SettingsAccountsAPI, Account } from '@/lib/api/settings';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
+/** Generate a simple random temporary password: e.g. "Parish#7392" */
+function generateTempPassword(): string {
+  const prefixes = ['Parish', 'Admin', 'Giaoxu', 'Sacred', 'Vellum'];
+  const prefix = prefixes[Math.floor(Math.random() * prefixes.length)];
+  const num = Math.floor(1000 + Math.random() * 9000); // always 4 digits
+  const specials = ['@', '#', '!', '*'];
+  const special = specials[Math.floor(Math.random() * specials.length)];
+  return `${prefix}${special}${num}`;
+}
+
 export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boolean; onClose: () => void; onSuccess: () => void }) {
   const [formData, setFormData] = useState({ name: '', email: '', phone_number: '', role: 'VIEWER', password: '' });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({ name: '', email: '', phone_number: '', role: 'VIEWER', password: '' });
+      setFormData({ name: '', email: '', phone_number: '', role: 'VIEWER', password: generateTempPassword() });
       setErrors({});
+      setCopied(false);
     }
   }, [isOpen]);
+
+  const handleCopyPassword = () => {
+    navigator.clipboard.writeText(formData.password).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
 
   if (!isOpen) return null;
 
@@ -78,7 +97,9 @@ export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boole
               />
               <FormInput
                 label="SỐ ĐIỆN THOẠI"
-                placeholder="Nhập số điện thoại"
+                type="tel"
+                autoComplete="off"
+                placeholder="09xxxxxxxx"
                 value={formData.phone_number}
                 onChange={e => setFormData({ ...formData, phone_number: e.target.value })}
               />
@@ -91,20 +112,45 @@ export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boole
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                   className="flex w-full items-center font-sans h-12 rounded-[2px] border border-outline-variant bg-vellum px-3 text-[16px] text-foreground outline-none transition-all duration-200 ease-in-out hover:bg-surface-container-low focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent"
                 >
-                  <option value="VIEWER">HĐGX</option>
-                  <option value="EDITOR">Thư ký</option>
-                  <option value="ADMIN">Cha sở</option>
+                  <option value="VIEWER">Viewer</option>
+                  <option value="EDITOR">Editor</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
               </div>
-              <FormInput
-                 label="MẬT KHẨU TẠM THỜI *"
-                 type="password"
-                 placeholder="Mật khẩu ít nhất 8 ký tự"
-                 value={formData.password}
-                 onChange={e => setFormData({ ...formData, password: e.target.value })}
-                 error={errors.password}
-                 helperText="A-Z, a-z, 0-9, tối thiểu 8 ký tự"
-              />
+              <div className="space-y-1.5">
+                <label className="font-sans text-[14px] font-medium uppercase tracking-[0.05em] text-foreground">
+                  MẬT KHẨU TẠM THỜI *
+                </label>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1">
+                    <input
+                      type="text"
+                      autoComplete="new-password"
+                      readOnly
+                      value={formData.password}
+                      className="flex w-full font-mono font-bold tracking-wider h-12 rounded-[2px] border border-outline-variant bg-surface-container px-3 text-[15px] text-foreground outline-none pr-10"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={handleCopyPassword}
+                    title="Sao chép mật khẩu"
+                    className="h-12 w-12 flex-shrink-0 flex items-center justify-center rounded border border-outline-variant hover:bg-hover-bg transition-colors text-muted hover:text-foreground"
+                  >
+                    {copied ? <Check className="h-4 w-4 text-green-600" /> : <Copy className="h-4 w-4" />}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setFormData(f => ({ ...f, password: generateTempPassword() }))}
+                    title="Tạo lại mật khẩu mới"
+                    className="h-12 px-3 flex-shrink-0 flex items-center justify-center rounded border border-outline-variant hover:bg-hover-bg transition-colors text-muted hover:text-foreground text-xs font-sans font-medium"
+                  >
+                    Tạo lại
+                  </button>
+                </div>
+                {errors.password && <p className="mt-1 font-sans text-[12px] font-medium text-primary">{errors.password}</p>}
+                <p className="font-sans text-[11px] text-muted italic">Mật khẩu được tạo ngẫu nhiên. Hãy sao chép và gửi cho người dùng.</p>
+              </div>
             </form>
           </div>
           
@@ -216,9 +262,9 @@ export function EditUserDialog({ user, onClose, onSuccess }: { user: Account | n
                   onChange={(e) => setFormData({ ...formData, role: e.target.value })}
                   className="flex w-full items-center font-sans h-12 rounded-[2px] border border-outline-variant bg-vellum px-3 text-[16px] text-foreground outline-none transition-all duration-200 ease-in-out hover:bg-surface-container-low focus-visible:ring-2 focus-visible:ring-primary focus-visible:border-transparent"
                 >
-                  <option value="VIEWER">HĐGX</option>
-                  <option value="EDITOR">Thư ký</option>
-                  <option value="ADMIN">Cha sở</option>
+                  <option value="VIEWER">Viewer</option>
+                  <option value="EDITOR">Editor</option>
+                  <option value="ADMIN">Admin</option>
                 </select>
               </div>
             </form>
@@ -250,18 +296,25 @@ export function EditUserDialog({ user, onClose, onSuccess }: { user: Account | n
 
 export function LockUnlockConfirmation({ user, locked, onClose, onSuccess }: { user: Account | null; locked: boolean; onClose: () => void; onSuccess: () => void }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [blockingError, setBlockingError] = useState<string | null>(null);
 
   if (!user) return null;
 
   const handleConfirm = async () => {
     setIsSubmitting(true);
+    setBlockingError(null);
     try {
       await SettingsAccountsAPI.toggleStatus(user.id, locked ? 'ACTIVE' : 'LOCKED');
       toast.success(locked ? 'Tài khoản đã được mở khóa' : 'Tài khoản đã bị tạm khóa');
       onSuccess();
       onClose();
     } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra');
+      // Surface "last admin" errors inline rather than dismissing the dialog
+      if (err?.code === 'LAST_ADMIN_PROTECTED' || err?.message?.includes('Admin cuối cùng')) {
+        setBlockingError(err.message || 'Không thể khóa tài khoản Admin cuối cùng.');
+      } else {
+        toast.error(err.message || 'Có lỗi xảy ra');
+      }
     } finally {
       setIsSubmitting(false);
     }
@@ -278,7 +331,7 @@ export function LockUnlockConfirmation({ user, locked, onClose, onSuccess }: { u
               {locked ? 'Mở khóa tài khoản?' : 'Tạm khóa tài khoản này?'}
             </h3>
           </div>
-          <div className="px-6 py-8 border-b border-outline">
+          <div className="px-6 py-8 border-b border-outline space-y-4">
             <p className="text-[16px] text-foreground">
               {locked ? (
                 <>Bạn có chắc muốn mở khóa tài khoản <span className="font-bold">{user.name}</span>? Người dùng sẽ có thể đăng nhập trở lại.</>
@@ -286,6 +339,15 @@ export function LockUnlockConfirmation({ user, locked, onClose, onSuccess }: { u
                 <>Bạn có chắc muốn tạm khóa tài khoản <span className="font-bold">{user.name}</span>? Người dùng này sẽ không thể đăng nhập.</>
               )}
             </p>
+            {blockingError && (
+              <div className="flex items-start gap-3 bg-amber-50 border border-amber-200 rounded p-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+                <div>
+                  <p className="font-sans text-[13px] font-semibold text-amber-800">Không thể thực hiện hành động này</p>
+                  <p className="font-sans text-[13px] text-amber-700 mt-0.5">{blockingError}</p>
+                </div>
+              </div>
+            )}
           </div>
           <div className="px-6 py-4 flex items-center justify-end gap-3 rounded-b bg-surface-container flex-col md:flex-row">
             <button

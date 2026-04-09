@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import useSWR from 'swr';
+import { toast } from 'sonner';
 import { 
   ChevronRight, 
   Plus, 
@@ -10,11 +11,14 @@ import {
   Lock, 
   Unlock, 
   Shield,
-  Search
+  Search,
+  Mail,
 } from 'lucide-react';
 import { SettingsAccountsAPI, Account } from '@/lib/api/settings';
 import { CreateUserDialog, EditUserDialog, LockUnlockConfirmation } from './_components/Dialogs';
 import { PaginationControls } from '@/components/ui/PaginationControls';
+import { useAuth } from '@/components/providers/auth-provider';
+
 
 const fetchAccounts = async (params: string) => {
   const parsed = JSON.parse(params);
@@ -22,6 +26,7 @@ const fetchAccounts = async (params: string) => {
 };
 
 export default function AccountManagementPage() {
+  const { user: currentUser } = useAuth();
   const [page, setPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState('');
   const [searchTerm, setSearchTerm] = useState('');
@@ -36,15 +41,28 @@ export default function AccountManagementPage() {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editUser, setEditUser] = useState<Account | null>(null);
   const [lockContext, setLockContext] = useState<{ user: Account, locked: boolean } | null>(null);
+  const [resendingId, setResendingId] = useState<string | null>(null);
+
+  const handleResendInvite = async (user: Account) => {
+    setResendingId(user.id);
+    try {
+      const result = await SettingsAccountsAPI.resendInvite(user.id);
+      toast.success(result.message, { duration: 5000 });
+    } catch (err: any) {
+      toast.error(err.message || 'Không thể gửi email. Vui lòng thử lại.');
+    } finally {
+      setResendingId(null);
+    }
+  };
 
   const stats = data?.data?.stats;
   const items = data?.data?.items || [];
   const pagination = data?.data?.pagination;
 
   const roleLabels: Record<string, string> = {
-    'ADMIN': 'Cha sở',
-    'EDITOR': 'Thư ký',
-    'VIEWER': 'HĐGX',
+    'ADMIN': 'Admin',
+    'EDITOR': 'Editor',
+    'VIEWER': 'Viewer',
   };
 
   const filteredItems = items.filter((user: Account) => {
@@ -122,8 +140,8 @@ export default function AccountManagementPage() {
       {/* Filter Chips */}
       <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide w-full">
         <span className="font-sans text-[14px] text-foreground shrink-0 hidden md:block">Bộ lọc nhanh:</span>
-        {['Tất cả', 'Cha sở', 'Thư ký', 'HĐGX'].map((label, i) => {
-          const mapVal = label === 'Tất cả' ? '' : (label === 'Cha sở' ? 'ADMIN' : (label === 'Thư ký' ? 'EDITOR' : 'VIEWER'));
+        {['Tất cả', 'Admin', 'Editor', 'Viewer'].map((label, i) => {
+          const mapVal = label === 'Tất cả' ? '' : (label === 'Admin' ? 'ADMIN' : (label === 'Editor' ? 'EDITOR' : 'VIEWER'));
           const isActive = roleFilter === mapVal;
           return (
             <button
@@ -200,26 +218,37 @@ export default function AccountManagementPage() {
                    )}
                  </div>
 
-                 <div className="flex items-center justify-end gap-2 mt-2 md:mt-0 pt-3 border-t border-outline md:border-t-0 md:pt-0">
-                    <button
-                      onClick={() => setEditUser(user)}
-                      className="p-2 min-h-[44px] md:min-h-[36px] w-[44px] md:w-[36px] flex items-center justify-center text-muted hover:text-foreground rounded transition-colors"
-                      aria-label="Edit user"
-                    >
-                      <Pencil className="w-4 h-4 md:w-5 md:h-5" />
-                    </button>
-                    <button
-                      onClick={() => setLockContext({ user, locked: user.status === 'LOCKED' })}
-                      className="p-2 min-h-[44px] md:min-h-[36px] w-[44px] md:w-[36px] flex items-center justify-center text-muted hover:text-foreground rounded transition-colors"
-                      aria-label={user.status === 'LOCKED' ? "Unlock user" : "Lock user"}
-                    >
-                      {user.status === 'LOCKED' ? (
-                        <Unlock className="w-4 h-4 md:w-5 md:h-5 text-[#16A34A]" />
-                      ) : (
-                        <Lock className="w-4 h-4 md:w-5 md:h-5 text-primary" />
-                      )}
-                    </button>
-                 </div>
+                  <div className="flex items-center justify-end gap-1 mt-2 md:mt-0 pt-3 border-t border-outline md:border-t-0 md:pt-0">
+                     {user.id !== currentUser?.id && (
+                       <button
+                         onClick={() => handleResendInvite(user)}
+                         disabled={resendingId === user.id}
+                         title="Gửi lại lời mời"
+                         className="p-2 min-h-[44px] md:min-h-[36px] w-[44px] md:w-[36px] flex items-center justify-center text-muted hover:text-blue-600 rounded transition-colors disabled:opacity-40"
+                         aria-label="Resend invite"
+                       >
+                         <Mail className={`w-4 h-4 md:w-[18px] md:h-[18px] ${resendingId === user.id ? 'animate-pulse' : ''}`} />
+                       </button>
+                     )}
+                     <button
+                       onClick={() => setEditUser(user)}
+                       className="p-2 min-h-[44px] md:min-h-[36px] w-[44px] md:w-[36px] flex items-center justify-center text-muted hover:text-foreground rounded transition-colors"
+                       aria-label="Edit user"
+                     >
+                       <Pencil className="w-4 h-4 md:w-[18px] md:h-[18px]" />
+                     </button>
+                     <button
+                       onClick={() => setLockContext({ user, locked: user.status === 'LOCKED' })}
+                       className="p-2 min-h-[44px] md:min-h-[36px] w-[44px] md:w-[36px] flex items-center justify-center text-muted hover:text-foreground rounded transition-colors"
+                       aria-label={user.status === 'LOCKED' ? "Unlock user" : "Lock user"}
+                     >
+                       {user.status === 'LOCKED' ? (
+                         <Unlock className="w-4 h-4 md:w-[18px] md:h-[18px] text-[#16A34A]" />
+                       ) : (
+                         <Lock className="w-4 h-4 md:w-[18px] md:h-[18px] text-primary" />
+                       )}
+                     </button>
+                  </div>
               </div>
             ))
           )}

@@ -105,8 +105,8 @@ export default function ParishInformationPage() {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('File size cannot exceed 5MB');
+    if (file.size > 1 * 1024 * 1024) {
+      toast.error('File size cannot exceed 1MB');
       return;
     }
 
@@ -202,7 +202,7 @@ export default function ParishInformationPage() {
                 </div>
               ) : (
                 <p className="text-[11px] text-muted text-center leading-tight px-2">
-                  Recommended: Square PNG/JPG<br/>Max size: 5MB
+                  Recommended: Square PNG/JPG<br/>Max size: 1MB
                 </p>
               )}
             </div>

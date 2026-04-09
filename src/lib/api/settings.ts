@@ -141,7 +141,7 @@ export const SettingsAPI = {
 
   uploadLogo: async (file: File): Promise<any> => {
     const formData = new FormData();
-    formData.append('file', file);
+    formData.append('logo', file);
     
     // We use standard fetch here because apiFetch forces application/json Content-Type
     const response = await fetch('/api/v1/settings/parish/logo', {
@@ -217,7 +217,22 @@ export const SettingsAccountsAPI = {
       method: 'PATCH',
       body: JSON.stringify({ status })
     });
-  }
+  },
+
+  resendInvite: async (id: string): Promise<{ data: { id: string; mode: string }; message: string; status: number }> => {
+    const rs = await fetch(`/api/v1/settings/accounts/${id}/resend-invite`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
+    });
+    const body = await rs.json().catch(() => null);
+    if (!rs.ok) {
+      const err: any = new Error(body?.message || 'Có lỗi xảy ra');
+      err.code = body?.message?.code;
+      throw err;
+    }
+    return body; // { data, message, status }
+  },
 };
 
 export interface SaintName {
