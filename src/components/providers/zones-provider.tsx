@@ -28,7 +28,7 @@ export function ZonesProvider({ children }: { children: ReactNode }) {
     { staleTime: 1000 * 60 * 60 }
   );
 
-  const zones = data?.data?.items || [];
+  const zones = data?.items || [];
 
   const value = {
     zones,
