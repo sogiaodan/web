@@ -85,7 +85,7 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
     },
     {
       label: 'GIÁO KHU',
-      value: parishioner.household?.zone?.name ?? '—',
+      value: parishioner.zone?.name ?? '—',
       icon: 'location_on',
     },
   ];
