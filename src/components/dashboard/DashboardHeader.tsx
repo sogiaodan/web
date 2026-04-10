@@ -1,6 +1,6 @@
 'use client';
 
-import { Menu, Bell } from 'lucide-react';
+import { Menu, Bell, HelpCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 import { ApiResponse } from '@/lib/auth-api';
@@ -17,9 +17,10 @@ export interface DashboardSummaryResponse {
 
 interface DashboardHeaderProps {
   onMenuClick: () => void;
+  onHelpClick?: () => void;
 }
 
-export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
+export default function DashboardHeader({ onMenuClick, onHelpClick }: DashboardHeaderProps) {
   const { data, isLoading } = useQuery({
     queryKey: ['dashboard_summary'],
     queryFn: () => apiFetch<DashboardSummaryResponse>('/api/v1/dashboard/summary'),
@@ -56,7 +57,15 @@ export default function DashboardHeader({ onMenuClick }: DashboardHeaderProps) {
         )}
       </div>
 
-      <div className="flex items-center gap-x-4 lg:gap-x-6">
+      <div className="flex items-center gap-x-2 lg:gap-x-4">
+        <button
+          type="button"
+          onClick={onHelpClick}
+          className="relative rounded text-muted hover:bg-hover-bg hover:text-foreground focus:outline-none focus:ring-2 focus:ring-primary h-[48px] w-[48px] lg:h-[32px] lg:w-[32px] flex items-center justify-center transition-colors duration-150"
+        >
+          <span className="sr-only">Trợ giúp & Góp ý</span>
+          <HelpCircle className="h-5 w-5 lg:h-4 lg:w-4" aria-hidden="true" />
+        </button>
         <button
           type="button"
           className="relative rounded bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary h-[48px] w-[48px] lg:h-[32px] lg:w-[32px] flex items-center justify-center border border-primary/20 transition-colors duration-150"

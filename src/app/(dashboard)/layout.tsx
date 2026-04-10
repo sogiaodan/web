@@ -8,6 +8,7 @@ import DashboardHeader from '@/components/dashboard/DashboardHeader';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ZonesProvider } from '@/components/providers/zones-provider';
 import AccountPanel from '@/components/dashboard/settings/AccountPanel';
+import FeedbackModal from '@/components/dashboard/FeedbackModal';
 
 export default function DashboardLayout({
   children,
@@ -16,6 +17,7 @@ export default function DashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [accountPanelOpen, setAccountPanelOpen] = useState(false);
+  const [feedbackModalOpen, setFeedbackModalOpen] = useState(false);
   const { user, isLoading } = useAuth();
   const router = useRouter();
 
@@ -49,13 +51,17 @@ export default function DashboardLayout({
         />
         
         <div className="flex flex-1 flex-col overflow-hidden">
-          <DashboardHeader onMenuClick={() => setSidebarOpen(true)} />
+          <DashboardHeader 
+            onMenuClick={() => setSidebarOpen(true)} 
+            onHelpClick={() => setFeedbackModalOpen(true)}
+          />
           <main className="flex-1 overflow-y-auto">
             {children}
           </main>
         </div>
         
         <AccountPanel isOpen={accountPanelOpen} onClose={() => setAccountPanelOpen(false)} />
+        <FeedbackModal isOpen={feedbackModalOpen} onClose={() => setFeedbackModalOpen(false)} />
       </div>
     </ZonesProvider>
   );

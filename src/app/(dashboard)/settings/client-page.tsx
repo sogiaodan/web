@@ -11,7 +11,8 @@ import {
   LogOut, 
   ChevronRight,
   CloudDownload,
-  RefreshCw
+  RefreshCw,
+  HelpCircle
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { authApi } from '@/lib/auth-api';
@@ -22,6 +23,7 @@ import {
   useBackupStatusQuery, 
   useBackupMutation 
 } from '@/lib/queries/useSettingsQueries';
+import FeedbackModal from '@/components/dashboard/FeedbackModal';
 
 export default function SettingsPage() {
   const { user, refreshContext } = useAuth();
@@ -31,6 +33,7 @@ export default function SettingsPage() {
   const backupMutation = useBackupMutation();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
   
   const backupStatus = backupData?.data;
 
@@ -80,6 +83,14 @@ export default function SettingsPage() {
       href: '/settings/parish',
       show: isAdmin,
     },
+    {
+      id: 'feedback',
+      icon: HelpCircle,
+      label: 'Trợ giúp & Góp ý',
+      subtitle: 'Hướng dẫn sử dụng và báo cáo sự cố',
+      onClick: () => setIsFeedbackModalOpen(true),
+      show: true,
+    },
   ];
 
   const visibleMenuItems = menuItems.filter(item => item.show);
@@ -104,18 +115,13 @@ export default function SettingsPage() {
         <div className="flex flex-col border border-outline rounded bg-surface overflow-hidden">
           {visibleMenuItems.map((item, index) => {
             const Icon = item.icon;
-            return (
-              <Link
-                key={item.id}
-                href={item.href}
-                className={`group flex items-center p-4 min-h-[48px] hover:bg-hover-bg transition-colors ${
-                  index !== 0 ? 'border-t border-outline' : ''
-                }`}
-              >
+            
+            const content = (
+              <>
                 <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-surface-container text-foreground mr-4">
                   <Icon className="h-5 w-5" />
                 </div>
-                <div className="flex-1 flex flex-col justify-center">
+                <div className="flex-1 flex flex-col justify-center text-left">
                   <span className="font-sans text-base font-semibold text-foreground group-hover:text-primary transition-colors">
                     {item.label}
                   </span>
@@ -124,6 +130,32 @@ export default function SettingsPage() {
                   </span>
                 </div>
                 <ChevronRight className="h-5 w-5 shrink-0 text-muted group-hover:text-foreground transition-colors ml-4" />
+              </>
+            );
+
+            const className = `group flex items-center p-4 min-h-[48px] hover:bg-hover-bg transition-colors w-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary ${
+              index !== 0 ? 'border-t border-outline' : ''
+            }`;
+
+            if (item.onClick) {
+              return (
+                <button
+                  key={item.id}
+                  onClick={item.onClick}
+                  className={className}
+                >
+                  {content}
+                </button>
+              );
+            }
+
+            return (
+              <Link
+                key={item.id}
+                href={item.href!}
+                className={className}
+              >
+                {content}
               </Link>
             );
           })}
@@ -245,6 +277,8 @@ export default function SettingsPage() {
           </div>
         </>
       )}
+
+      <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
     </div>
   );
 }
