@@ -50,6 +50,16 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
 
   useEffect(() => {
     loadAdmin();
+    
+    const handlesysAdminUnauthorized = () => {
+      console.log("[system-admin-provider] Bắt được sự kiện 401 Unauthorized, tiến hành ép đăng xuất.");
+      setAdmin(null);
+    };
+    window.addEventListener("sysadmin:unauthorized", handlesysAdminUnauthorized);
+    
+    return () => {
+      window.removeEventListener("sysadmin:unauthorized", handlesysAdminUnauthorized);
+    };
   }, [pathname]);
 
   const login = (newAdmin: SystemAdmin) => {

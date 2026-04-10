@@ -93,7 +93,17 @@ export function AuthProvider({
     
     const handlePopState = () => loadUser(false);
     window.addEventListener("popstate", handlePopState);
-    return () => window.removeEventListener("popstate", handlePopState);
+    
+    const handleUnauthorized = () => {
+      console.log("[auth-provider] Bắt được sự kiện 401 Unauthorized toàn cục, tiến hành ép đăng xuất.");
+      setUser(null);
+    };
+    window.addEventListener("auth:unauthorized", handleUnauthorized);
+
+    return () => {
+      window.removeEventListener("popstate", handlePopState);
+      window.removeEventListener("auth:unauthorized", handleUnauthorized);
+    };
   }, []);
 
   // Centralized Redirect Logic with Redirect Sentinel

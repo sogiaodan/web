@@ -32,6 +32,16 @@ export async function apiFetch<T = any>(
 
   if (!res.ok) {
     const message = json?.message || `Request failed with status ${res.status}`;
+    
+    if (res.status === 401) {
+      const code = json?.code;
+      const isTokenInvalidError = code === 'TOKEN_EXPIRED' || code === 'TOKEN_MISSING' || code === 'INSUFFICIENT_PERMISSIONS' || code === 'INVALID_TOKEN';
+      
+      if (isTokenInvalidError && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:unauthorized'));
+      }
+    }
+    
     throw new ApiError(message, res.status);
   }
 

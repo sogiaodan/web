@@ -15,6 +15,7 @@ export default function FeedbackModal({ isOpen, onClose }: FeedbackModalProps) {
   const { user } = useAuth();
   const { data: parishData } = useParishQuery(isOpen); // Only fetch if open
   const [copied, setCopied] = useState(false);
+  const [emailCopied, setEmailCopied] = useState(false);
 
   if (!isOpen) return null;
 
@@ -43,6 +44,12 @@ Nội dung:
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const handleCopyEmail = () => {
+    navigator.clipboard.writeText(CONTACT_INFO.email);
+    setEmailCopied(true);
+    setTimeout(() => setEmailCopied(false), 2000);
+  };
+
   const mailToUrl = `mailto:${CONTACT_INFO.email}?subject=${encodeURIComponent('[Góp ý/Báo lỗi]')}&body=${encodeURIComponent(template)}`;
 
   return (
@@ -68,8 +75,36 @@ Nội dung:
           </div>
 
           <div className="px-6 py-6 overflow-y-auto flex-1 custom-scrollbar bg-background">
-            <p className="text-sm text-foreground mb-4 font-sans">
-              Vui lòng copy mẫu dưới đây hoặc bấm nút <strong>Gửi Email</strong> trực tiếp để chúng tôi có đủ thông tin hỗ trợ bạn nhanh nhất.
+            <div className="mb-5 p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-md">
+              <p className="text-sm text-foreground font-sans mb-2">
+                Nếu bạn không có ứng dụng email trên máy tính, có thể gửi thư trực tiếp vào địa chỉ:
+              </p>
+              <div className="flex items-center gap-2">
+                <code className="text-sm font-mono bg-background border border-outline px-2 py-1 rounded select-all text-primary font-medium">
+                  {CONTACT_INFO.email}
+                </code>
+                <button
+                  onClick={handleCopyEmail}
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 text-xs font-medium bg-surface border border-outline hover:bg-hover-bg rounded text-muted hover:text-foreground transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                  title="Copy địa chỉ email"
+                >
+                  {emailCopied ? (
+                    <>
+                      <CheckCircle2 className="h-3.5 w-3.5 text-green-600" />
+                      Đã copy
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="h-3.5 w-3.5" />
+                      Copy email
+                    </>
+                  )}
+                </button>
+              </div>
+            </div>
+
+            <p className="text-sm text-foreground mb-4 font-sans border-t border-outline/50 pt-5 mt-5">
+              Vui lòng copy mẫu dưới đây hoặc bấm nút <strong>Gửi Email</strong> trực tiếp nếu bạn có sẵn ứng dụng email để chúng tôi có đủ thông tin hỗ trợ bạn nhanh nhất.
             </p>
 
             <div className="relative bg-surface border border-outline rounded p-4 font-mono text-sm text-foreground whitespace-pre-wrap select-all">

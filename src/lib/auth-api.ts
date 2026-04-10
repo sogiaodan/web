@@ -49,15 +49,24 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   const responseBody = await rs.json().catch(() => null);
 
   if (!rs.ok) {
-    // Only log as error if it's not a common auth/session failure
     const isSessionCheck = endpoint === '/me' && (rs.status === 401 || rs.status === 404);
+    const message = responseBody?.message || '';
+    
+    if (!isSessionCheck && rs.status === 401) {
+      const code = responseBody?.code;
+      const isTokenInvalidError = code === 'TOKEN_EXPIRED' || code === 'TOKEN_MISSING' || code === 'INSUFFICIENT_PERMISSIONS' || code === 'INVALID_TOKEN';
+      
+      if (isTokenInvalidError && typeof window !== 'undefined') {
+        window.dispatchEvent(new Event('auth:unauthorized'));
+      }
+    }
     
     if (!isSessionCheck) {
       console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody);
     }
     
-    if (responseBody?.message) {
-      throw new Error(responseBody.message);
+    if (message) {
+      throw new Error(message);
     }
     throw new Error(`Request failed with status ${rs.status}`);
   }

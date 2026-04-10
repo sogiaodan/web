@@ -24,10 +24,12 @@ import {
   useBackupMutation 
 } from '@/lib/queries/useSettingsQueries';
 import FeedbackModal from '@/components/dashboard/FeedbackModal';
+import { useQueryClient } from '@tanstack/react-query';
 
 export default function SettingsPage() {
-  const { user, refreshContext } = useAuth();
+  const { user, logout } = useAuth();
   const router = useRouter();
+  const queryClient = useQueryClient();
   
   const { data: backupData } = useBackupStatusQuery();
   const backupMutation = useBackupMutation();
@@ -44,9 +46,8 @@ export default function SettingsPage() {
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
-      await authApi.logout();
-      await refreshContext();
-      router.push('/login');
+      queryClient.clear();
+      await logout();
     } catch (err: any) {
       toast.error(err.message || 'Có lỗi xảy ra');
       setIsLoggingOut(false);
