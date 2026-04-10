@@ -131,15 +131,15 @@ export default function ParishInformationPage() {
           {/* Breadcrumbs */}
           <nav className="flex items-center space-x-1 text-sm font-medium text-muted mb-6">
             <Link href="/settings" className="hover:text-foreground transition-colors">
-              Settings
+              Cài đặt
             </Link>
             <ChevronRight className="h-4 w-4" />
-            <span className="text-foreground">Parish Information</span>
+            <span className="text-foreground">Thông tin Giáo xứ</span>
           </nav>
 
           <div className="mb-8">
-            <h1 className="font-serif text-2xl font-bold text-foreground">Parish Information</h1>
-            <p className="mt-1 text-sm text-muted">Manage your parish details, logo, and contact information.</p>
+            <h1 className="font-serif text-2xl font-bold text-foreground">Thông tin Giáo xứ</h1>
+            <p className="mt-1 text-sm text-muted">Quản lý thông tin chi tiết, logo và thông tin liên hệ của giáo xứ.</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
@@ -160,7 +160,7 @@ export default function ParishInformationPage() {
                 
                 <div className="absolute inset-0 bg-black/60 flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <Upload className="h-6 w-6 text-white mb-2" />
-                  <span className="text-xs font-semibold text-white">Upload New</span>
+                  <span className="text-xs font-semibold text-white">Tải ảnh mới</span>
                 </div>
 
                 <input
@@ -179,7 +179,7 @@ export default function ParishInformationPage() {
                 </div>
               ) : (
                 <p className="text-[11px] text-muted text-center leading-tight px-2">
-                  Recommended: Square PNG/JPG<br/>Max size: 1MB
+                  Khuyên dùng: Ảnh vuông PNG/JPG<br/>Kích thước tối đa: 1MB
                 </p>
               )}
             </div>
@@ -190,12 +190,12 @@ export default function ParishInformationPage() {
                 
                 {/* General Information Section */}
                 <div className="bg-surface border border-outline rounded-xl p-5 md:p-6 shadow-sm">
-                  <h3 className="font-serif text-lg font-bold text-foreground border-b border-outline/50 pb-3 mb-5">General Information</h3>
+                  <h3 className="font-serif text-lg font-bold text-foreground border-b border-outline/50 pb-3 mb-5">Thông tin Chung</h3>
                   <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
                     
                     <div className="sm:col-span-2">
                       <label htmlFor="name" className="block text-sm font-medium text-foreground mb-1.5">
-                        Parish Name <span className="text-primary">*</span>
+                        Tên Giáo xứ <span className="text-primary">*</span>
                       </label>
                       <input
                         type="text"
@@ -209,7 +209,7 @@ export default function ParishInformationPage() {
 
                     <div>
                       <label htmlFor="diocese" className="block text-sm font-medium text-foreground mb-1.5">
-                        Diocese
+                        Giáo phận
                       </label>
                       <input
                         type="text"
@@ -222,7 +222,7 @@ export default function ParishInformationPage() {
 
                     <div>
                       <label htmlFor="deanery" className="block text-sm font-medium text-foreground mb-1.5">
-                        Deanery
+                        Giáo hạt
                       </label>
                       <input
                         type="text"
@@ -235,7 +235,7 @@ export default function ParishInformationPage() {
 
                     <div>
                       <label htmlFor="patron_saint" className="block text-sm font-medium text-foreground mb-1.5">
-                        Patron Saint
+                        Thánh Bổn mạng
                       </label>
                       <input
                         type="text"
@@ -248,7 +248,7 @@ export default function ParishInformationPage() {
 
                     <div>
                       <label htmlFor="established_year" className="block text-sm font-medium text-foreground mb-1.5">
-                        Established Year
+                        Năm Thành lập
                       </label>
                       <input
                         type="number"
@@ -262,7 +262,7 @@ export default function ParishInformationPage() {
 
                     <div className="sm:col-span-2">
                       <label htmlFor="pastor_name" className="block text-sm font-medium text-foreground mb-1.5">
-                        Pastor Name
+                        Tên Linh mục Chánh xứ
                       </label>
                       <input
                         type="text"
@@ -277,12 +277,12 @@ export default function ParishInformationPage() {
 
                 {/* Contact Information Section */}
                 <div className="bg-surface border border-outline rounded-xl p-5 md:p-6 shadow-sm">
-                  <h3 className="font-serif text-lg font-bold text-foreground border-b border-outline/50 pb-3 mb-5">Contact Details</h3>
+                  <h3 className="font-serif text-lg font-bold text-foreground border-b border-outline/50 pb-3 mb-5">Thông tin Liên hệ</h3>
                   <div className="grid grid-cols-1 gap-5">
                     
                     <div>
                       <label htmlFor="phone_number" className="block text-sm font-medium text-foreground mb-1.5">
-                        Phone Number
+                        Số điện thoại
                       </label>
                       <input
                         type="text"
@@ -295,7 +295,7 @@ export default function ParishInformationPage() {
 
                     <div>
                       <label htmlFor="address" className="block text-sm font-medium text-foreground mb-1.5">
-                        Address
+                        Địa chỉ
                       </label>
                       <textarea
                         id="address"
@@ -336,7 +336,7 @@ export default function ParishInformationPage() {
                 Lưu lại
               </span>
             ) : (
-              'Save Changes'
+              'Lưu thay đổi'
             )}
           </button>
         </div>

@@ -63,24 +63,24 @@ export default function SettingsPage() {
     {
       id: 'accounts',
       icon: Shield,
-      label: 'Account Management',
-      subtitle: 'Manage permissions and system users',
+      label: 'Quản lý Tài khoản',
+      subtitle: 'Quản lý quyền và người dùng hệ thống',
       href: '/settings/accounts',
       show: isAdmin,
     },
     {
       id: 'saints',
       icon: BookHeart,
-      label: 'Saint Names',
-      subtitle: 'Directory of Christian names used in records',
+      label: 'Tên Thánh',
+      subtitle: 'Danh mục tên Thánh sử dụng trong hồ sơ',
       href: '/settings/saints',
       show: isAdmin || isEditor,
     },
     {
       id: 'parish',
       icon: Church,
-      label: 'Parish Information',
-      subtitle: 'Update basic info and parish address',
+      label: 'Thông tin Giáo xứ',
+      subtitle: 'Cập nhật thông tin cơ bản và địa chỉ giáo xứ',
       href: '/settings/parish',
       show: isAdmin,
     },
@@ -107,7 +107,7 @@ export default function SettingsPage() {
     <div className="flex-1 p-6 md:p-8 lg:max-w-4xl lg:mx-auto">
       <div className="mb-6 lg:mb-8">
         <h1 className="font-serif text-[20px] md:text-2xl lg:text-[24px] font-bold text-foreground">
-          System Settings
+          Cài đặt Hệ thống
         </h1>
       </div>
 
@@ -169,10 +169,10 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1 flex flex-col justify-center mr-4">
                 <span className="font-sans text-base font-semibold text-foreground">
-                  Data Backup
+                  Sao lưu Dữ liệu
                 </span>
                 <span className="font-sans text-[13px] text-muted">
-                  Download a full backup of current data
+                  Tải xuống bản sao lưu toàn bộ dữ liệu hiện tại
                 </span>
               </div>
               <button
@@ -186,7 +186,7 @@ export default function SettingsPage() {
                     Đang xử lý...
                   </span>
                 ) : (
-                  'Backup Now'
+                  'Sao lưu ngay'
                 )}
               </button>
             </div>
@@ -204,10 +204,10 @@ export default function SettingsPage() {
             </div>
             <div className="flex-1 flex flex-col justify-center">
               <span className="font-sans text-base font-semibold text-primary">
-                Logout
+                Đăng xuất
               </span>
               <span className="font-sans text-[13px] text-muted">
-                End the current session
+                Kết thúc phiên làm việc hiện tại
               </span>
             </div>
           </button>
@@ -219,7 +219,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2 mb-2 text-muted">
               <CloudDownload className="h-4 w-4 shrink-0" />
               <span className="text-[11px] font-semibold uppercase tracking-wider">
-                LAST BACKUP
+                BẢN SAO LƯU CUỐI
               </span>
             </div>
             <div className="font-sans text-base font-semibold text-foreground">
@@ -231,7 +231,7 @@ export default function SettingsPage() {
             <div className="flex items-center gap-2 mb-2 text-muted">
               <RefreshCw className="h-4 w-4 shrink-0" />
               <span className="text-[11px] font-semibold uppercase tracking-wider">
-                SYSTEM VERSION
+                PHIÊN BẢN HỆ THỐNG
               </span>
             </div>
             <div className="font-sans text-base font-semibold text-foreground">
@@ -254,7 +254,7 @@ export default function SettingsPage() {
               </div>
               <div className="px-6 py-8 border-b border-outline">
                 <p className="text-base text-foreground text-center">
-                  Are you sure you want to log out?
+                  Bạn có chắc chắn muốn đăng xuất?
                 </p>
               </div>
               <div className="px-6 py-4 bg-surface flex items-center justify-end gap-3 rounded-b">
@@ -264,14 +264,14 @@ export default function SettingsPage() {
                   disabled={isLoggingOut}
                   className="rounded px-4 py-2 text-sm font-medium text-foreground hover:bg-hover-bg border border-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors disabled:opacity-50 flex-1 md:flex-none"
                 >
-                  Cancel
+                  Hủy
                 </button>
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
                   className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[120px] flex-1 md:flex-none"
                 >
-                  {isLoggingOut ? <LoadingSpinner className="h-4 w-4" /> : 'Logout'}
+                  {isLoggingOut ? <LoadingSpinner className="h-4 w-4" /> : 'Đăng xuất'}
                 </button>
               </div>
             </div>
