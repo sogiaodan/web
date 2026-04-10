@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import { Lora, Work_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
@@ -6,6 +6,7 @@ import { SystemAdminProvider } from '@/components/providers/system-admin-provide
 import { serverFetch } from '@/lib/api-server';
 import { GetMeResponse } from '@/lib/auth-api';
 import Providers from './providers';
+import IOSInstallBanner from '@/components/pwa/IOSInstallBanner';
 import './globals.css';
 
 const lora = Lora({
@@ -20,6 +21,15 @@ const workSans = Work_Sans({
   display: 'swap',
 });
 
+// Viewport config is separate from Metadata in Next.js 14+
+export const viewport: Viewport = {
+  themeColor: '#8B2635',
+  width: 'device-width',
+  initialScale: 1,
+  minimumScale: 1,
+  viewportFit: 'cover', // Respect iPhone notch / safe areas
+};
+
 export const metadata: Metadata = {
   title: 'Sổ Giáo Dân | Parish Management System',
   description: 'Hệ thống quản trị giáo xứ hiện đại và an toàn.',
@@ -27,6 +37,12 @@ export const metadata: Metadata = {
   icons: {
     icon: '/brand/favicon.ico',
     apple: '/brand/apple-touch-icon.png',
+  },
+  // Tell iOS this is a full-screen capable web app
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Sổ Giáo Dân',
   },
 };
 
@@ -50,6 +66,21 @@ export default async function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
+        {/* Register PWA Service Worker */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if ('serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js')
+                    .catch(function(err) {
+                      console.error('[PWA] Service worker registration failed:', err);
+                    });
+                });
+              }
+            `,
+          }}
+        />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
         <SystemAdminProvider>
@@ -60,6 +91,7 @@ export default async function RootLayout({
           </AuthProvider>
         </SystemAdminProvider>
         <Toaster position="top-right" richColors />
+        <IOSInstallBanner />
       </body>
     </html>
   );

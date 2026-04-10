@@ -76,9 +76,6 @@ Nội dung:
 
           <div className="px-6 py-6 overflow-y-auto flex-1 custom-scrollbar bg-background">
             <div className="mb-5 p-3 sm:p-4 bg-primary/5 border border-primary/20 rounded-md">
-              <p className="text-sm text-foreground font-sans mb-2">
-                Nếu bạn không có ứng dụng email trên máy tính, có thể gửi thư trực tiếp vào địa chỉ:
-              </p>
               <div className="flex items-center gap-2">
                 <code className="text-sm font-mono bg-background border border-outline px-2 py-1 rounded select-all text-primary font-medium">
                   {CONTACT_INFO.email}

@@ -2,15 +2,20 @@
   "name": "Sổ Giáo Dân",
   "short_name": "Sổ Giáo Dân",
   "description": "Hệ thống quản trị giáo xứ hiện đại và an toàn.",
+  "id": "/",
   "start_url": "/",
+  "scope": "/",
   "display": "standalone",
+  "orientation": "portrait",
+  "lang": "vi",
   "background_color": "#FDFBF7",
   "theme_color": "#8B2635",
+  "categories": ["productivity", "utilities"],
   "icons": [
     { "src": "/brand/favicon.ico", "type": "image/x-icon", "sizes": "16x16 32x32" },
-    { "src": "/brand/icon-192.png", "type": "image/png", "sizes": "192x192" },
-    { "src": "/brand/icon-256.png", "type": "image/png", "sizes": "256x256" },
-    { "src": "/brand/icon-512.png", "type": "image/png", "sizes": "512x512" },
+    { "src": "/brand/icon-192.png", "type": "image/png", "sizes": "192x192", "purpose": "any" },
+    { "src": "/brand/icon-256.png", "type": "image/png", "sizes": "256x256", "purpose": "any" },
+    { "src": "/brand/icon-512.png", "type": "image/png", "sizes": "512x512", "purpose": "any" },
     { "src": "/brand/icon-192-maskable.png", "type": "image/png", "sizes": "192x192", "purpose": "maskable" },
     { "src": "/brand/icon-512-maskable.png", "type": "image/png", "sizes": "512x512", "purpose": "maskable" }
   ]
