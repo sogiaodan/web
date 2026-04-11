@@ -5,17 +5,22 @@ import { usePathname } from 'next/navigation';
 import {
   LayoutDashboard,
   Church,
-  Settings,
+  Mail,
+  ScrollText,
+  Bell,
   ShieldCheck,
   X,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSystemAdmin } from '@/components/providers/system-admin-provider';
 
 const ADMIN_NAV_ITEMS = [
-  { href: '/super-admin/dashboard', label: 'Tổng quan hệ thống', icon: LayoutDashboard },
-  { href: '/super-admin/dashboard/churches', label: 'Quản trị Giáo xứ', icon: Church },
+  { href: '/super-admin/dashboard',                   label: 'Tổng quan hệ thống', icon: LayoutDashboard, exact: true },
+  { href: '/super-admin/dashboard/churches',          label: 'Quản trị Giáo xứ',   icon: Church },
+  { href: '/super-admin/dashboard/crm',               label: 'CRM Inbox',           icon: Mail },
+  { href: '/super-admin/dashboard/audit-logs',        label: 'Nhật ký hệ thống',   icon: ScrollText },
+  { href: '/super-admin/dashboard/notifications',     label: 'Thông báo',           icon: Bell },
 ];
 
 interface SystemAdminSidebarProps {
@@ -48,9 +53,9 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
 
       <nav className="flex flex-1 flex-col px-4 gap-y-1 overflow-y-auto mt-4">
         {ADMIN_NAV_ITEMS.map((item) => {
-          const isActive = item.href === '/super-admin/dashboard' 
-            ? pathname === '/super-admin/dashboard' 
-            : pathname.startsWith(item.href);
+        const isActive = item.exact
+          ? pathname === item.href
+          : pathname.startsWith(item.href);
           const Icon = item.icon;
           
           return (
