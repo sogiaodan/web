@@ -2,7 +2,12 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import path from "path";
 
+import packageJson from "../package.json";
+
 const nextConfig: NextConfig = {
+  env: {
+    NEXT_PUBLIC_VERSION: packageJson.version,
+  },
   turbopack: {
     root: path.join(__dirname, "../"), 
   },

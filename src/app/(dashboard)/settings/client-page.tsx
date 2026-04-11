@@ -235,7 +235,7 @@ export default function SettingsPage() {
               </span>
             </div>
             <div className="font-sans text-base font-semibold text-foreground">
-              {backupStatus?.system_version || 'v2.4.1 stable'}
+              {process.env.NEXT_PUBLIC_VERSION ? `v${process.env.NEXT_PUBLIC_VERSION} stable` : (backupStatus?.system_version || 'v1.0.0 stable')}
             </div>
           </div>
         </div>
