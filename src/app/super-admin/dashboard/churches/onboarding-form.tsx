@@ -163,7 +163,7 @@ export function ChurchOnboardingForm({ onSuccess, onCancel }: ChurchOnboardingFo
           <div className="p-4 bg-amber-50 border border-amber-100 rounded-sm flex gap-3">
             <ShieldAlert className="h-5 w-5 text-amber-600 shrink-0" />
             <p className="text-[11px] text-amber-800 leading-normal">
-                <strong>Lưu ý:</strong> Quá trình này sẽ tự động khởi tạo Schema riêng biệt và các bảng dữ liệu tiêu chuẩn. Thao tác này không thể hoàn tác trực tiếp từ UI.
+                <strong>Lưu ý:</strong> Quá trình này hoàn toàn tự động. Email thông tin tài khoản có thể rơi vào mục <strong>Spam</strong>, hãy nhắc người dùng kiểm tra nếu không thấy trong Inbox. Thao tác khởi tạo này không thể hoàn tác trực tiếp từ UI.
             </p>
           </div>
         </form>

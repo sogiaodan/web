@@ -150,6 +150,7 @@ export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boole
                 </div>
                 {errors.password && <p className="mt-1 font-sans text-[12px] font-medium text-primary">{errors.password}</p>}
                 <p className="font-sans text-[11px] text-muted italic">Mật khẩu được tạo ngẫu nhiên. Hãy sao chép và gửi cho người dùng.</p>
+                <p className="font-sans text-[11px] text-amber-600 italic mt-0.5">Lưu ý: Email mời có thể rơi vào mục <strong>Spam</strong>. Hãy nhắc người dùng kiểm tra nếu không thấy trong Inbox.</p>
               </div>
             </form>
           </div>

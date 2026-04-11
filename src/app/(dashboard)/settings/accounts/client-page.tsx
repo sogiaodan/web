@@ -46,7 +46,7 @@ export default function AccountManagementPage() {
     setResendingId(user.id);
     try {
       const result = await SettingsAccountsAPI.resendInvite(user.id);
-      toast.success(result.message, { duration: 5000 });
+      toast.success(`${result.message}. Lưu ý: Email có thể rơi vào mục Spam.`, { duration: 6000 });
     } catch (err: any) {
       toast.error(err.message || 'Không thể gửi email. Vui lòng thử lại.');
     } finally {
