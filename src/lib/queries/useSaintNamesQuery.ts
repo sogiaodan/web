@@ -20,7 +20,7 @@ export function useSaintNamesQuery(
   if (params?.limit) query.append('limit', params.limit.toString());
   
   const queryString = query.toString();
-  const url = `/api/v1/settings/saints${queryString ? \`?\${queryString}\` : ""}`;
+  const url = `/api/v1/settings/saints${queryString ? `?${queryString}` : ""}`;
 
   return useQuery({
     queryKey: ["saint_names", params],

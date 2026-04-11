@@ -72,7 +72,7 @@ export default async function RootLayout({
         {/* Register PWA Service Worker only in production to avoid dev caching issues */}
         {process.env.NODE_ENV === 'production' && (
           <Script id="register-sw" strategy="afterInteractive">
-            {\`
+            {`
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js')
@@ -81,7 +81,7 @@ export default async function RootLayout({
                     });
                 });
               }
-            \`}
+            `}
           </Script>
         )}
         <SystemAdminProvider>
