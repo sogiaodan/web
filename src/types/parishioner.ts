@@ -78,6 +78,7 @@ export interface ParishionerDetail {
   status: ParishionerStatus;
   marital_status: MaritalStatus;
   household: { id: string; household_code: string } | null;
+  relationship_to_head?: string | null;
   zone: { id: string; name: string } | null;
   father: ParishionerSummaryRef | null;
   mother: ParishionerSummaryRef | null;
