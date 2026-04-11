@@ -9,6 +9,7 @@ import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { ZonesProvider } from '@/components/providers/zones-provider';
 import AccountPanel from '@/components/dashboard/settings/AccountPanel';
 import FeedbackModal from '@/components/dashboard/FeedbackModal';
+import ForceChangePasswordModal from '@/components/dashboard/settings/ForceChangePasswordModal';
 
 export default function DashboardLayout({
   children,
@@ -62,6 +63,7 @@ export default function DashboardLayout({
         
         <AccountPanel isOpen={accountPanelOpen} onClose={() => setAccountPanelOpen(false)} />
         <FeedbackModal isOpen={feedbackModalOpen} onClose={() => setFeedbackModalOpen(false)} />
+        <ForceChangePasswordModal isOpen={!!user?.is_first_login} />
       </div>
     </ZonesProvider>
   );

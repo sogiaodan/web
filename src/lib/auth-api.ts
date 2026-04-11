@@ -7,6 +7,7 @@ export interface User {
   church_id: string;
   church_name: string;
   schema_name?: string;
+  is_first_login?: boolean;
 }
 
 export interface ApiResponse<T> {
