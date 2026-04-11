@@ -2,7 +2,7 @@
 
 import React, { createContext, useContext, ReactNode } from 'react';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
-import { apiFetch } from '@/lib/api-client';
+
 
 import { Zone } from '@/types/zone';
 

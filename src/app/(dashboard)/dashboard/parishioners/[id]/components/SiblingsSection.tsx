@@ -1,21 +1,9 @@
 import Link from 'next/link';
+import { formatDate } from '@/lib/utils';
 import { ParishionerSummaryRef } from '@/types/parishioner';
 
 interface Props {
   siblings: ParishionerSummaryRef[];
-}
-
-function formatDate(dateStr?: string | null): string {
-  if (!dateStr) return '';
-  try {
-    return new Date(dateStr).toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
-  } catch {
-    return dateStr;
-  }
 }
 
 export function SiblingsSection({ siblings }: Props) {

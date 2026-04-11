@@ -40,6 +40,14 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     throw new Error(`Request failed with status ${rs.status}`);
   }
 
+  if (rs.status === 204 || responseBody == null) {
+    return null as T;
+  }
+
+  if (typeof responseBody !== 'object' || !('data' in responseBody)) {
+    throw new Error('Unexpected API response shape: missing data field');
+  }
+
   // Expect API to return { data, message, status } wrapper
   return responseBody.data as T;
 }

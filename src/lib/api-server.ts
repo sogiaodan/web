@@ -9,12 +9,12 @@ export interface ServerApiResponse<T = any> {
 
 export async function serverFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<ServerApiResponse<T> | null> {
   const cookieStore = await cookies();
-  const token = cookieStore.get('access_token')?.value;
+  const cookieHeader = cookieStore.toString();
 
   const headers = new Headers(options.headers);
   headers.set('Content-Type', 'application/json');
-  if (token) {
-    headers.set('Cookie', `access_token=${token}`);
+  if (cookieHeader && !headers.has('Cookie')) {
+    headers.set('Cookie', cookieHeader);
   }
 
   // Ensure endpoint is well-formed relative to the backend API base url.

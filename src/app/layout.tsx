@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import { Lora, Work_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
@@ -66,10 +67,12 @@ export default async function RootLayout({
           rel="stylesheet"
           href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
         />
-        {/* Register PWA Service Worker */}
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
+      </head>
+      <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
+        {/* Register PWA Service Worker only in production to avoid dev caching issues */}
+        {process.env.NODE_ENV === 'production' && (
+          <Script id="register-sw" strategy="afterInteractive">
+            {\`
               if ('serviceWorker' in navigator) {
                 window.addEventListener('load', function() {
                   navigator.serviceWorker.register('/sw.js')
@@ -78,11 +81,9 @@ export default async function RootLayout({
                     });
                 });
               }
-            `,
-          }}
-        />
-      </head>
-      <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">
+            \`}
+          </Script>
+        )}
         <SystemAdminProvider>
           <AuthProvider initialUser={initialUser}>
             <Providers>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
 import { ZoneListResponse } from "@/types/zone";
 
@@ -8,7 +8,10 @@ export interface UseZonesParams {
   limit?: number;
 }
 
-export function useZonesQuery(params?: UseZonesParams, options?: any) {
+export function useZonesQuery(
+  params?: UseZonesParams, 
+  options?: Omit<UseQueryOptions<ZoneListResponse, Error, ZoneListResponse, any>, "queryKey" | "queryFn">
+) {
   const queryParams = new URLSearchParams();
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   const queryString = queryParams.toString();

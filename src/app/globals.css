@@ -72,6 +72,7 @@ body {
     background-color: rgba(139, 38, 53, 0.1);
     clip-path: polygon(100% 0, 0 0, 100% 100%);
 }
+.corner-accent-lg { position: relative; }
 .corner-accent-lg::after {
     content: '';
     position: absolute;

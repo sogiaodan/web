@@ -1,15 +1,6 @@
 import { SplitMemberSummary } from '@/types/household';
 import Link from 'next/link';
-
-function formatDate(dateStr?: string) {
-  if (!dateStr) return '';
-  try {
-    const d = new Date(dateStr);
-    return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
-  } catch (e) {
-    return dateStr;
-  }
-}
+import { formatDate } from '@/lib/utils';
 
 export function SplitMembersSection({ members }: { members: SplitMemberSummary[] }) {
   if (!members || members.length === 0) return null;
