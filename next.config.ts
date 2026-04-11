@@ -2,7 +2,7 @@ import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
 import path from "path";
 
-import packageJson from "../package.json";
+import packageJson from "./package.json";
 
 const nextConfig: NextConfig = {
   env: {
