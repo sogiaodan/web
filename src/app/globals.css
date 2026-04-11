@@ -2,15 +2,38 @@
 
 @theme inline {
   --color-background: var(--background);
+  --color-background-light: var(--background);
   --color-foreground: var(--foreground);
+  --color-text-main: var(--foreground);
+  --color-on-surface: var(--foreground);
   --color-primary: var(--primary);
   --color-vellum: var(--vellum);
   --color-surface-container-low: var(--surface-container-low);
   --color-surface-container: var(--surface-container);
+  --color-surface: var(--surface);
   --color-outline-variant: var(--outline-variant);
+  --color-outline: var(--outline);
+  --color-border-color: var(--outline);
+  --color-on-surface-variant: var(--on-surface-variant);
+  --color-muted: var(--on-surface-variant);
+  --color-text-muted: var(--on-surface-variant);
+  --color-hover-bg: var(--hover-bg);
+
+  --color-success: #166534;
+  --color-success-bg: #F0FDF4;
+  --color-tertiary: #166534;
+  --color-tertiary-container: #F0FDF4;
+
+  --color-secondary: #B45309;
+  --color-secondary-container: #FFFBEB;
+
+  --color-error: #B91C1C;
+  --color-error-bg: #FEF2F2;
 
   --font-sans: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-body: var(--font-work-sans), ui-sans-serif, system-ui, sans-serif;
   --font-serif: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
+  --font-display: var(--font-lora), ui-serif, Georgia, Cambria, "Times New Roman", Times, serif;
 
   --radius-sm: 0.125rem; /* 2px */
   --radius-md: 0.25rem;  /* 4px */
@@ -23,10 +46,45 @@
   --vellum: #FDFBF7;
   --surface-container-low: #FAF8F5;
   --surface-container: #F5F5F4;
+  --surface: #FFFFFF;
   --outline-variant: #D6D3D1;
+  --outline: #E7E5E4;
+  --on-surface-variant: #78716C;
+  --hover-bg: #F5F5F4;
+  --error: #B91C1C;
+  --error-bg: #FEF2F2;
 }
 
 body {
   background-color: var(--background);
   color: var(--foreground);
 }
+
+.ledger-border { border: 1px solid var(--outline); }
+.corner-accent { position: relative; }
+.corner-accent::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 24px;
+    height: 24px;
+    background-color: rgba(139, 38, 53, 0.1);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+}
+.corner-accent-lg { position: relative; }
+.corner-accent-lg::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 64px;
+    height: 64px;
+    background-color: rgba(139, 38, 53, 0.05);
+    clip-path: polygon(100% 0, 0 0, 100% 100%);
+    pointer-events: none;
+}
+
+/* Hide scrollbar but keep scroll behaviour (used in mobile chip bars) */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

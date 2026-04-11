@@ -38,7 +38,7 @@ export function LoginForm() {
       const response = await authApi.login(data.email, data.password);
       login(response.user);
       toast.success('Đăng nhập thành công');
-      router.push('/');
+      // router.replace('/dashboard'); // Removed: Handled centrally by AuthProvider
     } catch (error: any) {
       toast.error(error.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     } finally {
