@@ -38,7 +38,7 @@ export default function AddHouseholdPage() {
     zone_id: '',
     book_issue_date: '',
     physical_book_no: '',
-    canonical_status: 'REGULAR',
+    marital_status: 'MARRIED',
     pastoral_notes: '',
     
     // Head of Household Info (Parishioner)
@@ -67,7 +67,7 @@ export default function AddHouseholdPage() {
           zone_id: formData.zone_id || undefined,
           book_issue_date: formData.book_issue_date || undefined,
           physical_book_no: formData.physical_book_no || undefined,
-          canonical_status: formData.canonical_status,
+          marital_status: formData.marital_status,
           pastoral_notes: formData.pastoral_notes || undefined,
           // Nested head data for atomic creation
           head: {
@@ -162,6 +162,26 @@ export default function AddHouseholdPage() {
               </div>
             )}
 
+            <div className="space-y-2">
+              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
+                Tình Trạng Hôn Phối <span className="text-sacred-crimson">*</span>
+              </label>
+              <select 
+                name="marital_status"
+                required
+                value={formData.marital_status}
+                onChange={handleChange}
+                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
+                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
+              >
+                <option value="MARRIED">Đã kết hôn</option>
+                <option value="MIXED_RELIGION">Kết hôn khác đạo (Phép chuẩn)</option>
+                <option value="IRREGULAR">Hôn nhân ngăn trở (Nguội lạnh)</option>
+                <option value="SEPARATED">Ly thân / Ly dị</option>
+                <option value="WIDOWED">Góa</option>
+              </select>
+            </div>
+
             <div className="space-y-2 md:col-span-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
                 Địa Chỉ Cư Trú
@@ -238,22 +258,6 @@ export default function AddHouseholdPage() {
                   />
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                    Tình Trạng Hôn Phối
-                  </label>
-                  <select 
-                    name="canonical_status"
-                    value={formData.canonical_status}
-                    onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
-                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
-                  >
-                    <option value="REGULAR">Bình thường (Hợp lệ)</option>
-                    <option value="MIXED_RELIGION">Hôn phối khác đạo (Chuẩn)</option>
-                    <option value="SEPARATED">Ly thân / Đã ly dị</option>
-                  </select>
-                </div>
 
                 <div className="space-y-2 md:col-span-2">
                   <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
@@ -314,13 +318,14 @@ export default function AddHouseholdPage() {
 
             <div className="space-y-2">
               <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Ngày Sinh
+                Ngày Sinh <span className="text-sacred-crimson">*</span>
               </label>
               <input 
                 type="date"
                 name="birth_date"
                 value={formData.birth_date}
                 onChange={handleChange}
+                required
                 className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all text-slate-600"
               />
             </div>

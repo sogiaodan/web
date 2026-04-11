@@ -7,7 +7,7 @@ interface ParishionerLookup {
   id: string;
   christian_name: string | null;
   full_name: string;
-  birth_date: string | null;
+  birth_date: string;
 }
 
 interface ParishionerSearchComboboxProps {

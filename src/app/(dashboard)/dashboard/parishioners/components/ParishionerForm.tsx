@@ -175,6 +175,7 @@ interface FormData {
   occupation: string;
   is_non_catholic: boolean;
   status: string;
+  marital_status: string;
   date_of_death: string;
 }
 
@@ -214,6 +215,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
     occupation: initialData?.occupation ?? '',
     is_non_catholic: initialData?.is_non_catholic ?? false,
     status: initialData?.status ?? 'RESIDING',
+    marital_status: initialData?.marital_status ?? 'SINGLE',
     date_of_death: initialData?.date_of_death ? initialData.date_of_death.split('T')[0] : '',
   });
 
@@ -240,6 +242,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
     const newErrors: FormErrors = {};
     if (!formData.full_name.trim()) newErrors.full_name = 'Họ và tên là bắt buộc';
     if (!formData.gender) newErrors.gender = 'Vui lòng chọn giới tính';
+    if (!formData.birth_date) newErrors.birth_date = 'Ngày sinh là bắt buộc';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -266,6 +269,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
         occupation: formData.occupation || undefined,
         is_non_catholic: formData.is_non_catholic,
         status: formData.status,
+        marital_status: formData.marital_status,
         date_of_death: formData.status === 'DECEASED' ? (formData.date_of_death || undefined) : null,
       };
 
@@ -376,11 +380,11 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
 
             {/* Birth Date */}
             <div className="space-y-1.5">
-              <FieldLabel>Ngày sinh</FieldLabel>
+              <FieldLabel required>Ngày sinh</FieldLabel>
               <input
                 type="date"
                 value={formData.birth_date}
-                onChange={(e) => set('birth_date', e.target.value)}
+                onChange={(e) => { set('birth_date', e.target.value); if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined })); }}
                 disabled={isSubmitting}
                 max={new Date().toISOString().split('T')[0]}
                 className={getInputCls(isSubmitting, !!errors.birth_date)}
@@ -402,6 +406,63 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                   <option value="ABSENT">Vắng mặt</option>
                   <option value="MOVED">Chuyển xứ</option>
                   <option value="DECEASED">Đã qua đời</option>
+                </select>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
+                  expand_more
+                </span>
+              </div>
+            </div>
+
+            {/* Marital Status */}
+            <div className="space-y-1.5">
+              <div className="flex items-center gap-2 group/label relative mb-2">
+                <FieldLabel required className="!mb-0">Tình trạng hôn phối</FieldLabel>
+                
+                {/* Info Icon & Popover for protected status */}
+                {isEdit && !!initialData?.household?.id && (initialData?.relationship_to_head === 'HEAD' || initialData?.relationship_to_head === 'SPOUSE') && (
+                  <div className="relative group/info">
+                    <div className="w-12 h-12 flex items-center justify-center -ml-3 -mr-3 -my-3 cursor-help">
+                      <span className="material-symbols-outlined text-[#8B2635] text-[18px] leading-none align-middle hover:scale-110 transition-transform">info</span>
+                    </div>
+                    
+                    {/* Popover Bubble */}
+                    <div className="absolute left-[-10px] bottom-full mb-3 w-72 p-4 bg-white border border-[#8B2635]/20 rounded-md shadow-xl z-[60] 
+                                    opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 origin-bottom-left scale-95 group-hover/info:scale-100
+                                    before:content-[''] before:absolute before:top-full before:left-3 before:border-8 before:border-transparent before:border-t-white
+                                    after:content-[''] after:absolute after:top-full after:left-[11px] after:border-[9px] after:border-transparent after:border-t-[#8B2635]/10 after:-z-10">
+                      <h4 className="text-[12px] font-display font-bold text-[#8B2635] mb-1.5 flex items-center gap-1.5">
+                        <span className="material-symbols-outlined text-[14px]">protected_identifier</span>
+                        Dữ liệu đang được bảo vệ
+                      </h4>
+                      <p className="text-[11px] text-on-surface-variant leading-relaxed mb-3">
+                        Vì đây là <span className="font-bold italic">Chủ hộ / Phối ngẫu</span>, bạn cần cập nhật Tình trạng hôn phối đồng bộ cho cả hai tại trang quản lý Hộ giáo.
+                      </p>
+                      <button
+                        type="button"
+                        onClick={() => router.push(`/dashboard/households/${initialData.household!.id}`)}
+                        className="w-full h-8 flex items-center justify-center gap-1.5 bg-[#8B2635] text-white text-[10px] font-bold rounded-sm hover:bg-[#8B2635]/90 transition-all uppercase tracking-wider"
+                      >
+                        <span className="material-symbols-outlined text-[14px]">family_history</span>
+                        Đi tới trang Hộ giáo
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
+              <div className="relative">
+                <select
+                  value={formData.marital_status}
+                  onChange={(e) => set('marital_status', e.target.value)}
+                  disabled={isSubmitting || (isEdit && !!initialData?.household?.id && (initialData?.relationship_to_head === 'HEAD' || initialData?.relationship_to_head === 'SPOUSE'))}
+                  className={`${getInputCls(isSubmitting || (isEdit && !!initialData?.household?.id && (initialData?.relationship_to_head === 'HEAD' || initialData?.relationship_to_head === 'SPOUSE')))} appearance-none pr-10`}
+                >
+                  <option value="SINGLE">Độc Thân</option>
+                  <option value="MARRIED">Đã Kết Hôn</option>
+                  <option value="MIXED_RELIGION">Đã Kết Hôn (Khác Đạo)</option>
+                  <option value="IRREGULAR">Kết Hôn (Mắc Ngăn Trở)</option>
+                  <option value="SEPARATED">Ly Thân</option>
+                  <option value="DIVORCED">Ly Dị</option>
+                  <option value="WIDOWED">Góa</option>
                 </select>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
                   expand_more

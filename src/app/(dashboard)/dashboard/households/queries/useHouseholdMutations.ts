@@ -47,6 +47,7 @@ export function useAddMemberToHousehold(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["households"] });
       queryClient.invalidateQueries({ queryKey: ["households", id] });
+      queryClient.invalidateQueries({ queryKey: ["parishioners"] });
     },
   });
 }
@@ -64,6 +65,25 @@ export function useSplitHousehold(id: string) {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["households"] });
       queryClient.invalidateQueries({ queryKey: ["households", id] });
+      queryClient.invalidateQueries({ queryKey: ["parishioners"] });
+    },
+  });
+}
+
+export function useUpdateHousehold(id: string) {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (payload: any) => {
+      return apiFetch<{ id: string }>(`/api/v1/households/${id}`, {
+        method: "PATCH",
+        body: JSON.stringify(payload),
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["households"] });
+      queryClient.invalidateQueries({ queryKey: ["households", id] });
+      queryClient.invalidateQueries({ queryKey: ["parishioners"] });
     },
   });
 }

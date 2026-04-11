@@ -24,7 +24,7 @@ export interface ParishionerSummaryRef {
   id: string;
   christian_name: string;
   full_name: string;
-  birth_date?: string;
+  birth_date: string;
   gender?: ParishionerGender;
 }
 

@@ -12,6 +12,31 @@ function formatDate(dateStr?: string) {
   }
 }
 
+const MARITAL_STATUS_MAP: Record<string, { label: string, color: string }> = {
+  MARRIED: { label: 'Đã kết hôn', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
+  IRREGULAR: { label: 'Ngăn trở', color: 'bg-orange-50 text-orange-700 border-orange-200' },
+  MIXED_RELIGION: { label: 'Khác đạo', color: 'bg-sky-50 text-sky-700 border-sky-100' },
+  SEPARATED: { label: 'Ly thân', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  DIVORCED: { label: 'Ly dị', color: 'bg-rose-50 text-rose-700 border-rose-200' },
+  WIDOWED: { label: 'Góa', color: 'bg-slate-50 text-slate-700 border-slate-200' },
+  SINGLE: { label: 'Độc thân', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+};
+
+function MaritalStatusBadge({ status }: { status?: string }) {
+  if (!status || status === 'MARRIED') return null;
+  const config = MARITAL_STATUS_MAP[status] || { label: status, color: 'bg-slate-50 text-slate-600' };
+  
+  return (
+    <span className={cn(
+      "text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-sm border inline-flex items-center gap-1",
+      config.color
+    )}>
+      <span className="w-1 h-1 rounded-full bg-current opacity-40" />
+      {config.label}
+    </span>
+  );
+}
+
 export function CoupleCards({ household }: { household: Household }) {
   const head = household.head;
   const spouse = household.spouse;
@@ -46,9 +71,12 @@ export function CoupleCards({ household }: { household: Household }) {
           </div>
           
           <div className="flex-1 min-w-0">
-            <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary-container px-2 py-0.5 rounded-sm inline-block mb-1">
-              {headRoleLabel}
-            </span>
+            <div className="flex flex-wrap items-center gap-2 mb-1">
+              <span className="text-[10px] font-bold text-primary uppercase tracking-widest bg-primary-container px-2 py-0.5 rounded-sm inline-block">
+                {headRoleLabel}
+              </span>
+              <MaritalStatusBadge status={head?.marital_status} />
+            </div>
             <h3 className="text-lg md:text-xl font-display font-bold text-text-main leading-tight line-clamp-2">
               {head ? `${head.christian_name} ${head.full_name}` : 'Không xác định'}
             </h3>
@@ -101,9 +129,12 @@ export function CoupleCards({ household }: { household: Household }) {
             </div>
             
             <div className="flex-1 min-w-0">
-              <span className="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary-container px-2 py-0.5 rounded-sm inline-block mb-1">
-                {spouseRoleLabel}
-              </span>
+              <div className="flex flex-wrap items-center gap-2 mb-1">
+                <span className="text-[10px] font-bold text-secondary uppercase tracking-widest bg-secondary-container px-2 py-0.5 rounded-sm inline-block">
+                  {spouseRoleLabel}
+                </span>
+                <MaritalStatusBadge status={spouse.marital_status} />
+              </div>
               <h3 className="text-lg md:text-xl font-display font-bold text-text-main leading-tight line-clamp-2">
                 {spouse.christian_name} {spouse.full_name}
               </h3>

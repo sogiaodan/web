@@ -42,22 +42,17 @@ export function ParishionerListClient() {
   }, [searchParams]);
 
   const { data, isLoading, error } = useParishionersQuery(queryParams);
-
-  if (isLoading) {
+  
+  if (isLoading && !data) {
     return (
-      <div className="h-[50vh] flex flex-col items-center justify-center space-y-4">
-        <span className="material-symbols-outlined text-3xl text-primary animate-spin">progress_activity</span>
-        <p className="text-sm font-medium text-muted-foreground animate-pulse font-display">
-          Đang tải dữ liệu giáo dân...
-        </p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant font-body mt-4">
-        Không thể tải dữ liệu giáo dân. Vui lòng thử lại sau.
+      <div className="space-y-6 animate-pulse">
+        <div className="h-12 bg-white border border-outline rounded-sm mb-6" />
+        <div className="bg-white border border-outline rounded-sm overflow-hidden">
+          <div className="h-10 bg-slate-50 border-b border-outline" />
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-16 border-b border-outline last:border-0" />
+          ))}
+        </div>
       </div>
     );
   }

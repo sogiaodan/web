@@ -3,9 +3,13 @@
 import { Household } from '@/types/household';
 import Link from 'next/link';
 import { useZones } from '@/components/providers/zones-provider';
+import { useState } from 'react';
+import { HouseholdEditModal } from './HouseholdEditModal';
+import { Edit2 } from 'lucide-react';
 
 export function HouseholdDetailHeader({ household }: { household: Household }) {
   const { zones } = useZones();
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   
   const headName = household.head 
     ? `${household.head.christian_name} ${household.head.full_name}`
@@ -62,7 +66,22 @@ export function HouseholdDetailHeader({ household }: { household: Household }) {
           <span className="material-symbols-outlined text-lg">church</span>
           Thủ tục Hôn phối / Tách hộ
         </Link>
+        <button 
+          onClick={() => setIsEditModalOpen(true)}
+          className="flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-300
+                     px-5 text-sm font-semibold min-h-[48px] rounded-sm transition-all hover:bg-slate-50
+                     w-full sm:w-auto shadow-sm"
+        >
+          <Edit2 className="w-4 h-4" />
+          Chỉnh sửa thông tin
+        </button>
       </div>
+
+      <HouseholdEditModal 
+        household={household}
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+      />
     </section>
   );
 }

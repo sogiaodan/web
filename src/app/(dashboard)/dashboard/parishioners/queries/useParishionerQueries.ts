@@ -1,5 +1,5 @@
 "use client";
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useSuspenseQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 import { ParishionerListResponse, ParishionerDetail } from '@/types/parishioner';
 
@@ -23,6 +23,30 @@ export function useParishionersQuery(params?: Record<string, string | string[]>)
   }
   
   return useQuery<ParishionerListResponse, Error>({
+    queryKey: ['parishioners', params],
+    queryFn: () => apiFetch<ParishionerListResponse>(`/api/v1/parishioners?${queryString.toString()}`),
+  });
+}
+
+/**
+ * Hook for fetching parishioners with Suspense support.
+ */
+export function useParishionersSuspenseQuery(params?: Record<string, string | string[]>) {
+  const queryString = new URLSearchParams();
+  
+  if (params) {
+    Object.entries(params).forEach(([key, value]) => {
+      if (Array.isArray(value)) {
+        value.forEach(v => {
+          if (v) queryString.append(key, v);
+        });
+      } else if (value) {
+        queryString.append(key, value);
+      }
+    });
+  }
+  
+  return useSuspenseQuery<ParishionerListResponse, Error>({
     queryKey: ['parishioners', params],
     queryFn: () => apiFetch<ParishionerListResponse>(`/api/v1/parishioners?${queryString.toString()}`),
   });
