@@ -1,7 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 import { useSystemAdmin } from '@/components/providers/system-admin-provider';
 import SystemAdminSidebar from '@/components/dashboard/SystemAdminSidebar';
 import SystemAdminHeader from '@/components/dashboard/SystemAdminHeader';
@@ -14,17 +13,10 @@ export default function SystemAdminDashboardLayout({
 }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { admin, isLoading } = useSystemAdmin();
-  const router = useRouter();
 
-  useEffect(() => {
-    // If loading is finished and there's no admin, redirect to admin login
-    if (!isLoading && !admin) {
-      router.push('/super-admin/login');
-    }
-  }, [admin, isLoading, router]);
 
   // While checking auth, show a full-page loader
-  if (isLoading || !admin) {
+  if (isLoading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-vellum">
         <div className="flex flex-col items-center gap-4">
@@ -32,6 +24,25 @@ export default function SystemAdminDashboardLayout({
           <p className="text-sm font-medium text-primary animate-pulse font-serif italic">
             Đang truy cập kho lưu trữ hệ thống...
           </p>
+        </div>
+      </div>
+    );
+  }
+
+  // Provider will handle the hard redirect. Show a fallback in case it takes a moment.
+  if (!admin) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-vellum">
+        <div className="text-center space-y-4 p-8">
+          <p className="text-sm text-muted-foreground font-serif italic">
+            Phiên đăng nhập không hợp lệ hoặc đã hết hạn.
+          </p>
+          <button
+            onClick={() => { window.location.href = '/super-admin/login'; }}
+            className="px-6 py-2 bg-primary text-white rounded-sm text-sm font-semibold shadow-md hover:opacity-90 transition-opacity"
+          >
+            Quay lại trang Đăng nhập
+          </button>
         </div>
       </div>
     );

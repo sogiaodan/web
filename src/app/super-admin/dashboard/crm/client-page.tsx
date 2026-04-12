@@ -100,7 +100,7 @@ function StatusChanger({ request }: { request: ContactRequest }) {
         className="inline-flex items-center gap-1.5 px-3 py-1.5 min-h-[40px] rounded-sm border border-outline bg-white text-xs font-bold text-muted hover:bg-hover-bg transition-colors disabled:opacity-50"
       >
         {mutation.isPending ? 'Đang lưu...' : 'Đổi trạng thái'}
-        <ChevronDown className="h-3 w-3" />
+        <ChevronDown className={clsx("h-3 w-3 transition-transform duration-200", open && "rotate-180")} />
       </button>
       {open && (
         <>
@@ -135,7 +135,7 @@ function RequestCard({ request }: { request: ContactRequest }) {
   return (
     <article
       className={clsx(
-        'bg-white border rounded-sm shadow-sm transition-all duration-200 overflow-hidden',
+        'bg-white border rounded-sm shadow-sm transition-all duration-200',
         request.status === 'NEW'
           ? 'border-blue-200 shadow-blue-50'
           : 'border-outline',
@@ -143,7 +143,7 @@ function RequestCard({ request }: { request: ContactRequest }) {
     >
       {/* Header */}
       <div
-        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 cursor-pointer select-none hover:bg-vellum/30 transition-colors"
+        className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-5 cursor-pointer select-none hover:bg-vellum/30 transition-colors rounded-t-sm"
         onClick={() => setExpanded((p) => !p)}
       >
         <div className="flex items-start gap-3">
@@ -185,15 +185,17 @@ function RequestCard({ request }: { request: ContactRequest }) {
             <p>{request.message}</p>
           </div>
 
-          <div className="flex items-center justify-between pt-1">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pt-1">
             <a
               href={`mailto:${request.email}`}
-              className="text-sm text-primary hover:underline font-medium"
+              className="text-sm text-primary hover:underline font-medium order-2 sm:order-1"
               onClick={(e) => e.stopPropagation()}
             >
               Gửi email phản hồi →
             </a>
-            <StatusChanger request={request} />
+            <div className="order-1 sm:order-2 self-end sm:self-auto">
+              <StatusChanger request={request} />
+            </div>
           </div>
         </div>
       )}

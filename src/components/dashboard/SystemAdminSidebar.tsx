@@ -42,12 +42,12 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
   const SidebarContent = (
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 px-6 pt-6 mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded bg-primary text-white shadow-md">
-          <ShieldCheck className="h-6 w-6" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 overflow-hidden bg-white shadow-sm shrink-0">
+          <img src="/brand/icon-512.png" alt="Logo" className="h-full w-full object-contain p-1" />
         </div>
-        <div>
-          <h1 className="font-serif text-xl font-bold text-primary leading-tight">Hệ Thống</h1>
-          <p className="text-[10px] uppercase tracking-widest text-muted font-bold">SUPER ADMIN</p>
+        <div className="flex flex-col">
+          <h1 className="font-serif text-lg font-bold text-primary leading-none mb-1">Sổ Giáo Dân</h1>
+          <p className="text-[9px] uppercase tracking-widest text-muted font-bold">QUẢN TRỊ HỆ THỐNG</p>
         </div>
       </div>
 

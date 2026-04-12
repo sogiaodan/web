@@ -1,6 +1,6 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState } from "react";
+import React, { createContext, useContext, useEffect, useState, useRef } from "react";
 import { SystemAdmin, SystemAdminGetMeResponse } from "@/types/system-admin";
 import { systemAdminApi } from "@/lib/system-admin-api";
 import { useRouter, usePathname } from "next/navigation";
@@ -18,18 +18,33 @@ const SystemAdminContext = createContext<SystemAdminContextType | undefined>(und
 export function SystemAdminProvider({ children }: { children: React.ReactNode }) {
   const [admin, setAdmin] = useState<SystemAdmin | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isMounted, setIsMounted] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
+  const isCheckingRef = useRef(false);
+  const redirectSentinel = useRef({ count: 0, lastTime: 0 });
 
   const loadAdmin = async () => {
+    if (isCheckingRef.current) return;
+    
     // Only attempt to load admin if we are on a super-admin route
     if (!pathname.startsWith('/super-admin')) {
       setIsLoading(false);
       return;
     }
 
+    isCheckingRef.current = true;
     setIsLoading(true);
     
+    // Safety timeout: 5 seconds to prevent permanent white-screen/loading-hang
+    const timeout = setTimeout(() => {
+      if (!admin) {
+        setIsLoading(false);
+        setAdmin(null);
+      }
+      isCheckingRef.current = false;
+    }, 5000);
+
     try {
       const response = await systemAdminApi.getMe();
       if (response && response.user) {
@@ -37,23 +52,45 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       } else {
         setAdmin(null);
       }
-    } catch (error) {
-      setAdmin(null);
-      // Only redirect to login if we are trying to access protected admin pages
-      if (pathname.startsWith('/super-admin/dashboard')) {
-        router.push('/super-admin/login');
+    } catch (error: any) {
+      const isAuthError = 
+        error.status === 401 ||
+        error.message?.includes('401') || 
+        error.message?.includes('403') || 
+        error.message?.includes('not found') ||
+        error.message?.includes('Unauthorized') ||
+        error.message?.includes('không hợp lệ');
+      
+      if (isAuthError) {
+        setAdmin(null);
+        // Clear the stale cookie via backend then hard-redirect.
+        // This ensures the browser does NOT re-send the invalid token on next load.
+        if (typeof window !== 'undefined' && pathname.startsWith('/super-admin/dashboard')) {
+          try { await systemAdminApi.logout(); } catch (_) { /* ignore */ }
+          window.location.href = '/super-admin/login';
+          return;
+        }
       }
     } finally {
+      clearTimeout(timeout);
       setIsLoading(false);
+      isCheckingRef.current = false;
     }
   };
 
   useEffect(() => {
+    setIsMounted(true);
     loadAdmin();
     
-    const handlesysAdminUnauthorized = () => {
+    const handlesysAdminUnauthorized = async () => {
       console.log("[system-admin-provider] Bắt được sự kiện 401 Unauthorized, tiến hành ép đăng xuất.");
       setAdmin(null);
+      setIsLoading(false);
+      // Call logout to clear the cookie on the server, then hard-redirect
+      try { await systemAdminApi.logout(); } catch (_) { /* ignore */ }
+      if (typeof window !== 'undefined' && window.location.pathname.startsWith('/super-admin/dashboard')) {
+        window.location.href = '/super-admin/login';
+      }
     };
     window.addEventListener("sysadmin:unauthorized", handlesysAdminUnauthorized);
     
@@ -62,6 +99,42 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
     };
   }, [pathname]);
 
+  // Centralized Redirect Logic for System Admin
+  useEffect(() => {
+    if (!isMounted || isLoading) return;
+
+    const isDashboardRoute = pathname.startsWith('/super-admin/dashboard');
+    const isLoginRoute = pathname === '/super-admin/login';
+
+    // BREAK REDIRECT LOOP
+    const now = Date.now();
+    if (now - redirectSentinel.current.lastTime > 5000) {
+      redirectSentinel.current.count = 0;
+    }
+
+    const performRedirect = (target: string) => {
+      if (pathname === target) return; 
+      
+      if (redirectSentinel.current.count > 2) {
+        console.error(`[system-admin-sentinel] Loop detected! Blocking redirect to ${target}`);
+        return;
+      }
+      
+      redirectSentinel.current.count++;
+      redirectSentinel.current.lastTime = now;
+      router.replace(target);
+    };
+
+    if (admin && isLoginRoute) {
+      performRedirect('/super-admin/dashboard');
+    }
+
+    if (!admin && isDashboardRoute) {
+      // Use hard redirect so stale React state is fully wiped on next page load
+      window.location.href = '/super-admin/login';
+    }
+  }, [admin, isLoading, pathname, router, isMounted]);
+
   const login = (newAdmin: SystemAdmin) => {
     setAdmin(newAdmin);
   };
@@ -69,8 +142,6 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
   const logout = async () => {
     try {
       await systemAdminApi.logout();
-    } catch (err) {
-      // Ignore API errors on logout
     } finally {
       setAdmin(null);
       router.push("/super-admin/login");

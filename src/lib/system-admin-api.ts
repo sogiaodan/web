@@ -46,17 +46,8 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   if (!rs.ok) {
     const message = responseBody?.message || `Request failed with status ${rs.status}`;
     
-    if (rs.status === 401) {
-      const code = responseBody?.code;
-      const isTokenInvalidError =
-        code === 'TOKEN_EXPIRED' ||
-        code === 'TOKEN_MISSING' ||
-        code === 'INSUFFICIENT_PERMISSIONS' ||
-        code === 'INVALID_TOKEN';
-      
-      if (isTokenInvalidError && typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('sysadmin:unauthorized'));
-      }
+    if (rs.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('sysadmin:unauthorized'));
     }
     
     const err = new Error(message) as any;

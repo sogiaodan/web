@@ -12,13 +12,16 @@ import {
   ChevronRight,
   CloudDownload,
   RefreshCw,
-  HelpCircle
+  HelpCircle,
+  MoreVertical
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { authApi } from '@/lib/auth-api';
-import { SettingsAPI, BackupStatusResponse } from '@/lib/api/settings';
+import { SettingsAPI, SettingsAccountsAPI, BackupStatusResponse } from '@/lib/api/settings';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { FormInput } from '@/components/ui/FormInput';
+import { AlertTriangle, Trash2 } from 'lucide-react';
 import { 
   useBackupStatusQuery, 
   useBackupMutation 
@@ -36,11 +39,31 @@ export default function SettingsPage() {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState('');
+  const [isMoreMenuOpen, setIsMoreMenuOpen] = useState(false);
   
   const backupStatus = backupData?.data;
 
-  const handleBackup = async () => {
-    backupMutation.mutate();
+  const handleLeaveParish = async () => {
+    if (deleteConfirmEmail !== user?.email) {
+      toast.error('Email xác nhận không chính xác');
+      return;
+    }
+
+    setIsDeleting(true);
+    try {
+      await SettingsAccountsAPI.leaveParish();
+      toast.success('Đã rời khỏi giáo xứ. Sau đây bạn sẽ được đăng xuất.');
+      setTimeout(async () => {
+        queryClient.clear();
+        await logout();
+      }, 2000);
+    } catch (err: any) {
+      toast.error(err.message || 'Có lỗi xảy ra');
+      setIsDeleting(false);
+    }
   };
 
   const handleLogout = async () => {
@@ -54,6 +77,11 @@ export default function SettingsPage() {
       setIsLogoutModalOpen(false);
     }
   };
+
+  const handleBackup = () => {
+    backupMutation.mutate();
+  };
+
 
   const role = user?.role;
   const isAdmin = role === 'ADMIN';
@@ -105,10 +133,37 @@ export default function SettingsPage() {
 
   return (
     <div className="flex-1 p-6 md:p-8 lg:max-w-4xl lg:mx-auto">
-      <div className="mb-6 lg:mb-8">
+      <div className="mb-6 lg:mb-8 flex items-center justify-between relative">
         <h1 className="font-serif text-[20px] md:text-2xl lg:text-[24px] font-bold text-foreground">
           Cài đặt Hệ thống
         </h1>
+        <div className="relative">
+          <button
+            onClick={() => setIsMoreMenuOpen(!isMoreMenuOpen)}
+            className="p-2 h-10 w-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+            aria-label="More options"
+          >
+            <MoreVertical className="h-6 w-6 text-muted" />
+          </button>
+          
+          {isMoreMenuOpen && (
+            <>
+              <div className="fixed inset-0 z-40" onClick={() => setIsMoreMenuOpen(false)} />
+              <div className="absolute right-0 mt-2 w-56 rounded-md border border-outline bg-background shadow-lg z-50 py-1 animate-in fade-in zoom-in duration-200 origin-top-right">
+                <button
+                  onClick={() => {
+                    setIsMoreMenuOpen(false);
+                    setIsDeleteModalOpen(true);
+                  }}
+                  className="w-full text-left px-4 py-3 text-sm text-primary hover:bg-hover-bg flex items-center gap-3 transition-colors min-h-[48px]"
+                >
+                  <Trash2 className="h-4 w-4" />
+                  Rời khỏi giáo xứ / Xóa tài khoản
+                </button>
+              </div>
+            </>
+          )}
+        </div>
       </div>
 
       <div className="flex flex-col gap-6">
@@ -239,6 +294,8 @@ export default function SettingsPage() {
             </div>
           </div>
         </div>
+
+
       </div>
 
       {/* Logout Confirmation Modal */}
@@ -280,6 +337,63 @@ export default function SettingsPage() {
       )}
 
       <FeedbackModal isOpen={isFeedbackModalOpen} onClose={() => setIsFeedbackModalOpen(false)} />
+
+      {/* Delete/Leave Confirmation Modal */}
+      {isDeleteModalOpen && (
+        <>
+          <div className="fixed inset-0 z-[100] bg-foreground/50 transition-opacity" onClick={() => !isDeleting && setIsDeleteModalOpen(false)} />
+          <div className="fixed left-[50%] top-[50%] z-[110] w-full max-w-[calc(100vw-32px)] md:max-w-md translate-x-[-50%] translate-y-[-50%]">
+            <div className="bg-background rounded shadow-xl overflow-hidden flex flex-col">
+              <div className="px-6 py-5 border-b border-outline flex items-center justify-between bg-surface-container">
+                <h3 className="font-serif text-lg font-bold text-primary flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  Xác nhận rời giáo xứ
+                </h3>
+              </div>
+              <div className="px-6 py-6 border-b border-outline space-y-4">
+                <div className="bg-amber-50 border border-amber-200 rounded p-3">
+                  <p className="font-sans text-[13px] text-amber-800 leading-relaxed">
+                    <strong>Lưu ý:</strong> Hành động này sẽ khóa quyền truy cập của bạn vào hệ thống quản lý của giáo xứ hiện tại ngay lập tức. Bạn chỉ có thể quay lại nếu được Admin mời lại.
+                  </p>
+                </div>
+                
+                <div className="space-y-3">
+                  <p className="font-sans text-sm text-foreground">
+                    Vui lòng nhập email <span className="font-bold underline text-primary">{user?.email}</span> để xác nhận:
+                  </p>
+                  <FormInput
+                    value={deleteConfirmEmail}
+                    onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                    placeholder="Nhập email của bạn"
+                    autoComplete="off"
+                    className="h-12"
+                  />
+                </div>
+              </div>
+              <div className="px-6 py-4 bg-surface-container flex items-center justify-end gap-3 rounded-b flex-col md:flex-row">
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsDeleteModalOpen(false);
+                    setDeleteConfirmEmail('');
+                  }}
+                  disabled={isDeleting}
+                  className="rounded px-4 py-2 text-sm font-medium text-foreground hover:bg-hover-bg border border-outline focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors disabled:opacity-50 w-full md:w-auto"
+                >
+                  Hủy
+                </button>
+                <button
+                  onClick={handleLeaveParish}
+                  disabled={isDeleting || deleteConfirmEmail !== user?.email}
+                  className="rounded bg-primary px-4 py-2 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center min-w-[140px] w-full md:w-auto"
+                >
+                  {isDeleting ? <LoadingSpinner className="h-4 w-4" /> : 'Xác nhận rời đi'}
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

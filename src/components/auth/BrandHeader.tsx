@@ -10,7 +10,7 @@ export function BrandHeader({ className }: { className?: string }) {
         Sổ Giáo Dân
       </h1>
       <p className="mt-1 font-sans text-[10px] font-medium tracking-[0.15em] text-outline-variant md:text-[12px]">
-        PARISH MANAGEMENT SYSTEM
+        HỆ THỐNG QUẢN TRỊ GIÁO XỨ
       </p>
     </div>
   );

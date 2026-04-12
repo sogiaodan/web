@@ -37,10 +37,16 @@ export function proxy(request: NextRequest) {
       return NextResponse.redirect(new URL('/super-admin/login', request.url));
     }
     
-    // If logged in as admin and trying to access admin login
+    /* 
+       Wait: We disable the auto-redirect to dashboard to prevent infinite loops 
+       if the token in the cookie is invalid (e.g. after a DB reset). 
+       The client-side provider will handle the "Already logged in" redirect if needed.
+    */
+    /*
     if (systemToken && isAdminAuthRoute) {
       return NextResponse.redirect(new URL('/super-admin/dashboard', request.url));
     }
+    */
 
     return NextResponse.next();
   }

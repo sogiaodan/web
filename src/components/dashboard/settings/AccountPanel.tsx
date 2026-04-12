@@ -28,9 +28,7 @@ const changePasswordSchema = z.object({
   current_password: z.string().min(1, 'Mật khẩu hiện tại không được để trống'),
   new_password: z.string()
     .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-    .refine((val) => /[A-Z]/.test(val), 'Phải có ít nhất 1 chữ hoa')
-    .refine((val) => /[a-z]/.test(val), 'Phải có ít nhất 1 chữ thường')
-    .refine((val) => /[0-9]/.test(val), 'Phải có ít nhất 1 chữ số'),
+    .regex(/^[a-zA-Z0-9]+$/, 'Mật khẩu chỉ được chứa chữ cái và chữ số'),
   confirm_password: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
 }).refine((data) => data.new_password === data.confirm_password, {
   message: 'Mật khẩu xác nhận không khớp',
@@ -338,7 +336,7 @@ export default function AccountPanel({ isOpen, onClose }: AccountPanelProps) {
                   </button>
                 </div>
                 <p className="text-[11px] text-muted leading-tight mt-1">
-                  Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và chữ số.
+                  Tối thiểu 8 ký tự, gồm chữ cái và chữ số.
                 </p>
                 {passwordForm.formState.errors.new_password && (
                   <p className="text-xs text-primary mt-1">{passwordForm.formState.errors.new_password.message}</p>

@@ -208,7 +208,7 @@ export default function AuditLogsClientPage() {
           <AuditSkeleton />
         ) : error ? (
           <div className="py-16 text-center text-muted italic">Lỗi khi tải nhật ký. Thử làm mới.</div>
-        ) : !data?.items.length ? (
+        ) : !data?.items?.length ? (
           <div className="py-16 text-center space-y-3">
             <ScrollText className="h-10 w-10 text-muted/40 mx-auto" />
             <p className="text-muted italic">Không có nhật ký phù hợp.</p>

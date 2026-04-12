@@ -16,9 +16,7 @@ const resetPasswordSchema = z.object({
   new_password: z
     .string()
     .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-    .regex(/[A-Z]/, 'Mật khẩu phải có ít nhất 1 chữ hoa')
-    .regex(/[a-z]/, 'Mật khẩu phải có ít nhất 1 chữ thường')
-    .regex(/[0-9]/, 'Mật khẩu phải có ít nhất 1 chữ số'),
+    .regex(/^[a-zA-Z0-9]+$/, 'Mật khẩu chỉ được chứa chữ cái và chữ số'),
   confirm_password: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
 }).refine((data) => data.new_password === data.confirm_password, {
   message: 'Mật khẩu không khớp',
@@ -121,7 +119,7 @@ export function ResetPasswordForm() {
       <div className="rounded-[2px] bg-surface-container px-4 py-3 border border-outline-variant/50 text-[14px]">
         <p className="text-foreground/90 font-sans tracking-tight">
           <strong className="text-primary mr-1">Tùy chọn bảo mật:</strong>
-          Mật khẩu phải có ít nhất 8 ký tự, bao gồm chữ hoa, chữ thường và chữ số.
+          Tối thiểu 8 ký tự, gồm chữ cái và chữ số.
         </p>
       </div>
       

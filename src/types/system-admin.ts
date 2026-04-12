@@ -148,13 +148,23 @@ export interface UpdateContactRequestStatusResponse {
 
 // ─── System Notifications ─────────────────────────────────────────────────────
 
-export type NotificationType = 'MAINTENANCE' | 'FEATURE' | 'ANNOUNCEMENT';
+/** Controls WHERE and HOW the notification appears in the user dashboard. */
+export type NotificationDisplayType =
+  | 'BANNER'       // Dismissable top banner
+  | 'PANEL'        // Bell-icon dropdown in the header
+  | 'POPUP'        // Modal on first load after login (once per session)
+  | 'MAINTENANCE'; // Full-page blocking overlay
+
+/** @deprecated Use NotificationDisplayType instead */
+export type NotificationType = NotificationDisplayType;
 
 export interface SystemNotification {
   id: string;
   title: string;
   message: string;
-  type: NotificationType;
+  /** Optional HTML body. When set a "Xem chi tiết" button is shown. */
+  extended_content: string | null;
+  display_type: NotificationDisplayType;
   is_active: boolean;
   starts_at: string | null;
   ends_at: string | null;
@@ -162,10 +172,14 @@ export interface SystemNotification {
   updated_at: string;
 }
 
+/** Alias used by user-facing components */
+export type ActiveNotification = SystemNotification;
+
 export interface CreateSystemNotificationRequest {
   title: string;
   message: string;
-  type?: NotificationType;
+  extended_content?: string;
+  display_type?: NotificationDisplayType;
   is_active?: boolean;
   starts_at?: string;
   ends_at?: string;
@@ -174,7 +188,8 @@ export interface CreateSystemNotificationRequest {
 export interface UpdateSystemNotificationRequest {
   title?: string;
   message?: string;
-  type?: NotificationType;
+  extended_content?: string;
+  display_type?: NotificationDisplayType;
   is_active?: boolean;
   starts_at?: string;
   ends_at?: string;

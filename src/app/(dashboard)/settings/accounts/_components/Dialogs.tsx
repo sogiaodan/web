@@ -54,8 +54,13 @@ export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boole
       onClose();
     } catch (err: any) {
       if (err.message && err.message.toLowerCase().includes('email')) {
-        setErrors({ email: 'Email đã được sử dụng' });
-        toast.error('Email đã được sử dụng');
+        if (err.code === 'EMAIL_ACTIVE_ELSEWHERE' || err.message.includes('hoạt động')) {
+           setErrors({ email: 'Tài khoản đang hoạt động ở giáo xứ khác' });
+           toast.error(err.message || 'Hành động bị chặn vì email đang hoạt động ở giáo xứ khác');
+        } else {
+           setErrors({ email: 'Email đã được sử dụng' });
+           toast.error('Email đã được sử dụng');
+        }
       } else {
         toast.error(err.message || 'Có lỗi xảy ra');
       }

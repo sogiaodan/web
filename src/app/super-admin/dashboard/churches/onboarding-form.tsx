@@ -3,9 +3,10 @@
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useState, useEffect } from 'react';
 import { FormInput } from '@/components/ui/FormInput';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
-import { X, Church, ShieldAlert } from 'lucide-react';
+import { X, Church, ShieldAlert, Pencil, Check } from 'lucide-react';
 import { ChurchOnboardingRequest } from '@/types/system-admin';
 import { UseMutationResult } from '@tanstack/react-query';
 import { ChurchOnboardingResponse } from '@/types/system-admin';
@@ -28,8 +29,23 @@ interface ChurchOnboardingFormProps {
   mutation: UseMutationResult<ChurchOnboardingResponse, Error, ChurchOnboardingRequest>;
 }
 
+/** Convert a Vietnamese church name to a valid schema slug.
+ *  e.g. "Nam Hưng" => "church_namhung"
+ */
+function toSchemaSlug(name: string): string {
+  const slug = name
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip diacritics
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]/g, '');     // remove everything except a-z and digits (no underscores from spaces)
+  return slug ? `church_${slug}` : 'church_';
+}
+
 export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOnboardingFormProps) {
   const { isPending } = mutation;
+  const [isSchemaEditable, setIsSchemaEditable] = useState(false);
+  const [isManuallyLocked, setIsManuallyLocked] = useState(false);
 
   const {
     register,
@@ -45,19 +61,15 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
   });
 
   const churchName = watch('name');
+  const schemaName = watch('schema_name');
 
-  const suggestSchema = () => {
-    if (!churchName) return;
-    const slug = churchName
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[đĐ]/g, 'd')
-      .replace(/[^a-z0-9]/g, '_')
-      .replace(/_+/g, '_')
-      .replace(/^_+|_+$/g, '');
-    setValue('schema_name', `church_${slug}`);
-  };
+  // Auto-generate schema_name whenever church name changes.
+  // Skips if user has manually confirmed a custom slug (isManuallyLocked).
+  useEffect(() => {
+    if (!isSchemaEditable && !isManuallyLocked && churchName) {
+      setValue('schema_name', toSchemaSlug(churchName), { shouldValidate: true });
+    }
+  }, [churchName, isSchemaEditable, isManuallyLocked, setValue]);
 
   const onSubmit = async (data: OnboardingFormData) => {
     try {
@@ -97,35 +109,66 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
               <span className="h-px w-4 bg-primary" /> Thông tin Giáo xứ
             </h3>
             <div className="grid gap-4">
-              <div className="flex items-end gap-2">
-                <div className="flex-1">
-                  <FormInput
-                    {...register('name')}
-                    label="Tên Giáo Xứ"
-                    placeholder="Giáo xứ Đa Minh"
-                    error={errors.name?.message}
-                    disabled={isPending}
-                  />
-                </div>
-                <button
-                  type="button"
-                  onClick={suggestSchema}
-                  className="mb-1 px-3 py-2 text-xs font-bold text-primary hover:bg-primary/5 rounded transition-colors min-h-[48px]"
-                  title="Gợi ý Schema Name"
-                  disabled={isPending}
-                >
-                  Gợi ý
-                </button>
-              </div>
-
+              {/* Church name — auto-generates schema_name on change */}
               <FormInput
-                {...register('schema_name')}
-                label="Schema Name (Database)"
-                placeholder="church_da_minh"
-                error={errors.schema_name?.message}
+                {...register('name')}
+                label="Tên Giáo Xứ"
+                placeholder="Giáo xứ Đa Minh"
+                error={errors.name?.message}
                 disabled={isPending}
-                helperText="Tên định danh duy nhất trong database (bắt đầu bằng church_)"
               />
+
+              {/* Schema name — auto-generated, lockable for manual override */}
+              <div>
+                <p className="text-[10px] font-bold uppercase tracking-widest text-muted mb-1.5">
+                  Schema Name (Database)
+                </p>
+
+                {isSchemaEditable ? (
+                  /* ── Manual edit mode ── */
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1">
+                      <FormInput
+                        {...register('schema_name')}
+                        placeholder="church_da_minh"
+                        error={errors.schema_name?.message}
+                        disabled={isPending}
+                        helperText="Chỉ chứa chữ thường a-z, số 0-9 (không dấu, không khoảng trắng)"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => { setIsSchemaEditable(false); setIsManuallyLocked(true); }}
+                      className="p-2 min-h-[40px] min-w-[40px] rounded-sm bg-primary/10 text-primary hover:bg-primary/20 transition-colors flex items-center justify-center"
+                      title="Xác nhận"
+                    >
+                      <Check className="h-4 w-4" />
+                    </button>
+                  </div>
+                ) : (
+                  /* ── Read-only pill mode ── */
+                  <div className="flex items-center gap-2 px-3 py-2.5 rounded-sm border border-outline bg-vellum/40 group">
+                    <code className="flex-1 text-sm font-mono text-foreground tracking-wide">
+                      {schemaName || 'church_'}
+                    </code>
+                    <button
+                      type="button"
+                      onClick={() => { setIsSchemaEditable(true); setIsManuallyLocked(false); }}
+                      className="p-1.5 rounded hover:bg-outline/60 transition-colors text-muted hover:text-foreground opacity-0 group-hover:opacity-100"
+                      title="Chỉnh sửa Schema Name thủ công"
+                      disabled={isPending}
+                    >
+                      <Pencil className="h-3.5 w-3.5" />
+                    </button>
+                  </div>
+                )}
+
+                {!isSchemaEditable && (
+                  <p className="text-[10px] text-muted mt-1.5 italic">
+                    Tự động sinh từ tên giáo xứ. Hover và bấm vào biểu tượng bút để chỉnh sửa thủ công.
+                  </p>
+                )}
+              </div>
             </div>
           </section>
 
@@ -144,16 +187,18 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
               <FormInput
                 {...register('admin_email')}
                 label="Email Quản Trị"
-                placeholder="admin@parish.org"
+                placeholder="admin@giaoparish.org"
                 type="email"
+                autoComplete="off"
                 error={errors.admin_email?.message}
                 disabled={isPending}
               />
               <FormInput
                 {...register('admin_password')}
                 label="Mật Khẩu Ban Đầu"
-                placeholder="••••••••"
+                placeholder="Tối thiểu 8 ký tự"
                 type="password"
+                autoComplete="new-password"
                 error={errors.admin_password?.message}
                 disabled={isPending}
               />

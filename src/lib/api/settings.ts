@@ -213,6 +213,12 @@ export const SettingsAccountsAPI = {
     }
     return body; // { data, message, status }
   },
+
+  leaveParish: async (): Promise<any> => {
+    return apiFetch<any>('/api/v1/settings/accounts/me/leave', {
+      method: 'POST'
+    });
+  },
 };
 
 export interface SaintName {
