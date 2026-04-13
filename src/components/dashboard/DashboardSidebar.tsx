@@ -11,7 +11,8 @@ import {
   Settings,
   Church,
   X,
-  Scroll
+  Scroll,
+  ShieldCheck
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/sacraments', label: 'Bí tích', icon: BookOpen },
   { href: '/dashboard/catechism', label: 'Chứng chỉ', icon: Scroll },
   { href: '/dashboard/zones', label: 'Giáo khu', icon: Map },
+  { href: '/dashboard/parish-groups', label: 'Hội đoàn', icon: ShieldCheck },
 ];
 
 interface DashboardSidebarProps {
