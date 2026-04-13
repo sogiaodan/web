@@ -47,7 +47,13 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     credentials: options.credentials || 'include',
   });
 
-  const responseBody = await rs.json().catch(() => null);
+  const responseText = await rs.text().catch(() => '');
+  let responseBody = null;
+  try {
+    responseBody = responseText ? JSON.parse(responseText) : null;
+  } catch (e) {
+    // Non-JSON response
+  }
 
   if (!rs.ok) {
     const isSessionCheck = endpoint === '/me' && (rs.status === 401 || rs.status === 404);
@@ -63,7 +69,7 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     }
     
     if (!isSessionCheck) {
-      console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody);
+      console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody || responseText || 'No response body');
     }
     
     if (message) {
