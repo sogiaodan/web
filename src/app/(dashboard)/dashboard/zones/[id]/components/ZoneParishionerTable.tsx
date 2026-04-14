@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ParishionerLookup } from '@/types/zone';
+import { ZoneParishionerFilterBar } from './ZoneParishionerFilterBar';
 
 interface ZoneParishionerTableProps {
   zoneId: string;
@@ -41,10 +42,6 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
           Danh sách Giáo dân thuộc khu
         </h2>
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-          <button className="w-full sm:w-auto flex items-center justify-center gap-2 border border-outline px-4 py-2 rounded text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95">
-            <span className="material-symbols-outlined text-[18px]">filter_list</span>
-            Lọc dữ liệu
-          </button>
           <button 
             onClick={handleExportCSV}
             className="w-full sm:w-auto flex items-center justify-center gap-2 border border-outline px-4 py-2 rounded text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95"
@@ -53,6 +50,10 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
             Xuất File
           </button>
         </div>
+      </div>
+
+      <div className="px-6 py-2">
+        <ZoneParishionerFilterBar />
       </div>
 
       {/* DESKTOP TABLE */}
