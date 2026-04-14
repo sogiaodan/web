@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description: 'Cập nhật thông tin chi tiết hội đoàn',
 };
 
-export default function EditGroupPage({ params }: { params: { id: string } }) {
+export default async function EditGroupPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
       <div className="max-w-3xl mx-auto">
@@ -16,7 +18,7 @@ export default function EditGroupPage({ params }: { params: { id: string } }) {
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
         }>
-          <EditGroupClient id={params.id} />
+          <EditGroupClient id={id} />
         </Suspense>
       </div>
     </div>

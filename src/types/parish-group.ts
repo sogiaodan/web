@@ -1,9 +1,3 @@
-export interface ParishGroupCategory {
-  id: string;
-  name: string;
-  group_count?: number;
-}
-
 export interface ParishGroupListMember {
   id: string;
   christian_name: string | null;
@@ -14,7 +8,7 @@ export interface ParishGroup {
   id: string;
   name: string;
   description: string | null;
-  category: ParishGroupCategory;
+  category: string | null;
   leader: ParishGroupListMember | null;
   member_count: number;
   established_date: string | null;
@@ -33,7 +27,6 @@ export interface ParishGroupListResponse {
   stats: {
     total_groups: number;
     total_members: number;
-    total_categories: number;
   };
 }
 
@@ -53,7 +46,7 @@ export interface ParishGroupDetail {
   id: string;
   name: string;
   description: string | null;
-  category: ParishGroupCategory;
+  category: string | null;
   leader: {
     id: string;
     christian_name: string | null;

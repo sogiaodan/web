@@ -1,6 +1,6 @@
 "use client";
 
-import { useParishGroupCategoriesQuery, useParishGroupDetailQuery } from '../../queries/useParishGroupQueries';
+import { useParishGroupDetailQuery } from '../../queries/useParishGroupQueries';
 import { CreateEditGroupForm } from '../../components/CreateEditGroupForm';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
@@ -12,9 +12,8 @@ interface Props {
 export default function EditGroupClient({ id }: Props) {
   const router = useRouter();
   const { data: group, isLoading: isLoadingGroup, error } = useParishGroupDetailQuery(id);
-  const { data: categories, isLoading: isLoadingCategories } = useParishGroupCategoriesQuery();
 
-  if (isLoadingGroup || isLoadingCategories) {
+  if (isLoadingGroup) {
     return (
       <div className="flex justify-center p-8">
         <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
@@ -53,7 +52,6 @@ export default function EditGroupClient({ id }: Props) {
       </div>
 
       <CreateEditGroupForm 
-        categories={categories || []} 
         isEdit={true} 
         initialData={group} 
       />

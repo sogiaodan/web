@@ -1,19 +1,8 @@
 "use client";
 
-import { useParishGroupCategoriesQuery } from '../queries/useParishGroupQueries';
 import { CreateEditGroupForm } from '../components/CreateEditGroupForm';
 
 export default function CreateGroupClient() {
-  const { data: categories, isLoading } = useParishGroupCategoriesQuery();
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center p-8">
-        <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-3xl mx-auto">
       <div className="mb-6">
@@ -25,7 +14,7 @@ export default function CreateGroupClient() {
         </p>
       </div>
 
-      <CreateEditGroupForm categories={categories || []} isEdit={false} />
+      <CreateEditGroupForm isEdit={false} />
     </div>
   );
 }

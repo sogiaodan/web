@@ -9,7 +9,7 @@ interface Props {
   onChange: (value: string | null) => void;
 }
 
-const PRESET_ICONS = [
+export const PRESET_ICONS = [
   { path: '/images/group-icons/choir.png', label: 'Ca đoàn' },
   { path: '/images/group-icons/eucharist.png', label: 'Thánh Thể' },
   { path: '/images/group-icons/catechism.png', label: 'Giáo lý' },
@@ -37,13 +37,13 @@ export function IconGalleryPicker({ value, onChange }: Props) {
           type="button"
           onClick={() => onChange(null)}
           className={cn(
-            "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 h-24",
+            "flex flex-col items-center justify-center p-3 rounded-sm border-2 transition-all gap-2 h-24",
             value === null 
               ? "border-primary bg-primary/5 text-primary" 
               : "border-outline bg-surface text-on-surface-variant hover:border-primary/50"
           )}
         >
-          <ShieldCheck className={cn("w-8 h-8", value === null ? "text-primary" : "text-on-surface-variant")} />
+          <ShieldCheck className={cn("w-10 h-10", value === null ? "text-primary" : "text-on-surface-variant")} />
           <span className="text-[10px] font-medium uppercase tracking-wider text-center">Mặc định</span>
         </button>
 
@@ -56,18 +56,19 @@ export function IconGalleryPicker({ value, onChange }: Props) {
               type="button"
               onClick={() => onChange(icon.path)}
               className={cn(
-                "flex flex-col items-center justify-center p-3 rounded-xl border-2 transition-all gap-2 h-24 relative overflow-hidden",
+                "flex flex-col items-center justify-center p-3 rounded-sm border-2 transition-all gap-2 h-24 relative overflow-hidden",
                 isSelected 
                   ? "border-primary bg-primary/5" 
                   : "border-outline bg-surface hover:border-primary/50"
               )}
             >
-              <div className="relative w-8 h-8 opacity-80 group-hover:opacity-100 transition-opacity">
+              <div className="relative w-12 h-12 transition-opacity">
                 <Image
                   src={icon.path}
                   alt={icon.label}
-                  layout="fill"
-                  objectFit="contain"
+                  fill
+                  sizes="48px"
+                  className="object-contain"
                 />
               </div>
               <span className={cn(

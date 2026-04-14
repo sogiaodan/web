@@ -1,52 +1,6 @@
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 
-export function useCreateParishGroupCategory() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (payload: { name: string }) => {
-      return apiFetch<{ id: string; name: string }>(`/api/v1/parish-groups/categories`, {
-        method: 'POST',
-        body: JSON.stringify(payload),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parish-groups', 'categories'] });
-      queryClient.invalidateQueries({ queryKey: ['parish-groups', 'list'] });
-    },
-  });
-}
-
-export function useUpdateParishGroupCategory() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async ({ id, name }: { id: string; name: string }) => {
-      return apiFetch<{ id: string }>(`/api/v1/parish-groups/categories/${id}`, {
-        method: 'PATCH',
-        body: JSON.stringify({ name }),
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parish-groups', 'categories'] });
-      queryClient.invalidateQueries({ queryKey: ['parish-groups', 'list'] });
-    },
-  });
-}
-
-export function useDeleteParishGroupCategory() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (id: string) => {
-      return apiFetch(`/api/v1/parish-groups/categories/${id}`, {
-        method: 'DELETE',
-      });
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['parish-groups', 'categories'] });
-    },
-  });
-}
-
 export function useCreateParishGroup() {
   const queryClient = useQueryClient();
   return useMutation({

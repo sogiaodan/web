@@ -1,65 +1,74 @@
 "use client";
 
-import { useState, useEffect } from 'react';
-import { Search } from 'lucide-react';
-import { ParishGroupCategory } from '@/types/parish-group';
+import { useState, useEffect, useRef } from 'react';
+import { PRESET_ICONS } from './IconGalleryPicker';
 
 interface Props {
   search: string;
   onSearchChange: (value: string) => void;
-  categoryId: string;
+  category: string;
   onCategoryChange: (value: string) => void;
-  categories: ParishGroupCategory[];
   canEdit: boolean;
 }
 
 export function ParishGroupFilterBar({
   search,
   onSearchChange,
-  categoryId,
+  category,
   onCategoryChange,
-  categories,
 }: Props) {
   const [localSearch, setLocalSearch] = useState(search);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    const handler = setTimeout(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    
+    // Immediate search if empty or very short
+    if (!localSearch) {
+      onSearchChange('');
+      return;
+    }
+
+    debounceRef.current = setTimeout(() => {
       onSearchChange(localSearch);
-    }, 300);
-    return () => clearTimeout(handler);
+    }, 500);
+
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+    };
   }, [localSearch, onSearchChange]);
 
   return (
-    <div className="flex flex-col md:flex-row gap-4 w-full">
-      <div className="relative flex-1">
-        <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-on-surface-variant">
-          <Search className="h-5 w-5" />
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8 w-full">
+      {/* Search Input Card */}
+      <div className="md:col-span-2 bg-surface border border-outline p-4 flex flex-col gap-2 relative overflow-hidden rounded shadow-sm">
+        <div className="absolute top-0 right-0 w-8 h-8 bg-primary/5 rounded-bl-full" />
+        <div className="flex items-center justify-between">
+          <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Tìm kiếm nâng cao</label>
+          <span className="material-symbols-outlined text-on-surface-variant text-lg">search</span>
         </div>
         <input
           type="text"
-          className="block w-full pl-10 pr-3 py-3 border border-outline rounded-xl bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all min-h-[48px]"
-          placeholder="Tìm tên hội đoàn..."
           value={localSearch}
           onChange={(e) => setLocalSearch(e.target.value)}
+          placeholder="Tìm tên hội đoàn..."
+          className="bg-transparent border-none p-0 text-on-surface font-body font-medium focus:ring-0 placeholder:text-on-surface-variant/40 min-h-[24px]"
         />
       </div>
 
-      <div className="w-full md:w-64 flex-shrink-0">
+      {/* Category Filter Card */}
+      <div className="bg-surface border border-outline p-4 flex flex-col gap-2 relative overflow-hidden rounded shadow-sm">
+        <div className="absolute top-0 right-0 w-8 h-8 bg-primary/5 rounded-bl-full" />
+        <label className="text-xs font-bold text-on-surface-variant uppercase tracking-wider">Phân loại</label>
         <select
-          className="block w-full pl-3 pr-10 py-3 border border-outline rounded-xl bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent appearance-none transition-all min-h-[48px]"
-          value={categoryId}
+          className="bg-transparent border-none p-0 text-on-surface font-body font-medium focus:ring-0 cursor-pointer disabled:opacity-50"
+          value={category}
           onChange={(e) => onCategoryChange(e.target.value)}
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e")`,
-            backgroundPosition: 'right 0.5rem center',
-            backgroundRepeat: 'no-repeat',
-            backgroundSize: '1.5em 1.5em'
-          }}
         >
           <option value="">Tất cả phân loại</option>
-          {categories.map((cat) => (
-            <option key={cat.id} value={cat.id}>
-              {cat.name} {cat.group_count !== undefined ? `(${cat.group_count})` : ''}
+          {PRESET_ICONS.map((icon) => (
+            <option key={icon.path} value={icon.label}>
+              {icon.label}
             </option>
           ))}
         </select>

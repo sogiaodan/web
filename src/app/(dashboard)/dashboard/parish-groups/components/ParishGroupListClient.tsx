@@ -1,6 +1,6 @@
 "use client";
 
-import { useParishGroupsQuery, useParishGroupCategoriesQuery } from '../queries/useParishGroupQueries';
+import { useParishGroupsQuery } from '../queries/useParishGroupQueries';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useState, useCallback, useMemo } from 'react';
 import LoadingParishGroups from '../loading';
@@ -15,19 +15,18 @@ export function ParishGroupListClient() {
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
 
   const [search, setSearch] = useState('');
-  const [categoryId, setCategoryId] = useState('');
+  const [category, setCategory] = useState('');
   const [page, setPage] = useState(1);
   const limit = 10;
 
   const queryParams = useMemo(() => {
     const params: Record<string, string> = { page: String(page), limit: String(limit) };
     if (search) params.search = search;
-    if (categoryId) params.category_id = categoryId;
+    if (category) params.category = category;
     return params;
-  }, [page, limit, search, categoryId]);
+  }, [page, limit, search, category]);
 
   const { data: listData, isLoading: isLoadingList } = useParishGroupsQuery(queryParams);
-  const { data: categories } = useParishGroupCategoriesQuery();
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -35,7 +34,7 @@ export function ParishGroupListClient() {
   }, []);
 
   const handleCategoryChange = useCallback((value: string) => {
-    setCategoryId(value);
+    setCategory(value);
     setPage(1);
   }, []);
 
@@ -49,42 +48,35 @@ export function ParishGroupListClient() {
 
   return (
     <div className="space-y-6 md:space-y-8 animate-in fade-in duration-300">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        {stats && (
-          <ParishGroupSummaryCards
-            totalGroups={stats.total_groups}
-            totalMembers={stats.total_members}
-            totalCategories={stats.total_categories}
-          />
-        )}
-      </div>
-
-      <div className="flex flex-col md:flex-row gap-4 justify-between items-start md:items-center">
-        <div className="w-full md:flex-1">
-          <ParishGroupFilterBar
-            search={search}
-            onSearchChange={handleSearchChange}
-            categoryId={categoryId}
-            onCategoryChange={handleCategoryChange}
-            categories={categories || []}
-            canEdit={canEdit}
-          />
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+        <div>
+          <h2 className="text-4xl font-display font-bold text-on-surface mb-2">Hội đoàn</h2>
+          <p className="text-on-surface-variant font-body">Quản lý thông tin và thành viên các hội đoàn trong giáo xứ</p>
         </div>
+
         {canEdit && (
           <Link
             href="/dashboard/parish-groups/create"
-            className="flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-on-primary px-6 h-12 w-full md:w-auto rounded-full font-bold shadow-md hover:shadow-lg transition-all focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            className="flex items-center justify-center gap-2 bg-primary text-white px-6 h-12 rounded-sm font-bold text-sm hover:bg-primary/90 transition-all shadow-sm shrink-0"
           >
             <PlusCircle className="w-5 h-5" />
-            <span>Tạo hội đoàn</span>
+            <span>Tạo hội đoàn mới</span>
           </Link>
         )}
       </div>
 
+      <ParishGroupFilterBar
+        search={search}
+        onSearchChange={handleSearchChange}
+        category={category}
+        onCategoryChange={handleCategoryChange}
+        canEdit={canEdit}
+      />
+
       {items.length > 0 ? (
         <ParishGroupTable items={items} pagination={pagination} onPageChange={setPage} />
       ) : (
-        <div className="bg-surface rounded-2xl border border-outline p-12 text-center text-on-surface-variant flex flex-col items-center gap-4">
+        <div className="bg-surface rounded border border-outline p-12 text-center text-on-surface-variant flex flex-col items-center gap-4">
           <p>Không tìm thấy hội đoàn nào.</p>
           {canEdit && (
             <Link
@@ -95,6 +87,13 @@ export function ParishGroupListClient() {
             </Link>
           )}
         </div>
+      )}
+
+      {stats && (
+        <ParishGroupSummaryCards
+          totalGroups={stats.total_groups}
+          totalMembers={stats.total_members}
+        />
       )}
     </div>
   );

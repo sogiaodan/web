@@ -120,111 +120,105 @@ export default function AddHouseholdPage() {
         )}
 
         {/* SECTION: HOUSEHOLD */}
-        <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <section className="bg-white rounded shadow-sm border border-slate-200 overflow-hidden">
           <SectionHeader
             icon="home"
             title="Thông Tin Hộ Giáo"
           />
           
           <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="space-y-1.5 flex flex-col">
-                <FieldLabel required>Mã Hộ Giáo</FieldLabel>
-                <input 
-                  type="text"
-                  name="household_code"
-                  required
-                  placeholder="Ví dụ: HG-001"
-                  value={formData.household_code}
-                  onChange={handleChange}
-                  className={getInputCls(isSubmitting)}
-                />
-              </div>
+            <div className="space-y-1.5">
+              <FieldLabel required>Mã Hộ Giáo</FieldLabel>
+              <input 
+                type="text"
+                name="household_code"
+                required
+                placeholder="Ví dụ: HG-001"
+                value={formData.household_code}
+                onChange={handleChange}
+                className={getInputCls(isSubmitting)}
+              />
+            </div>
 
             {zones.length > 0 && (
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                  Giáo Khu <span className="text-sacred-crimson">*</span>
-                </label>
-                <select 
-                  name="zone_id"
-                  required
-                  value={formData.zone_id}
-                  onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
-                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
-                >
-                  <option value="">-- Chọn Giáo Khu --</option>
-                  {zones.map((zone: { id: string; name: string }) => (
-                    <option key={zone.id} value={zone.id}>{zone.name}</option>
-                  ))}
-                </select>
+              <div className="space-y-1.5">
+                <FieldLabel required>Giáo Khu</FieldLabel>
+                <div className="relative">
+                  <select 
+                    name="zone_id"
+                    required
+                    value={formData.zone_id}
+                    onChange={handleChange}
+                    className={getInputCls(isSubmitting) + " appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em] pr-10"}
+                    style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
+                  >
+                    <option value="">-- Chọn Giáo Khu --</option>
+                    {zones.map((zone: { id: string; name: string }) => (
+                      <option key={zone.id} value={zone.id}>{zone.name}</option>
+                    ))}
+                  </select>
+                </div>
               </div>
             )}
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Tình Trạng Hôn Phối <span className="text-sacred-crimson">*</span>
-              </label>
-              <select 
-                name="marital_status"
-                required
-                value={formData.marital_status}
-                onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em]"
-                style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
-              >
-                <option value="MARRIED">Đã kết hôn</option>
-                <option value="MIXED_RELIGION">Kết hôn khác đạo (Phép chuẩn)</option>
-                <option value="IRREGULAR">Hôn nhân ngăn trở (Nguội lạnh)</option>
-                <option value="SEPARATED">Ly thân / Ly dị</option>
-                <option value="WIDOWED">Góa</option>
-              </select>
+            <div className="space-y-1.5">
+              <FieldLabel required>Tình Trạng Hôn Phối</FieldLabel>
+              <div className="relative">
+                <select 
+                  name="marital_status"
+                  required
+                  value={formData.marital_status}
+                  onChange={handleChange}
+                  className={getInputCls(isSubmitting) + " appearance-none bg-no-repeat bg-[right_1rem_center] bg-[length:1em_1em] pr-10"}
+                  style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
+                >
+                  <option value="MARRIED">Đã kết hôn</option>
+                  <option value="MIXED_RELIGION">Kết hôn khác đạo (Phép chuẩn)</option>
+                  <option value="IRREGULAR">Hôn nhân ngăn trở (Nguội lạnh)</option>
+                  <option value="SEPARATED">Ly thân / Ly dị</option>
+                  <option value="WIDOWED">Góa</option>
+                </select>
+              </div>
             </div>
 
-            <div className="space-y-2 md:col-span-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Địa Chỉ Cư Trú
-              </label>
+            <div className="space-y-1.5 md:col-span-2">
+              <FieldLabel>Địa Chỉ Cư Trú</FieldLabel>
               <div className="relative">
-                <MapPin className="absolute left-4 top-4 w-5 h-5 text-slate-400" />
+                <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
                 <textarea 
                   name="address"
                   rows={2}
                   placeholder="Số nhà, đường, giáo họ..."
                   value={formData.address}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
+                  className={getInputCls(isSubmitting) + " pl-12"}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Số Điện Thoại Gia Đình
-              </label>
+            <div className="space-y-1.5">
+              <FieldLabel>Số Điện Thoại Gia Đình</FieldLabel>
               <div className="relative">
-                <Phone className="absolute left-4 top-3.5 w-5 h-5 text-slate-400" />
+                <Phone className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
                 <input 
                   type="tel"
                   name="phone_number"
                   placeholder="09xxx..."
                   value={formData.phone_number}
                   onChange={handleChange}
-                  className="w-full pl-12 pr-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
+                  className={getInputCls(isSubmitting) + " pl-12"}
                 />
               </div>
             </div>
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Ngày Cấp Sổ
-              </label>
+            <div className="space-y-1.5">
+              <FieldLabel>Ngày Cấp Sổ</FieldLabel>
               <input 
                 type="date"
                 name="book_issue_date"
                 value={formData.book_issue_date}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all text-slate-600"
+                className={getInputCls(isSubmitting)}
               />
             </div>
 
@@ -243,32 +237,28 @@ export default function AddHouseholdPage() {
 
             {showOptional && (
               <>
-                <div className="space-y-2">
-                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                    Số Quyển / Số Thứ Tự
-                  </label>
+                <div className="space-y-1.5">
+                  <FieldLabel>Số Quyển / Số Thứ Tự</FieldLabel>
                   <input 
                     type="text"
                     name="physical_book_no"
                     placeholder="Ví dụ: Q-05, STT-123"
                     value={formData.physical_book_no}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all"
+                    className={getInputCls(isSubmitting)}
                   />
                 </div>
 
 
-                <div className="space-y-2 md:col-span-2">
-                  <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                    Ghi Chú Mục Vụ
-                  </label>
+                <div className="space-y-1.5 md:col-span-2">
+                  <FieldLabel>Ghi Chú Mục Vụ</FieldLabel>
                   <textarea 
                     name="pastoral_notes"
                     rows={3}
                     placeholder="Các thông tin lưu ý khác về hộ gia đình..."
                     value={formData.pastoral_notes}
                     onChange={handleChange}
-                    className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all"
+                    className={getInputCls(isSubmitting)}
                   />
                 </div>
               </>
@@ -292,10 +282,8 @@ export default function AddHouseholdPage() {
               required
             />
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Họ và Tên <span className="text-sacred-crimson">*</span>
-              </label>
+            <div className="space-y-1.5">
+              <FieldLabel required>Họ và Tên</FieldLabel>
               <input 
                 type="text"
                 name="full_name"
@@ -303,7 +291,7 @@ export default function AddHouseholdPage() {
                 placeholder="Họ tên đầy đủ"
                 value={formData.full_name}
                 onChange={handleChange}
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
+                className={getInputCls(isSubmitting)}
               />
             </div>
 
@@ -315,17 +303,15 @@ export default function AddHouseholdPage() {
               label="Giới Tính"
             />
 
-            <div className="space-y-2">
-              <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                Ngày Sinh <span className="text-sacred-crimson">*</span>
-              </label>
+            <div className="space-y-1.5">
+              <FieldLabel required>Ngày Sinh</FieldLabel>
               <input 
                 type="date"
                 name="birth_date"
                 value={formData.birth_date}
                 onChange={handleChange}
                 required
-                className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all text-slate-600"
+                className={getInputCls(isSubmitting)}
               />
             </div>
 
@@ -343,17 +329,15 @@ export default function AddHouseholdPage() {
             </div>
 
             {showHeadOptional && (
-              <div className="space-y-2">
-                <label className="text-sm font-semibold text-slate-700 block uppercase tracking-wider">
-                  Bí danh / Tên gọi ở nhà
-                </label>
+              <div className="space-y-1.5">
+                <FieldLabel>Bí danh / Tên gọi ở nhà</FieldLabel>
                 <input 
                   type="text"
                   name="nick_name"
                   placeholder="Bé Tí, Út, v.v..."
                   value={formData.nick_name}
                   onChange={handleChange}
-                  className="w-full px-4 py-3 rounded-xl border border-slate-200 focus:ring-4 focus:ring-sacred-crimson/10 focus:border-sacred-crimson outline-none transition-all placeholder:text-slate-300"
+                  className={getInputCls(isSubmitting)}
                 />
               </div>
             )}
@@ -365,7 +349,7 @@ export default function AddHouseholdPage() {
         <div className="fixed bottom-0 left-0 right-0 p-6 bg-white/90 backdrop-blur-md border-t border-slate-200 flex items-center justify-center space-x-6 z-50 md:relative md:bg-transparent md:border-none md:p-0 md:justify-end">
           <Link 
             href="/dashboard/households"
-            className="px-8 py-3 rounded-xl border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-all active:scale-[0.98]"
+            className="px-8 py-3 rounded-sm border-2 border-slate-300 text-slate-700 font-bold hover:bg-slate-50 transition-all active:scale-[0.98]"
           >
             Hủy Bỏ
           </Link>
@@ -373,7 +357,7 @@ export default function AddHouseholdPage() {
             type="submit"
             disabled={isSubmitting}
             className={`
-              flex items-center px-10 py-3.5 rounded-xl font-bold text-white shadow-xl transition-all
+              flex items-center px-10 py-3.5 rounded-sm font-bold text-white shadow-xl transition-all
               ${isSubmitting 
                 ? 'bg-slate-400 cursor-not-allowed' 
                 : 'bg-[#8B1D1D] hover:bg-[#6D1616] active:scale-[0.98]'
@@ -396,7 +380,7 @@ export default function AddHouseholdPage() {
 
       </form>
 
-      <div className="mt-8 p-6 bg-blue-50/50 rounded-2xl border border-blue-100 flex items-start">
+      <div className="mt-8 p-6 bg-blue-50/50 rounded border border-blue-100 flex items-start">
         <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center mr-4 shrink-0 text-blue-600">
           <Info className="w-6 h-6" />
         </div>

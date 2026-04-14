@@ -3,15 +3,8 @@ import { apiFetch } from '@/lib/api-client';
 import {
   ParishGroupListResponse,
   ParishGroupDetail,
-  ParishGroupCategory,
 } from '@/types/parish-group';
 
-export function useParishGroupCategoriesQuery() {
-  return useQuery<ParishGroupCategory[], Error>({
-    queryKey: ['parish-groups', 'categories'],
-    queryFn: () => apiFetch<ParishGroupCategory[]>('/api/v1/parish-groups/categories'),
-  });
-}
 
 export function useParishGroupsQuery(params?: Record<string, string | string[]>) {
   const queryString = new URLSearchParams();

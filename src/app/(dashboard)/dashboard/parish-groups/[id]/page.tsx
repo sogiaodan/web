@@ -7,7 +7,9 @@ export const metadata: Metadata = {
   description: 'Tra cứu thông tin chi tiết và thành viên hội đoàn',
 };
 
-export default function GroupDetailPage({ params }: { params: { id: string } }) {
+export default async function GroupDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
       <div className="max-w-5xl mx-auto">
@@ -17,7 +19,7 @@ export default function GroupDetailPage({ params }: { params: { id: string } }) 
             <div className="h-96 bg-surface-container rounded-2xl w-full" />
           </div>
         }>
-          <GroupDetailClient id={params.id} />
+          <GroupDetailClient id={id} />
         </Suspense>
       </div>
     </div>

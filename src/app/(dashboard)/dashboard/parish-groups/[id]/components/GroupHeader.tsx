@@ -30,73 +30,77 @@ export function GroupHeader({ group, canEdit }: Props) {
   };
 
   return (
-    <div className="bg-surface rounded-2xl border border-outline relative overflow-hidden shadow-sm">
-      {/* Decorative Top Banner */}
-      <div className="h-24 bg-gradient-to-r from-primary/20 via-primary/10 to-transparent w-full absolute top-0 left-0" />
+    <div className="bg-surface rounded-2xl border border-outline relative overflow-hidden shadow-sm group/header">
+      {/* Decorative Top Banner with subtle pattern overlay */}
+      <div className="h-28 bg-gradient-to-r from-primary/10 via-primary/5 to-surface w-full absolute top-0 left-0 border-b border-outline/30" />
       
-      <div className="p-6 md:p-8 pt-12 md:pt-16 relative z-10 flex flex-col md:flex-row gap-6 md:items-start justify-between">
-        <div className="flex flex-col md:flex-row gap-6 items-start">
-          <div className="w-24 h-24 bg-surface rounded-2xl border-4 border-surface shadow-md flex-shrink-0 flex items-center justify-center relative overflow-hidden">
+      <div className="p-6 md:p-8 pt-14 md:pt-20 relative z-10 flex flex-col md:flex-row gap-6 md:items-start justify-between">
+        <div className="flex flex-col md:flex-row gap-8 items-start">
+          <div className="w-24 h-24 bg-surface rounded-3xl border-4 border-surface shadow-xl flex-shrink-0 flex items-center justify-center relative overflow-hidden transition-transform hover:scale-105 duration-300">
             {group.icon_url ? (
-              <Image src={group.icon_url} alt={group.name} layout="fill" objectFit="contain" className="p-3" />
+              <Image src={group.icon_url} alt={group.name} fill sizes="120px" className="object-contain p-2" priority />
             ) : (
-              <ShieldCheck className="w-12 h-12 text-primary" />
+              <ShieldCheck className="w-12 h-12 text-primary/40" />
             )}
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-4">
             <div>
-              <div className="flex flex-wrap items-center gap-3 mb-1">
-                <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface">
+              <div className="flex flex-wrap items-center gap-3 mb-2">
+                <h1 className="text-2xl md:text-4xl font-display font-black text-on-surface tracking-tight">
                   {group.name}
                 </h1>
-                <span className="text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full bg-primary/10 text-primary">
-                  {group.category.name}
-                </span>
-                <span
-                  className={`text-[10px] uppercase tracking-wider font-bold px-2 py-0.5 rounded-full ${
-                    group.is_active
-                      ? 'bg-green-100 text-green-800'
-                      : 'bg-gray-100 text-gray-800'
-                  }`}
-                >
-                  {group.is_active ? 'Hoạt động' : 'Ngưng hoạt động'}
-                </span>
+                <div className="flex items-center gap-2">
+                  {group.category && (
+                    <span className="text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full bg-primary text-white shadow-sm shadow-primary/20">
+                      {group.category}
+                    </span>
+                  )}
+                  <span
+                    className={`text-[10px] uppercase tracking-widest font-bold px-3 py-1 rounded-full border ${
+                      group.is_active
+                        ? 'bg-green-50 text-green-700 border-green-200'
+                        : 'bg-gray-50 text-gray-600 border-gray-200'
+                    }`}
+                  >
+                    {group.is_active ? 'Đang hoạt động' : 'Ngưng hoạt động'}
+                  </span>
+                </div>
               </div>
               {group.description && (
-                <p className="text-on-surface-variant font-body text-sm max-w-2xl">
-                  {group.description}
+                <p className="text-on-surface-variant/80 font-body text-base max-w-3xl leading-relaxed italic">
+                  "{group.description}"
                 </p>
               )}
             </div>
 
-            <div className="flex flex-wrap items-center gap-4 text-sm text-on-surface-variant pt-2">
-              <div className="flex items-center gap-1.5">
-                <CalendarDays className="w-4 h-4" />
-                <span>
-                  Thành lập: {group.established_date ? formatDate(group.established_date) : <span className="italic">Chưa cập nhật</span>}
+            <div className="flex flex-wrap items-center gap-6 text-sm text-on-surface-variant pt-2 border-t border-outline/50">
+              <div className="flex items-center gap-2 bg-surface-variant/30 px-3 py-1.5 rounded-lg border border-outline/30">
+                <CalendarDays className="w-4 h-4 text-primary" />
+                <span className="font-medium">
+                  {group.established_date ? `Thành lập: ${formatDate(group.established_date)}` : <span className="italic opacity-60">Chưa rõ ngày thành lập</span>}
                 </span>
               </div>
-              <div className="flex items-center gap-1.5">
-                <Users className="w-4 h-4" />
-                <span>{group.members.length} thành viên</span>
+              <div className="flex items-center gap-2 bg-surface-variant/30 px-3 py-1.5 rounded-lg border border-outline/30">
+                <Users className="w-4 h-4 text-secondary" />
+                <span className="font-medium text-on-surface">{group.members.length} thành viên đã tham gia</span>
               </div>
             </div>
           </div>
         </div>
 
         {canEdit && (
-          <div className="flex flex-row md:flex-col gap-2 w-full md:w-auto mt-4 md:mt-0">
+          <div className="flex flex-row md:flex-col gap-3 w-full md:w-auto mt-6 md:mt-0 p-1 bg-surface-variant/10 rounded-2xl border border-outline/20">
             <button
               onClick={() => router.push(`/dashboard/parish-groups/${group.id}/edit`)}
-              className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-surface hover:bg-surface-variant text-on-surface border border-outline px-4 py-2.5 rounded-xl font-bold transition-colors min-h-[48px]"
+              className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-surface hover:bg-primary hover:text-white text-on-surface border border-outline px-6 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 min-h-[48px]"
             >
               <Edit className="w-4 h-4" />
               Sửa thông tin
             </button>
             <button
               onClick={handleDelete}
-              className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-surface hover:bg-red-50 text-red-600 border border-outline hover:border-red-200 px-4 py-2.5 rounded-xl font-bold transition-colors min-h-[48px]"
+              className="flex-1 md:flex-none flex justify-center items-center gap-2 bg-surface hover:bg-red-50 text-red-600 border border-outline hover:border-red-200 px-6 py-3 rounded-xl font-bold transition-all shadow-sm active:scale-95 min-h-[48px]"
             >
               <Trash2 className="w-4 h-4" />
               Xóa hội đoàn

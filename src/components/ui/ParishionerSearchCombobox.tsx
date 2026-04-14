@@ -114,15 +114,15 @@ export function ParishionerSearchCombobox({
       )}
 
       {selected ? (
-        <div className={`relative flex items-center justify-between w-full px-4 py-3 bg-surface border rounded-sm outline-none ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-outline'} ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}>
+        <div className={`relative flex items-center justify-between w-full px-4 py-3 bg-surface border rounded-xl outline-none transition-all ${error ? 'border-red-500 ring-1 ring-red-500' : 'border-outline focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/20'} ${disabled ? 'opacity-70 cursor-not-allowed' : ''} shadow-sm min-h-[48px]`}>
           <div className="flex items-center gap-3 overflow-hidden">
-            <Lock className="h-4 w-4 text-on-surface-variant shrink-0" />
-            <div className="flex flex-col overflow-hidden">
-              <span className="font-display font-medium text-on-surface truncate">
+            <Lock className="h-4 w-4 text-primary shrink-0" />
+            <div className="flex flex-col overflow-hidden leading-tight">
+              <span className="font-bold text-on-surface truncate">
                 {formatName(selected)}
               </span>
               {selected.birth_date && (
-                <span className="text-xs text-on-surface-variant font-body">
+                <span className="text-[10px] text-on-surface-variant font-medium uppercase tracking-tighter">
                   Sinh ngày: {formatDate(selected.birth_date)}
                 </span>
               )}
@@ -133,19 +133,19 @@ export function ParishionerSearchCombobox({
               title="Xóa lựa chọn"
               type="button"
               onClick={handleClear}
-              className="p-1 rounded hover:bg-surface-hover text-on-surface-variant hover:text-on-surface transition-colors"
+              className="p-1.5 rounded-lg hover:bg-surface-variant text-on-surface-variant hover:text-red-500 transition-all active:scale-95"
             >
               <X className="h-4 w-4" />
             </button>
           )}
         </div>
       ) : (
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant" />
+        <div className="relative group/input">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-on-surface-variant group-focus-within/input:text-primary transition-colors" />
           <input
             type="text"
-            className={`w-full pl-9 pr-10 py-3 bg-surface border rounded-sm outline-none text-sm font-body text-on-surface placeholder:text-on-surface-variant transition-colors focus:ring-2 focus:border-transparent ${
-              error ? 'border-red-500 focus:ring-red-500' : 'border-outline focus:ring-primary'
+            className={`w-full pl-10 pr-10 py-3 bg-surface border rounded-xl outline-none text-sm font-body text-on-surface placeholder:text-on-surface-variant/60 transition-all min-h-[48px] shadow-sm ${
+              error ? 'border-red-500 focus:ring-2 focus:ring-red-500/20' : 'border-outline focus:ring-2 focus:ring-primary/20 focus:border-primary'
             } ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}
             placeholder={placeholder}
             value={query}
@@ -157,7 +157,7 @@ export function ParishionerSearchCombobox({
             disabled={disabled}
           />
           {isLoading && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-primary animate-spin" />
+            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-4 w-4 text-primary animate-spin" />
           )}
         </div>
       )}
