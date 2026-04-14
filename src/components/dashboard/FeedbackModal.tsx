@@ -29,14 +29,12 @@ Nội dung:
 - Email: ${user?.email || ''}
 - Giáo xứ: ${parishName}
 
-2. Vấn đề hoặc tính năng liên quan (Use case):
+2. Vấn đề hoặc tính năng liên quan:
 - [Mô tả ngữ cảnh hoặc tính năng đang sử dụng, ví dụ: Khi tôi đang cập nhật hồ sơ giáo dân...]
 
 3. Mô tả chi tiết:
 - [Ghi rõ những gì bạn đang gặp vấn đề hoặc mong muốn cải thiện]
-
-4. Hình ảnh đính kèm (nếu có):
-- [Xin vui lòng đính kèm ảnh chụp màn hình bị lỗi hoặc khu vực cần cải thiện]`;
+- [Hình ảnh đính kèm (nếu có)]`;
 
   const handleCopy = () => {
     navigator.clipboard.writeText(template);

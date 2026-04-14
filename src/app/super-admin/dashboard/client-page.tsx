@@ -4,20 +4,8 @@ import MetricCard from '@/components/dashboard/MetricCard';
 import { Church, ShieldCheck, Activity, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
 import { useSystemAdminStatsQuery } from '@/lib/queries/useSystemAdminQueries';
+import { LoadingSection } from '@/components/ui/LoadingSection';
 
-function MetricCardSkeleton() {
-  return (
-    <div className="relative flex flex-col justify-between overflow-hidden rounded-sm border border-outline bg-surface p-6 shadow-sm min-h-32 min-w-48 animate-pulse">
-      <div className="flex items-start justify-between">
-        <div className="flex flex-col gap-2 w-full">
-          <div className="h-3 w-24 bg-outline/60 rounded" />
-          <div className="h-10 w-16 bg-outline/40 rounded mt-1" />
-        </div>
-        <div className="h-6 w-6 bg-outline/40 rounded" />
-      </div>
-    </div>
-  );
-}
 
 export default function SystemAdminDashboardPage() {
   const { data: stats, isLoading } = useSystemAdminStatsQuery();
@@ -41,11 +29,9 @@ export default function SystemAdminDashboardPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {isLoading ? (
-          <>
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-            <MetricCardSkeleton />
-          </>
+          <div className="col-span-full">
+            <LoadingSection message="Đang tải số liệu hệ thống..." className="py-10" />
+          </div>
         ) : (
           <>
             <MetricCard

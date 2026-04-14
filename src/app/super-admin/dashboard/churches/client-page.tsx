@@ -7,38 +7,8 @@ import { ChurchOnboardingForm } from './onboarding-form';
 import { useChurchesQuery, useOnboardChurchMutation } from '@/lib/queries/useSystemAdminQueries';
 import { ChurchListItem } from '@/types/system-admin';
 import clsx from 'clsx';
+import { LoadingSection } from '@/components/ui/LoadingSection';
 
-// ─── Skeleton ─────────────────────────────────────────────────────────────────
-
-function ChurchCardSkeleton() {
-  return (
-    <div className="bg-white border border-outline p-6 rounded-sm shadow-sm animate-pulse">
-      <div className="flex flex-col gap-5">
-        <div className="flex items-start justify-between gap-4">
-          <div className="flex-1 space-y-2">
-            <div className="h-5 w-3/4 bg-outline/50 rounded" />
-            <div className="h-4 w-1/2 bg-outline/30 rounded" />
-          </div>
-          <div className="h-3 w-3 rounded-full bg-outline/50" />
-        </div>
-        <div className="grid grid-cols-2 gap-4 pt-4 border-t border-outline/50">
-          <div className="space-y-2">
-            <div className="h-3 w-16 bg-outline/30 rounded" />
-            <div className="h-4 w-24 bg-outline/40 rounded" />
-          </div>
-          <div className="space-y-2">
-            <div className="h-3 w-16 bg-outline/30 rounded" />
-            <div className="h-4 w-24 bg-outline/40 rounded" />
-          </div>
-          <div className="col-span-2 space-y-2">
-            <div className="h-3 w-16 bg-outline/30 rounded" />
-            <div className="h-4 w-40 bg-outline/40 rounded" />
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
 
 // ─── Church Card ──────────────────────────────────────────────────────────────
 
@@ -203,11 +173,7 @@ export default function ChurchesManagementPage() {
 
           {/* Grid */}
           {isLoading ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {Array.from({ length: 4 }).map((_, i) => (
-                <ChurchCardSkeleton key={i} />
-              ))}
-            </div>
+            <LoadingSection message="Đang tải danh sách giáo xứ..." className="py-20" />
           ) : !churches || churches.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-24 gap-4 text-center">
               <Church className="h-12 w-12 text-muted/40" />

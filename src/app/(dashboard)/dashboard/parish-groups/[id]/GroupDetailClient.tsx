@@ -7,6 +7,7 @@ import { MembersTable } from './components/MembersTable';
 import { GroupInfoCard } from './components/GroupInfoCard';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, X } from 'lucide-react';
+import { LoadingSection } from '@/components/ui/LoadingSection';
 
 interface Props {
   id: string;
@@ -20,12 +21,7 @@ export default function GroupDetailClient({ id }: Props) {
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
 
   if (isLoading) {
-    return (
-      <div className="space-y-6 md:space-y-8 animate-pulse">
-        <div className="h-48 bg-surface-container rounded-2xl w-full" />
-        <div className="h-96 bg-surface-container rounded-2xl w-full" />
-      </div>
-    );
+    return <LoadingSection message="Đang tải thông tin hội đoàn..." className="py-20" />;
   }
 
   if (error || !group) {
