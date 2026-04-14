@@ -9,11 +9,15 @@ import { ParishionerSearchCombobox, ParishionerLookup } from '@/components/ui/Pa
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/providers/auth-provider';
 
 const marriageSchema = z.object({
   husband_id: z.string().min(1, 'Vui lòng chọn Chú rể'),
   wife_id: z.string().min(1, 'Vui lòng chọn Cô dâu'),
-  marriage_date: z.string().optional(),
+  marriage_date: z.string().optional().refine((val) => {
+    if (!val) return true;
+    return new Date(val).getTime() <= new Date().getTime();
+  }, 'Ngày hôn phối không được lớn hơn ngày hiện tại'),
   place: z.string().optional(),
   status: z.enum(['VALID', 'ANNULLED', 'DRAFT']),
   witness_1_name: z.string().optional(),
@@ -44,6 +48,7 @@ import { useCreateMarriage, useUpdateMarriage } from '../../queries/useSacrament
 
 export function MarriageForm({ id, initialData, initialHusband, initialWife, readOnly = false }: MarriageFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
   
   const createMutation = useCreateMarriage();
   const updateMutation = useUpdateMarriage(id || '');
@@ -60,7 +65,9 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
       husband_id: initialData?.husband_id || '',
       wife_id: initialData?.wife_id || '',
       marriage_date: initialData?.marriage_date || '',
-      place: initialData?.place || '',
+      place: initialData?.place || (user?.church_name 
+        ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+        : ''),
       status: initialData?.status || 'VALID',
       witness_1_name: initialData?.witness_1_name || '',
       witness_2_name: initialData?.witness_2_name || '',
@@ -222,6 +229,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
               </label>
               <input
                 type="date"
+                max={new Date().toISOString().substring(0, 10)}
                 disabled={readOnly}
                 {...register('marriage_date')}
                 className={`w-full bg-surface border rounded-sm px-3 py-3 text-sm font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${

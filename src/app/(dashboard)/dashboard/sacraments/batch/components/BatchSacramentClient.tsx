@@ -11,6 +11,7 @@ import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useBatchCreateSacraments } from '../../queries/useSacramentMutations';
+import { useAuth } from '@/components/providers/auth-provider';
 
 interface GeneralInfo {
   date: string;
@@ -61,11 +62,14 @@ interface TempStandard extends BaseTempParticipant {
 
 export function BatchSacramentClient() {
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<SacramentType>('BAPTISM');
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     date: new Date().toISOString().substring(0, 10),
-    place: 'Tại Giáo xứ',
+    place: user?.church_name 
+      ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+      : 'Tại Giáo xứ',
     minister_id: '',
   });
 
@@ -283,7 +287,7 @@ export function BatchSacramentClient() {
             <FieldLabel required>Ngày cử hành</FieldLabel>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-[18px]">calendar_today</span>
-              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} className={`${getInputCls(isSubmitting)} pl-10`} />
+              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} max={new Date().toISOString().substring(0,10)} className={`${getInputCls(isSubmitting)} pl-10`} />
             </div>
           </div>
           <div>
@@ -358,7 +362,7 @@ export function BatchSacramentClient() {
                   {/* Godparent */}
                   <div className="space-y-1.5">
                     <FieldLabel>Người đỡ đầu</FieldLabel>
-                    <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
+                    <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="VD: Giuse Nguyễn Văn A" className={getInputCls(isSubmitting)} />
                   </div>
 
                  {/* Add button */}
@@ -383,7 +387,7 @@ export function BatchSacramentClient() {
 
                   <div className="mb-6 space-y-1.5">
                     <FieldLabel>Người đỡ đầu (NẾU CÓ)</FieldLabel>
-                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
+                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="VD: Giuse Nguyễn Văn A" className={getInputCls(isSubmitting)} />
                   </div>
 
                   <button onClick={handleAddStandard} className="w-full flex items-center justify-center gap-2 bg-primary text-white h-11 rounded font-bold hover:bg-primary/90 transition-colors">

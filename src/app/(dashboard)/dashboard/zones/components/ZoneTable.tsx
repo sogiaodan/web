@@ -14,19 +14,21 @@ export function ZoneTable({ zones, churchName }: { zones: Zone[], churchName: st
 
   return (
     <div>
-      {/* Tool bar */}
-      <div className="flex justify-end mb-4">
-        <div className="bg-surface border border-outline rounded p-2 flex items-center gap-2 w-full md:w-80 shadow-sm">
-          <span className="material-symbols-outlined text-on-surface-variant text-lg shrink-0 pl-1">search</span>
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Tìm kiếm giáo khu..."
-            className="flex-1 bg-transparent border-none p-1 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50 outline-none"
-          />
+      {/* Tool bar - Show only if more than 10 zones */}
+      {zones.length > 10 && (
+        <div className="flex justify-end mb-4">
+          <div className="bg-surface border border-outline rounded p-2 flex items-center gap-2 w-full md:w-80 shadow-sm">
+            <span className="material-symbols-outlined text-on-surface-variant text-lg shrink-0 pl-1">search</span>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Tìm kiếm giáo khu..."
+              className="flex-1 bg-transparent border-none p-1 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50 outline-none"
+            />
+          </div>
         </div>
-      </div>
+      )}
 
       {/* DESKTOP VIEW */}
       <div className="hidden md:block bg-surface border border-outline shadow-sm rounded overflow-hidden">

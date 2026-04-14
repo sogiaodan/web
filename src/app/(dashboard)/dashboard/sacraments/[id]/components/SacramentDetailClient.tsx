@@ -1,4 +1,5 @@
 'use client';
+import Image from 'next/image';
 
 import { useState } from 'react';
 import { SacramentType } from '@/types/sacrament';
@@ -226,13 +227,8 @@ export function SacramentDetailClient({ id }: { id: string }) {
                    <Download className="w-3 h-3" /> Xem
                 </button>
              </div>
-             <div className="mx-4 mb-4 md:m-0 h-64 md:h-96 mt-4 relative bg-[#E7E5E4] rounded flex items-center justify-center overflow-hidden">
-                <div className="absolute inset-0 opacity-10" 
-                     style={{ backgroundImage: 'repeating-linear-gradient(45deg, #000 25%, transparent 25%, transparent 75%, #000 75%, #000), repeating-linear-gradient(45deg, #000 25%, #fff 25%, #fff 75%, #000 75%, #000)', backgroundPosition: '0 0, 10px 10px', backgroundSize: '20px 20px' }}>
-                </div>
-                <div className="z-10 text-center">
-                  <p className="text-on-surface-variant font-bold">Chưa tải lên bản quét.</p>
-                </div>
+             <div className="mx-4 mb-4 md:m-0 h-auto mt-4 relative bg-surface rounded shadow-md overflow-hidden border border-outline/30 flex items-center justify-center p-2">
+                <DigitalCertificatePreview sacrament={sacrament} />
              </div>
              <div className="bg-black/80 px-4 py-2 flex items-center justify-between text-white rounded-b-md md:rounded-b-sm">
                 <span className="text-xs font-bold">Chứng nhận.pdf</span>
@@ -282,5 +278,93 @@ function IconSacrament() {
     <svg className="w-5 h-5 fill-current" viewBox="0 0 24 24">
       <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm-1-13h2v4h4v2h-4v4h-2v-4H7V9h4z"/>
     </svg>
+  );
+}
+
+function DigitalCertificatePreview({ sacrament }: { sacrament: any }) {
+  const getSacramentLabel = () => {
+    switch (sacrament.type) {
+      case 'BAPTISM': return 'RỬA TỘI';
+      case 'EUCHARIST': return 'THÁNH THỂ';
+      case 'CONFIRMATION': return 'THÊM SỨC';
+      default: return 'BÍ TÍCH';
+    }
+  };
+
+  return (
+    <div className="relative w-full aspect-[1/1.414] max-w-[500px] overflow-hidden rounded-sm shadow-xl font-serif">
+      {/* Background Image */}
+      <div className="absolute inset-0">
+        <Image 
+          src="/certificate-bg.png" 
+          alt="Certificate Background" 
+          fill 
+          className="object-cover"
+          priority
+        />
+      </div>
+
+      {/* Content Overlay */}
+      <div className="absolute inset-0 flex flex-col items-center pt-[20%] px-[10%] text-[#1C1917] select-none scale-[0.9] md:scale-100 origin-top">
+        <h4 className="text-[10px] md:text-xs font-bold tracking-[0.2em] mb-1 opacity-80">CHỨNG CHỈ BÍ TÍCH</h4>
+        <h2 className="text-xl md:text-3xl font-bold mb-8 text-[#92400E]">{getSacramentLabel()}</h2>
+
+        <div className="w-full space-y-4 text-center">
+          <div>
+            <p className="text-[9px] md:text-[11px] uppercase tracking-wider mb-1 opacity-70 italic">Chứng nhận người lãnh nhận</p>
+            <p className="text-lg md:text-2xl font-bold decoration-[#92400E]/30">
+              {sacrament.parishioner.christian_name} {sacrament.parishioner.full_name}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2 text-sm md:text-base">
+            <div>
+              <p className="text-[9px] md:text-[11px] opacity-70 mb-0.5">Sinh ngày</p>
+              <p className="font-bold">{formatDate(sacrament.parishioner.birth_date)}</p>
+            </div>
+            <div>
+              <p className="text-[9px] md:text-[11px] opacity-70 mb-0.5">Tại</p>
+              <p className="font-bold">Giáo xứ Tân Thịnh</p>
+            </div>
+          </div>
+
+          <div className="pt-2">
+            <p className="text-[9px] md:text-[11px] opacity-70 mb-1">Con ông & bà</p>
+            <p className="text-xs md:text-sm font-medium italic">
+              {sacrament.parishioner.father ? `${sacrament.parishioner.father.christian_name} ${sacrament.parishioner.father.full_name}` : '..........'}
+              <br />
+              {sacrament.parishioner.mother ? `${sacrament.parishioner.mother.christian_name} ${sacrament.parishioner.mother.full_name}` : '..........'}
+            </p>
+          </div>
+
+          <div className="pt-4 border-t border-[#1C1917]/10">
+            <p className="text-[10px] md:text-[12px] font-bold mb-2">ĐÃ LÃNH NHẬN BÍ TÍCH {getSacramentLabel()}</p>
+            <div className="flex justify-center gap-4 text-xs md:text-sm">
+              <span>Ngày: <span className="font-bold">{formatDate(sacrament.date)}</span></span>
+              <span>Tại: <span className="font-bold">{sacrament.place || 'Giáo xứ'}</span></span>
+            </div>
+          </div>
+
+          <div className="pt-2 text-xs md:text-sm">
+            <p className="opacity-70 text-[9px] md:text-[11px] mb-0.5">Linh mục chủ sự</p>
+            <p className="font-bold">{sacrament.minister ? `Lm. ${sacrament.minister.full_name}` : '..........'}</p>
+          </div>
+
+          <div className="pt-8 flex justify-between items-end px-4">
+            <div className="text-[8px] md:text-[10px] opacity-50 text-left">
+              <p>Mã HS: #{sacrament.id.substring(0, 8).toUpperCase()}</p>
+              <p>Sổ: {sacrament.book_no || '-'} | Trang: {sacrament.page_no || '-'}</p>
+            </div>
+            <div className="text-center italic">
+              <p className="text-[9px] md:text-[10px]">Tân Thịnh, {formatDate(new Date().toISOString())}</p>
+              <div className="h-10 md:h-14"></div>
+              <p className="text-[10px] md:text-xs font-bold">VĂN PHÒNG GIÁO XỨ</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Decorative corners or borders can be added here if not in bg */}
+    </div>
   );
 }

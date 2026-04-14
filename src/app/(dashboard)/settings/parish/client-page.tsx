@@ -254,11 +254,19 @@ export default function ParishInformationPage() {
                         Năm Thành lập
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         id="established_year"
-                        {...register('established_year', { valueAsNumber: true })}
+                        inputMode="numeric"
+                        {...register('established_year', { 
+                          setValueAs: (v) => v === "" ? null : parseInt(v, 10) 
+                        })}
                         className={`block w-full rounded border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[48px] transition-all ${errors.established_year ? 'border-primary' : 'border-outline'}`}
                         placeholder="VD: 1870"
+                        onKeyPress={(e) => {
+                          if (!/[0-9]/.test(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
                       />
                       {errors.established_year && <p className="mt-1 text-xs text-primary">{errors.established_year.message}</p>}
                     </div>

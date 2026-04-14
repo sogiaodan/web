@@ -39,7 +39,9 @@ export function CertificateForm({
   const router = useRouter();
   const { user } = useAuth();
   
-  const parishName = user?.church_name || 'Giáo xứ Thánh Mẫu Hạ Hồi';
+  const parishName = user?.church_name 
+    ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+    : '';
   const isAdmin = user?.role === 'ADMIN';
   const isViewer = user?.role === 'VIEWER';
 
@@ -233,7 +235,7 @@ export function CertificateForm({
         >
           <div className="mb-6">
             <ParishionerSearchCombobox
-              label="NGƯỜI LÃNH NHẬN (PARISHIONER)"
+              label="NGƯỜI LÃNH NHẬN"
               value={form.parishioner_id || ''}
               onChange={(id, item) => {
                 setForm((prev) => ({ 

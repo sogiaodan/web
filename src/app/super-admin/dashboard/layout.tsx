@@ -49,7 +49,7 @@ export default function SystemAdminDashboardLayout({
   }
 
   return (
-    <div className="flex min-h-dvh flex-col lg:flex-row bg-vellum">
+    <div className="flex h-dvh flex-col lg:flex-row bg-vellum overflow-hidden">
       <SystemAdminSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
       
       <div className="flex flex-1 flex-col overflow-hidden">

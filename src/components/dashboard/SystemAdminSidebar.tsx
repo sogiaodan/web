@@ -119,7 +119,7 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
       />
 
       <div className={clsx(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-white border-r border-outline transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 h-dvh",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-white border-r border-outline transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 h-dvh",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="absolute top-4 right-4 lg:hidden">

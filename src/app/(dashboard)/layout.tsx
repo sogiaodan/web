@@ -42,7 +42,7 @@ export default function DashboardLayout({
 
   return (
     <ZonesProvider>
-      <div className="flex min-h-dvh flex-col lg:flex-row bg-background">
+      <div className="flex h-dvh flex-col lg:flex-row bg-background overflow-hidden">
         <DashboardSidebar
           isOpen={sidebarOpen}
           onClose={() => setSidebarOpen(false)}
