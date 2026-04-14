@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { X, ChevronRight, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { ActiveNotification } from '@/types/system-admin';
@@ -29,37 +29,34 @@ function persistDismissed(ids: Set<string>) {
   }
 }
 
+const emptySubscribe = () => () => {};
+
 /**
  * Shows POPUP notifications once per browser session.
  * If multiple exist, shows the most recently created one first.
  */
 export default function SystemPopup({ notifications }: SystemPopupProps) {
-  const [queue, setQueue] = useState<ActiveNotification[]>([]);
+  const [, setStamp] = useState(0); // For forcing re-renders when dismissing
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
 
-  const lastSyncRef = useRef<string>('');
-  useEffect(() => {
-    const dismissed = getDismissedIds();
-    const pending = notifications
-      .filter((n) => n.display_type === 'POPUP' && !dismissed.has(n.id))
-      .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    
-    // Only update if the IDs changed to avoid cascading renders
-    const nextIds = pending.map(n => n.id).join(',');
-    if (lastSyncRef.current !== nextIds) {
-      setQueue(pending);
-      lastSyncRef.current = nextIds;
-    }
-  }, [notifications]);
+  if (!isClient) return null;
 
-  if (!queue.length) return null;
+  // We depend on stamp just so React knows state changed and forces a re-render.
+  // The actual state evaluation uses synchronous reads from localStorage
+  const dismissed = getDismissedIds();
+  const pending = notifications
+    .filter((n) => n.display_type === 'POPUP' && !dismissed.has(n.id))
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
 
-  const current = queue[0];
+  if (!pending.length) return null;
+
+  const current = pending[0];
 
   const handleDismiss = () => {
-    const dismissed = getDismissedIds();
-    dismissed.add(current.id);
-    persistDismissed(dismissed);
-    setQueue((prev) => prev.slice(1));
+    const d = getDismissedIds();
+    d.add(current.id);
+    persistDismissed(d);
+    setStamp((s) => s + 1);
   };
 
   return (
@@ -105,9 +102,9 @@ export default function SystemPopup({ notifications }: SystemPopupProps) {
             </button>
           </div>
 
-          {queue.length > 1 && (
+          {pending.length > 1 && (
             <p className="text-xs text-muted text-center">
-              Còn {queue.length - 1} thông báo khác
+              Còn {pending.length - 1} thông báo khác
             </p>
           )}
         </div>

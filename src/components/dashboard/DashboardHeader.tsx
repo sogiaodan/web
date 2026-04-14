@@ -5,6 +5,7 @@ import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 import NotificationPanel from '@/components/notifications/NotificationPanel';
 import { useActiveNotificationsQuery } from '@/lib/queries/useActiveNotificationsQuery';
+import { ActivityLog } from '@/components/dashboard/ActivityRow';
 
 export interface DashboardSummaryResponse {
   church_name: string;
@@ -12,7 +13,7 @@ export interface DashboardSummaryResponse {
     total_parishioners: number;
     total_households: number;
   };
-  activities: any[];
+  activities: ActivityLog[];
 }
 
 

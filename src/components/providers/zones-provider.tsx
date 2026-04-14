@@ -9,7 +9,7 @@ import { Zone } from '@/types/zone';
 interface ZonesContextType {
   zones: Zone[];
   isLoading: boolean;
-  error: any;
+  error: unknown;
   refresh: () => void;
 }
 

@@ -1,0 +1,185 @@
+
+> web@1.0.1 lint
+> eslint
+
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/client-page.tsx
+  9:10  warning  'ApiResponse' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/parishioners/components/ParishionerForm.tsx
+  43:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/sacraments/queries/useSacramentQuery.ts
+   3:55  warning  'SacramentType' is defined but never used  @typescript-eslint/no-unused-vars
+  31:19  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+  33:29  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/zones/[id]/components/ZoneInfoCard.tsx
+  26:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/zones/[id]/components/ZoneParishionerTable.tsx
+  118:30  warning  'index' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/dashboard/zones/components/ZoneForm.tsx
+    5:25  warning  'UpdateZoneDto' is defined but never used  @typescript-eslint/no-unused-vars
+  102:19  error    Unexpected any. Specify a different type   @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/settings/accounts/client-page.tsx
+  143:62  warning  'i' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/settings/client-page.tsx
+   3:20  warning  'useEffect' is defined but never used             @typescript-eslint/no-unused-vars
+  19:10  warning  'authApi' is defined but never used               @typescript-eslint/no-unused-vars
+  20:10  warning  'SettingsAPI' is defined but never used           @typescript-eslint/no-unused-vars
+  20:44  warning  'BackupStatusResponse' is defined but never used  @typescript-eslint/no-unused-vars
+  34:9   warning  'router' is assigned a value but never used       @typescript-eslint/no-unused-vars
+  63:19  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+  74:19  error    Unexpected any. Specify a different type          @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/settings/parish/client-page.tsx
+    3:10  warning  'useState' is defined but never used                                                                                                                                                                                                                                                     @typescript-eslint/no-unused-vars
+   82:36  error    Unexpected any. Specify a different type                                                                                                                                                                                                                                                 @typescript-eslint/no-explicit-any
+  151:19  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/app/(dashboard)/settings/saints/client-page.tsx
+   35:9   warning  The 'saints' logical expression could make the dependencies of useMemo Hook (at line 43) change on every render. Move it inside the useMemo callback. Alternatively, wrap the initialization of 'saints' in its own useMemo() Hook  react-hooks/exhaustive-deps
+  360:19  error    Unexpected any. Specify a different type                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+  509:19  error    Unexpected any. Specify a different type                                                                                                                                                                                            @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/(public)/page.tsx
+   3:10  warning  'API_BASE_URL' is defined but never used           @typescript-eslint/no-unused-vars
+  49:10  warning  'SpiritualLifeSkeleton' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/forgot-password/forgot-password-form.tsx
+  37:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/layout.tsx
+  66:9  warning  A font-display parameter is missing (adding `&display=optional` is recommended). See: https://nextjs.org/docs/messages/google-font-display                       @next/next/google-font-display
+  66:9  warning  Custom fonts not added in `pages/_document.js` will only load for a single page. This is discouraged. See: https://nextjs.org/docs/messages/no-page-custom-font  @next/next/no-page-custom-font
+
+/Users/thang/Documents/platform/web/src/app/login/client-page.tsx
+  12:10  warning  'useEffect' is defined but never used        @typescript-eslint/no-unused-vars
+  15:11  warning  'user' is assigned a value but never used    @typescript-eslint/no-unused-vars
+  16:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/login/login-form.tsx
+  23:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  42:21  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/reset-password/reset-password-form.tsx
+  80:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/audit-logs/client-page.tsx
+  6:3  warning  'Filter' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/churches/[id]/client-page.tsx
+    3:20  warning  'useEffect' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                         @typescript-eslint/no-unused-vars
+    3:53  warning  'useRef' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            @typescript-eslint/no-unused-vars
+  362:52  error    Error: Cannot call impure function during render
+
+`Date.now` is an impure function. Calling an impure function can produce unstable results that update unpredictably when the component happens to re-render. (https://react.dev/reference/rules/components-and-hooks-must-be-pure#components-and-hooks-must-be-idempotent).
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/churches/[id]/client-page.tsx:362:52
+  360 |   const backupMutation = useTriggerChurchBackupMutation(churchId);
+  361 |
+> 362 |   const backupAgeDays = lastBackupAt ? Math.floor((Date.now() - new Date(lastBackupAt).getTime()) / (1000 * 60 * 60 * 24)) : null;
+      |                                                    ^^^^^^^^^^ Cannot call impure function
+  363 |
+  364 |   let healthColor = 'bg-green-500';
+  365 |   let healthLabel = 'Tốt';  react-hooks/purity
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/churches/onboarding-form.tsx
+  63:22  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/churches/onboarding-form.tsx:63:22
+  61 |   });
+  62 |
+> 63 |   const churchName = watch('name');
+     |                      ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  64 |   const schemaName = watch('schema_name');
+  65 |
+  66 |   // Auto-generate schema_name whenever church name changes  react-hooks/incompatible-library
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/crm/client-page.tsx
+  306:24  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/notifications/client-page.tsx
+   16:3   warning  'ToggleLeft' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        @typescript-eslint/no-unused-vars
+   17:3   warning  'ToggleRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                       @typescript-eslint/no-unused-vars
+   19:3   warning  'ChevronRight' is defined but never used                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      @typescript-eslint/no-unused-vars
+  221:23  warning  Compilation Skipped: Use of incompatible library
+
+This API returns functions which cannot be memoized without leading to stale UI. To prevent this, by default React Compiler will skip memoizing this component/hook. However, you may see issues if values from this API are passed to other components/hooks that are memoized.
+
+/Users/thang/Documents/platform/web/src/app/super-admin/dashboard/notifications/client-page.tsx:221:23
+  219 |   });
+  220 |
+> 221 |   const displayType = watch('display_type');
+      |                       ^^^^^ React Hook Form's `useForm()` API returns a `watch()` function which cannot be memoized safely.
+  222 |   const startsAt = watch('starts_at');
+  223 |
+  224 |   useEffect(() => {  react-hooks/incompatible-library
+
+/Users/thang/Documents/platform/web/src/app/super-admin/login/login-form.tsx
+  41:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/components/dashboard/DashboardHeader.tsx
+  15:15  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/components/dashboard/OnboardingState.tsx
+  3:10  warning  'Users' is defined but never used       @typescript-eslint/no-unused-vars
+  3:35  warning  'PlusCircle' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/components/dashboard/SystemAdminHeader.tsx
+   3:16  warning  'ShieldCheck' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  23:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+  34:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/components/dashboard/SystemAdminSidebar.tsx
+  11:3   warning  'ShieldCheck' is defined but never used                                                                                                                                                                                                                                                  @typescript-eslint/no-unused-vars
+  46:11  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/components/dashboard/settings/AccountPanel.tsx
+  101:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+  120:21  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/components/dashboard/settings/ForceChangePasswordModal.tsx
+  32:9   warning  'router' is assigned a value but never used  @typescript-eslint/no-unused-vars
+  59:21  error    Unexpected any. Specify a different type     @typescript-eslint/no-explicit-any
+
+/Users/thang/Documents/platform/web/src/components/landing/ContactFormModal.tsx
+  9:24  warning  'APP_NAME' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/components/landing/LandingFooter.tsx
+  37:17  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/components/landing/LandingHeader.tsx
+   6:10  warning  'cn' is defined but never used                                                                                                                                                                                                                                                           @typescript-eslint/no-unused-vars
+  41:13  warning  Using `<img>` could result in slower LCP and higher bandwidth. Consider using `<Image />` from `next/image` or a custom image loader to automatically optimize images. This may incur additional usage or cost from your provider. See: https://nextjs.org/docs/messages/no-img-element  @next/next/no-img-element
+
+/Users/thang/Documents/platform/web/src/components/landing/VaticanNewsSection.tsx
+  28:12  warning  'err' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/components/notifications/SystemBanner.tsx
+  3:20  warning  'useRef' is defined but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/components/notifications/SystemPopup.tsx
+  39:10  warning  'stamp' is assigned a value but never used  @typescript-eslint/no-unused-vars
+
+/Users/thang/Documents/platform/web/src/components/providers/auth-provider.tsx
+  149:6  warning  React Hook useEffect has a missing dependency: 'isMounted'. Either include it or remove the dependency array              react-hooks/exhaustive-deps
+  168:7  warning  React Hook useMemo has missing dependencies: 'loadUser' and 'logout'. Either include them or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/thang/Documents/platform/web/src/components/providers/system-admin-provider.tsx
+    4:23  warning  'SystemAdminGetMeResponse' is defined but never used                                                          @typescript-eslint/no-unused-vars
+   70:57  warning  '_' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+   91:53  warning  '_' is defined but never used                                                                                 @typescript-eslint/no-unused-vars
+  101:6   warning  React Hook useEffect has a missing dependency: 'loadAdmin'. Either include it or remove the dependency array  react-hooks/exhaustive-deps
+
+/Users/thang/Documents/platform/web/src/components/providers/zones-provider.tsx
+  12:10  error  Unexpected any. Specify a different type  @typescript-eslint/no-explicit-any
+
+✖ 71 problems (20 errors, 51 warnings)
+

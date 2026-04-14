@@ -3,7 +3,6 @@
 import { useState, useCallback, useMemo } from 'react';
 import {
   ScrollText,
-  Filter,
   ChevronLeft,
   ChevronRight,
   Plus,

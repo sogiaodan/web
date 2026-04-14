@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft, Trash2, Printer, Plus, CheckCircle2 } from 'lucide-react';
@@ -8,7 +8,7 @@ import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchComb
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { HouseholdSearchCombobox } from '@/components/ui/HouseholdSearchCombobox';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
-import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useBatchCreateSacraments } from '../../queries/useSacramentMutations';
 
@@ -376,7 +376,7 @@ export function BatchSacramentClient() {
                       value={sParishionerId} 
                       onChange={(id, p) => { 
                         setSParishionerId(id || ''); 
-                        setSParishionerData(p as any || null); 
+                        setSParishionerData(p as ParishionerPreview | null); 
                       }} 
                     />
                   </div>

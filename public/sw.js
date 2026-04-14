@@ -5,7 +5,6 @@
 //   - Navigation (HTML pages): Network First with offline fallback
 
 const CACHE_NAME = 'sgd-static-v1';
-const OFFLINE_URL = '/offline';
 
 // Assets to pre-cache on install
 const PRECACHE_ASSETS = [

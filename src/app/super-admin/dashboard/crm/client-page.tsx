@@ -303,7 +303,7 @@ export default function CrmInboxClientPage() {
           ] as const).map((stat) => (
             <div key={stat.label} className={clsx(
               'rounded-sm border border-outline p-4 text-center',
-              (stat as any).bg ?? 'bg-white',
+              'bg' in stat ? stat.bg : 'bg-white',
             )}>
               <p className={clsx('font-serif text-3xl font-bold', stat.color)}>{stat.value}</p>
               <p className="text-[11px] uppercase tracking-widest font-bold text-muted mt-1">{stat.label}</p>

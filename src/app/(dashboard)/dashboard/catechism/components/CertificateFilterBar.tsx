@@ -1,5 +1,4 @@
-import Image from 'next/image';
-import { useState, useEffect, useTransition, useRef } from 'react';
+import { useState, useEffect, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { Search, Download } from 'lucide-react';
 
@@ -72,18 +71,19 @@ function CertificateDateFilter() {
     date_to: searchParams.get('date_to') || '',
   });
 
-  const lastSyncRef = useRef<string>('');
-  useEffect(() => {
-    const nextFilters = {
+  const [prevSyncKey, setPrevSyncKey] = useState(() => 
+    (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '')
+  );
+
+  const currentSyncKey = (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '');
+
+  if (currentSyncKey !== prevSyncKey) {
+    setPrevSyncKey(currentSyncKey);
+    setLocalFilters({
       date_from: searchParams.get('date_from') || '',
       date_to: searchParams.get('date_to') || '',
-    };
-    const syncKey = JSON.stringify(nextFilters);
-    if (lastSyncRef.current !== syncKey) {
-      setLocalFilters(nextFilters);
-      lastSyncRef.current = syncKey;
-    }
-  }, [searchParams]);
+    });
+  }
 
   useEffect(() => {
     const handleKey = (e: KeyboardEvent) => {

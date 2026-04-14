@@ -7,7 +7,7 @@ import { RefreshCcw, Search, FilterX } from 'lucide-react';
 import { ActivityLog } from '@/components/dashboard/ActivityRow';
 import ActivityRow from '@/components/dashboard/ActivityRow';
 import { PaginationControls } from '@/components/ui/PaginationControls';
-import { ApiResponse } from '@/lib/auth-api';
+import { Account } from '@/lib/api/settings';
 
 interface ActivitiesResponse {
   items: ActivityLog[];
@@ -50,7 +50,7 @@ export default function ActivitiesPage() {
   // Fetch users for the filter dropdown
   const { data: usersDataObj } = useQuery({
     queryKey: ['accounts'],
-    queryFn: () => apiFetch<any>('/api/v1/settings/accounts'),
+    queryFn: () => apiFetch<{ items: Account[] }>('/api/v1/settings/accounts'),
   });
   const usersData = usersDataObj?.items || [];
 
@@ -58,7 +58,6 @@ export default function ActivitiesPage() {
     setActionType('');
     setUserId('');
     setDateFrom('');
-    setDateTo('');
     setPage(1);
   }, []);
 
@@ -124,7 +123,7 @@ export default function ActivitiesPage() {
             }}
           >
             <option value="">Tất cả người dùng</option>
-            {usersData?.map((user: any) => (
+            {usersData?.map((user) => (
               <option key={user.id} value={user.id}>
                 {user.name}
               </option>

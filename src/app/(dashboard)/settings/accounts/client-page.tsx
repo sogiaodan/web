@@ -47,8 +47,9 @@ export default function AccountManagementPage() {
     try {
       const result = await SettingsAccountsAPI.resendInvite(user.id);
       toast.success(`${result.message}. Lưu ý: Email có thể rơi vào mục Spam.`, { duration: 6000 });
-    } catch (err: any) {
-      toast.error(err.message || 'Không thể gửi email. Vui lòng thử lại.');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Không thể gửi email. Vui lòng thử lại.');
     } finally {
       setResendingId(null);
     }
@@ -64,7 +65,7 @@ export default function AccountManagementPage() {
     'VIEWER': 'Viewer',
   };
 
-  const filteredItems = items.filter((user: Account) => {
+  const filteredItems = items.filter((user) => {
     if (!searchTerm) return true;
     const lower = searchTerm.toLowerCase();
     return user.name.toLowerCase().includes(lower) || 
@@ -139,7 +140,7 @@ export default function AccountManagementPage() {
       {/* Filter Chips */}
       <div className="flex items-center gap-3 overflow-x-auto pb-2 scrollbar-hide w-full">
         <span className="font-sans text-[14px] text-foreground shrink-0 hidden md:block">Bộ lọc nhanh:</span>
-        {['Tất cả', 'Admin', 'Editor', 'Viewer'].map((label, i) => {
+        {['Tất cả', 'Admin', 'Editor', 'Viewer'].map((label) => {
           const mapVal = label === 'Tất cả' ? '' : (label === 'Admin' ? 'ADMIN' : (label === 'Editor' ? 'EDITOR' : 'VIEWER'));
           const isActive = roleFilter === mapVal;
           return (

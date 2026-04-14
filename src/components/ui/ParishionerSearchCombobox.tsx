@@ -3,7 +3,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Loader2, Lock, X } from 'lucide-react';
 
-interface ParishionerLookup {
+export interface ParishionerLookup {
   id: string;
   christian_name: string | null;
   full_name: string;
@@ -66,10 +66,10 @@ export function ParishionerSearchCombobox({
       try {
         const res = await fetch(`/api/v1/parishioners/search?q=${encodeURIComponent(query)}&limit=10`);
         if (res.ok) {
-          const json = await res.json();
+          const json = (await res.json()) as { data: ParishionerLookup[] };
           setResults(json.data || []);
         }
-      } catch (err) {
+      } catch (err: unknown) {
         console.error('Failed to search parishioners', err);
       } finally {
         setIsLoading(false);

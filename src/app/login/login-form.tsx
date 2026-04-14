@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -20,7 +20,7 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 export function LoginForm() {
-  const router = useRouter();
+
   const { login } = useAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -39,7 +39,8 @@ export function LoginForm() {
       login(response.user);
       toast.success('Đăng nhập thành công');
       // router.replace('/dashboard'); // Removed: Handled centrally by AuthProvider
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại sau.');
     } finally {
       setIsSubmitting(false);

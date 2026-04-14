@@ -52,17 +52,18 @@ export function CreateUserDialog({ isOpen, onClose, onSuccess }: { isOpen: boole
       toast.success('Tạo tài khoản thành công');
       onSuccess();
       onClose();
-    } catch (err: any) {
-      if (err.message && err.message.toLowerCase().includes('email')) {
-        if (err.code === 'EMAIL_ACTIVE_ELSEWHERE' || err.message.includes('hoạt động')) {
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string };
+      if (error.message && error.message.toLowerCase().includes('email')) {
+        if (error.code === 'EMAIL_ACTIVE_ELSEWHERE' || error.message.includes('hoạt động')) {
            setErrors({ email: 'Tài khoản đang hoạt động ở giáo xứ khác' });
-           toast.error(err.message || 'Hành động bị chặn vì email đang hoạt động ở giáo xứ khác');
+           toast.error(error.message || 'Hành động bị chặn vì email đang hoạt động ở giáo xứ khác');
         } else {
            setErrors({ email: 'Email đã được sử dụng' });
            toast.error('Email đã được sử dụng');
         }
       } else {
-        toast.error(err.message || 'Có lỗi xảy ra');
+        toast.error(error.message || 'Có lỗi xảy ra');
       }
     } finally {
       setIsSubmitting(false);
@@ -210,12 +211,13 @@ export function EditUserDialog({ user, onClose, onSuccess }: { user: Account | n
       toast.success('Cập nhật tài khoản thành công');
       onSuccess();
       onClose();
-    } catch (err: any) {
-      if (err.message && err.message.toLowerCase().includes('email')) {
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string };
+      if (error.message && error.message.toLowerCase().includes('email')) {
          setErrors({ email: 'Email đã được sử dụng' });
          toast.error('Email đã được sử dụng');
       } else {
-         toast.error(err.message || 'Có lỗi xảy ra');
+         toast.error(error.message || 'Có lỗi xảy ra');
       }
     } finally {
       setIsSubmitting(false);
@@ -314,12 +316,13 @@ export function LockUnlockConfirmation({ user, locked, onClose, onSuccess }: { u
       toast.success(locked ? 'Tài khoản đã được mở khóa' : 'Tài khoản đã bị tạm khóa');
       onSuccess();
       onClose();
-    } catch (err: any) {
+    } catch (err: unknown) {
+      const error = err as Error & { code?: string };
       // Surface "last admin" errors inline rather than dismissing the dialog
-      if (err?.code === 'LAST_ADMIN_PROTECTED' || err?.message?.includes('Admin cuối cùng')) {
-        setBlockingError(err.message || 'Không thể khóa tài khoản Admin cuối cùng.');
+      if (error?.code === 'LAST_ADMIN_PROTECTED' || error?.message?.includes('Admin cuối cùng')) {
+        setBlockingError(error.message || 'Không thể khóa tài khoản Admin cuối cùng.');
       } else {
-        toast.error(err.message || 'Có lỗi xảy ra');
+        toast.error(error.message || 'Có lỗi xảy ra');
       }
     } finally {
       setIsSubmitting(false);

@@ -41,12 +41,11 @@ export function AdvancedFilterDrawer({ zones }: Props) {
   });
 
 
-  // Sync local state when URL changes
-  const lastSyncRef = useRef('');
-  useEffect(() => {
+  // Sync local state when URL or open state changes
+  const [prevSyncKey, setPrevSyncKey] = useState(() => {
     const statuses = searchParams.getAll('status');
     const singleStatus = searchParams.get('status');
-    const nextFilters = {
+    const filters = {
       christian_name: searchParams.get('christian_name') || '',
       age_min: searchParams.get('age_min') || '',
       age_max: searchParams.get('age_max') || '',
@@ -55,13 +54,26 @@ export function AdvancedFilterDrawer({ zones }: Props) {
       marital_status: searchParams.get('marital_status') || '',
       zone_id: searchParams.get('zone_id') || '',
     };
-    
-    const syncKey = JSON.stringify(nextFilters) + isOpen;
-    if (lastSyncRef.current !== syncKey) {
-      setLocalFilters(nextFilters);
-      lastSyncRef.current = syncKey;
-    }
-  }, [searchParams, isOpen]);
+    return JSON.stringify(filters) + isOpen;
+  });
+
+  const statuses = searchParams.getAll('status');
+  const singleStatus = searchParams.get('status');
+  const nextFilters = {
+    christian_name: searchParams.get('christian_name') || '',
+    age_min: searchParams.get('age_min') || '',
+    age_max: searchParams.get('age_max') || '',
+    gender: searchParams.get('gender') || '',
+    status: statuses.length > 0 ? statuses : (singleStatus ? [singleStatus] : []),
+    marital_status: searchParams.get('marital_status') || '',
+    zone_id: searchParams.get('zone_id') || '',
+  };
+  const currentSyncKey = JSON.stringify(nextFilters) + isOpen;
+
+  if (currentSyncKey !== prevSyncKey) {
+    setPrevSyncKey(currentSyncKey);
+    setLocalFilters(nextFilters);
+  }
 
   // Trap focus escape
   useEffect(() => {

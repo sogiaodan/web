@@ -5,8 +5,6 @@ import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
-  Home, 
-  User, 
   Phone, 
   MapPin, 
   AlertCircle,
@@ -16,7 +14,7 @@ import {
 import Link from 'next/link';
 import { useZones } from '@/components/providers/zones-provider';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
-import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useCreateHousehold } from '../queries/useHouseholdMutations';
 
@@ -87,8 +85,9 @@ export default function AddHouseholdPage() {
       const newId = result.id;
       router.push(`/dashboard/households/${newId}`);
       
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err: unknown) {
+      const error = err as Error;
+      setError(error.message);
     }
   };
 
@@ -155,7 +154,7 @@ export default function AddHouseholdPage() {
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
                 >
                   <option value="">-- Chọn Giáo Khu --</option>
-                  {zones.map((zone: any) => (
+                  {zones.map((zone: { id: string; name: string }) => (
                     <option key={zone.id} value={zone.id}>{zone.name}</option>
                   ))}
                 </select>

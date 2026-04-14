@@ -115,7 +115,7 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
           <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant">
             Chưa có giáo dân nào thuộc giáo khu này.
           </div>
-        ) : items.map((item, index) => (
+        ) : items.map((item) => (
           <Link 
             key={item.id} 
             href={`/dashboard/parishioners/${item.id}`}

@@ -98,7 +98,8 @@ export default function AccountPanel({ isOpen, onClose }: AccountPanelProps) {
       toast.success('Information updated successfully');
       await refreshContext();
       setMode('VIEW');
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra');
     } finally {
       setIsLoading(false);
@@ -117,7 +118,8 @@ export default function AccountPanel({ isOpen, onClose }: AccountPanelProps) {
       setTimeout(() => {
         router.push('/login');
       }, 1500);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra');
     } finally {
       setIsLoading(false);

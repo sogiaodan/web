@@ -25,7 +25,7 @@ export async function VaticanNewsSection() {
         newsList = json.data;
       }
     }
-  } catch (err) {
+  } catch {
     // Graceful failure - section will hide if no news is loaded.
   }
 

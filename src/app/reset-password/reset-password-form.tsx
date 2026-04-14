@@ -77,7 +77,8 @@ export function ResetPasswordForm() {
       await authApi.resetPassword(token, data.new_password);
       toast.success('Mật khẩu đã được cập nhật thành công');
       router.push('/login');
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       if (error.message && error.message.includes('hết hạn')) {
          toast.error('Liên kết đã hết hạn.');
          router.push('/forgot-password');

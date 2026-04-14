@@ -17,7 +17,7 @@ interface TypeaheadResult {
   sub?: string;
 }
 
-function TypeaheadInput({
+function TypeaheadInput<T>({
   label,
   required,
   value,
@@ -40,7 +40,7 @@ function TypeaheadInput({
   onSelect: (item: TypeaheadResult) => void;
   onClear: () => void;
   fetchUrl: (q: string) => string;
-  mapResult: (data: any) => TypeaheadResult;
+  mapResult: (data: T) => TypeaheadResult;
   placeholder: string;
   disabled?: boolean;
   error?: string;
@@ -79,7 +79,7 @@ function TypeaheadInput({
           const res = await fetch(url, { credentials: 'include' });
           if (res.ok) {
             const body = await res.json() as { data?: { items?: unknown[] } | unknown[] };
-            const data = (body.data && !Array.isArray(body.data) ? (body.data.items || []) : (body.data || [])).map(mapResult);
+            const data = (body.data && !Array.isArray(body.data) ? (body.data.items || []) : (body.data || [])).map((item) => mapResult(item as T));
             setResults(data);
           }
         } catch {

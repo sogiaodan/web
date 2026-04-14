@@ -1,6 +1,6 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
-import { API_BASE_URL, APP_BASE_URL } from '@/lib/configs';
+import { APP_BASE_URL } from '@/lib/configs';
 
 import { LandingHeader } from '@/components/landing/LandingHeader';
 import { HeroSection } from '@/components/landing/HeroSection';
@@ -46,20 +46,7 @@ export const metadata: Metadata = {
 
 // ─── Skeleton Loaders ─────────────────────────────────────────────────────────
 
-function SpiritualLifeSkeleton() {
-  return (
-    <section className="w-full py-16 md:py-24 bg-gradient-to-br from-[#E05C3A] to-primary">
-      <div className="container mx-auto px-4 max-w-7xl">
-        <div className="h-10 w-56 bg-white/20 rounded mb-12 animate-pulse" />
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="bg-white/10 rounded p-6 animate-pulse min-h-[240px]" />
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
+
 
 function VaticanNewsSkeleton() {
   return (

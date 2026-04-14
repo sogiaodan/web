@@ -1,12 +1,11 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
+import { ParishionerSearchCombobox, ParishionerLookup } from '@/components/ui/ParishionerSearchCombobox';
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
 import { SacramentType } from '@/types/sacrament';
@@ -30,7 +29,7 @@ interface SacramentFormProps {
   type: SacramentType;
   id?: string;
   initialData?: Partial<SacramentFormValues>;
-  initialParishioner?: any;
+  initialParishioner?: ParishionerLookup | null;
   readOnly?: boolean;
 }
 
@@ -77,9 +76,10 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
 
       toast.success(isEdit ? 'Cập nhật bí tích thành công!' : 'Ghi nhận bí tích thành công!');
       router.push('/dashboard/sacraments');
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra khi lưu bí tích.');
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra khi lưu bí tích.');
+      console.error(error);
     }
   };
 

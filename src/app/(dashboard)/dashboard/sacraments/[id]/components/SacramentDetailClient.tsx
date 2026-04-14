@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { SacramentType } from '@/types/sacrament';
 import { SacramentForm } from '../../new/components/SacramentForm';
-import { Edit3, Share2, Info, User, Calendar, MapPin, Download, Loader2 } from 'lucide-react';
+import { Edit3, Share2, Info, Download, Loader2 } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useSacramentDetailQuery } from '../../queries/useSacramentQuery';
@@ -149,7 +149,7 @@ export function SacramentDetailClient({ id }: { id: string }) {
               </div>
               <div>
                 <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">Giới tính</span>
-                <span className="text-sm font-body text-on-surface">{(sacrament.parishioner as any).gender === 'MALE' ? 'Nam' : 'Nữ'}</span>
+                <span className="text-sm font-body text-on-surface">{(sacrament.parishioner as { gender?: string }).gender === 'MALE' ? 'Nam' : 'Nữ'}</span>
               </div>
             </div>
           </div>
@@ -187,7 +187,7 @@ export function SacramentDetailClient({ id }: { id: string }) {
                </div>
                
                <div className="bg-[#FAF6F6] rounded p-3 flex items-center justify-between mt-4">
-                 <span className="text-xs text-on-surface-variant font-body italic">Lần cuối cập nhật: {formatDate((sacrament as any).updated_at || new Date().toISOString())}</span>
+                 <span className="text-xs text-on-surface-variant font-body italic">Lần cuối cập nhật: {formatDate((sacrament as { updated_at?: string }).updated_at || new Date().toISOString())}</span>
                  <Info className="w-4 h-4 text-on-surface-variant/50" />
                </div>
              </div>

@@ -7,7 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { SettingsAPI } from '@/lib/api/settings';
 import { toast } from 'sonner';
-import { useRouter } from 'next/navigation';
+
 import clsx from 'clsx';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
 
@@ -29,7 +29,7 @@ interface ForceChangePasswordModalProps {
 }
 
 export default function ForceChangePasswordModal({ isOpen }: ForceChangePasswordModalProps) {
-  const router = useRouter();
+
   const [isLoading, setIsLoading] = useState(false);
   const [showCurrentPassword, setShowCurrentPassword] = useState(false);
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -56,7 +56,8 @@ export default function ForceChangePasswordModal({ isOpen }: ForceChangePassword
       setTimeout(() => {
         window.location.href = '/login';
       }, 2000);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra khi đổi mật khẩu');
       setIsLoading(false);
     }

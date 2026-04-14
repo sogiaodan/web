@@ -7,6 +7,7 @@ import {
   useState,
   useRef,
   useMemo,
+  useCallback,
 } from "react";
 import { User, authApi } from "@/lib/auth-api";
 import { useRouter, usePathname } from "next/navigation";
@@ -39,7 +40,7 @@ export function AuthProvider({
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
 
-  const loadUser = async (forceLoading = true) => {
+  const loadUser = useCallback(async (forceLoading = true) => {
     if (isCheckingRef.current) return;
     isCheckingRef.current = true;
 
@@ -83,7 +84,7 @@ export function AuthProvider({
       setIsLoading(false);
       isCheckingRef.current = false;
     }
-  };
+  }, [user]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -105,7 +106,7 @@ export function AuthProvider({
       window.removeEventListener("popstate", handlePopState);
       window.removeEventListener("auth:unauthorized", handleUnauthorized);
     };
-  }, []);
+  }, [initialUser, loadUser]);
 
   // Centralized Redirect Logic with Redirect Sentinel
   useEffect(() => {
@@ -146,18 +147,18 @@ export function AuthProvider({
       console.log("[auth] No user on private route, moving to login");
       performRedirect('/login');
     }
-  }, [user, isLoading, pathname, router]);
+  }, [user, isLoading, pathname, router, isMounted]);
 
-  const login = (newUser: User) => setUser(newUser);
+  const login = useCallback((newUser: User) => setUser(newUser), []);
 
-  const logout = async () => {
+  const logout = useCallback(async () => {
     try {
       await authApi.logout();
     } finally {
       setUser(null);
       router.replace("/login");
     }
-  };
+  }, [router]);
 
   const contextValue = useMemo(() => ({
     user,
@@ -165,7 +166,7 @@ export function AuthProvider({
     login,
     logout,
     refreshContext: () => loadUser(false),
-  }), [user, isLoading]);
+  }), [user, isLoading, login, logout, loadUser]);
 
   return (
     <AuthContext.Provider value={contextValue}>

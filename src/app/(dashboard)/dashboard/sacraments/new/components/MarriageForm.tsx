@@ -1,15 +1,14 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
+import { ParishionerSearchCombobox, ParishionerLookup } from '@/components/ui/ParishionerSearchCombobox';
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
-import { Loader2, Home } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 const marriageSchema = z.object({
   husband_id: z.string().min(1, 'Vui lòng chọn Chú rể'),
@@ -36,8 +35,8 @@ type MarriageFormValues = z.infer<typeof marriageSchema>;
 interface MarriageFormProps {
   id?: string;
   initialData?: Partial<MarriageFormValues>;
-  initialHusband?: any;
-  initialWife?: any;
+  initialHusband?: ParishionerLookup | null;
+  initialWife?: ParishionerLookup | null;
   readOnly?: boolean;
 }
 
@@ -78,6 +77,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
   });
 
   const isEdit = !!id;
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isMixedReligion = watch('is_mixed_religion');
 
   const onSubmit = async (data: MarriageFormValues) => {

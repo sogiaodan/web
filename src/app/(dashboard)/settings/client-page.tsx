@@ -1,8 +1,8 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+
 import { 
   Shield, 
   BookHeart, 
@@ -16,8 +16,7 @@ import {
   MoreVertical
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
-import { authApi } from '@/lib/auth-api';
-import { SettingsAPI, SettingsAccountsAPI, BackupStatusResponse } from '@/lib/api/settings';
+import { SettingsAccountsAPI } from '@/lib/api/settings';
 import { toast } from 'sonner';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { FormInput } from '@/components/ui/FormInput';
@@ -31,7 +30,6 @@ import { useQueryClient } from '@tanstack/react-query';
 
 export default function SettingsPage() {
   const { user, logout } = useAuth();
-  const router = useRouter();
   const queryClient = useQueryClient();
   
   const { data: backupData } = useBackupStatusQuery();
@@ -60,8 +58,9 @@ export default function SettingsPage() {
         queryClient.clear();
         await logout();
       }, 2000);
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra');
       setIsDeleting(false);
     }
   };
@@ -71,8 +70,9 @@ export default function SettingsPage() {
     try {
       queryClient.clear();
       await logout();
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra');
       setIsLoggingOut(false);
       setIsLogoutModalOpen(false);
     }

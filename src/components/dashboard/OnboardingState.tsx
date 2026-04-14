@@ -1,6 +1,6 @@
 'use client';
 
-import { Users, Home, ArrowRight, PlusCircle, LayoutDashboard } from 'lucide-react';
+import { Home, ArrowRight, LayoutDashboard } from 'lucide-react';
 import Link from 'next/link';
 
 interface OnboardingStateProps {

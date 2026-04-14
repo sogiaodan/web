@@ -6,7 +6,7 @@ import { z } from 'zod';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { toast } from 'sonner';
 import { X, Send } from 'lucide-react';
-import { API_BASE_URL, APP_NAME } from '@/lib/configs';
+import { API_BASE_URL } from '@/lib/configs';
 
 // ─── Zod schema ─────────────────────────────────────────────────────────────
 const contactSchema = z.object({

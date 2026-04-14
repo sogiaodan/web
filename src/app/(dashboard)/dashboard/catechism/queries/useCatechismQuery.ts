@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
-import { CertificateListResponse, CertificateDetail, CertificateType } from '@/types/catechism';
+import { CertificateListResponse, CertificateDetail } from '@/types/catechism';
 
 export function useCatechismQuery(params?: Record<string, string>) {
   const queryString = new URLSearchParams(params).toString();

@@ -1,16 +1,13 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
   Globe,
   Building2,
   Save,
-  X,
   Pencil,
-  ToggleLeft,
-  ToggleRight,
   Calendar,
   Clock,
   Users,
@@ -112,7 +109,7 @@ function FormField({ label, value, name, type = 'text', readOnly = false, isEdit
         type={type}
         value={value}
         readOnly={readOnly || !isEditing}
-        onChange={(e) => onChange(name as any, e.target.value)}
+        onChange={(e) => onChange(name, e.target.value)}
         className={baseInput}
         min={type === 'number' ? 1500 : undefined}
         max={type === 'number' ? 2100 : undefined}
@@ -362,16 +359,8 @@ function ManagementPanel({ church, onToggleStatus }: ManagementPanelProps) {
 function BackupHealthPanel({ churchId, lastBackupAt }: { churchId: string; lastBackupAt: string | null }) {
   const backupMutation = useTriggerChurchBackupMutation(churchId);
 
-  const [backupAgeDays, setBackupAgeDays] = useState<number | null>(null);
-
-  useEffect(() => {
-    if (!lastBackupAt) {
-      setBackupAgeDays(null);
-      return;
-    }
-    const ageMs = Date.now() - new Date(lastBackupAt).getTime();
-    setBackupAgeDays(Math.floor(ageMs / (1000 * 60 * 60 * 24)));
-  }, [lastBackupAt]);
+  const [now] = useState(() => Date.now());
+  const backupAgeDays = lastBackupAt ? Math.floor((now - new Date(lastBackupAt).getTime()) / (1000 * 60 * 60 * 24)) : null;
 
   let healthColor = 'bg-green-500';
   let healthLabel = 'Tốt';
@@ -488,16 +477,16 @@ export default function ChurchDetailClientPage({ id }: Props) {
   const [showStatusDialog, setShowStatusDialog] = useState(false);
 
   // Sync form state from server data (only when not editing)
-  const lastSyncRef = useRef<string>('');
-  useEffect(() => {
-    if (church && !isEditing) {
-      const syncKey = church.id + isEditing + church.updated_at;
-      if (lastSyncRef.current !== syncKey) {
-        setFormState(buildFormState(church));
-        lastSyncRef.current = syncKey;
-      }
+  const [prevChurchKey, setPrevChurchKey] = useState<string>('');
+
+  // Sync form state from server data (only when not editing)
+  if (church && !isEditing) {
+    const syncKey = church.id + isEditing + church.updated_at;
+    if (prevChurchKey !== syncKey) {
+      setFormState(buildFormState(church));
+      setPrevChurchKey(syncKey);
     }
-  }, [church, isEditing]);
+  }
 
   const isDirty = useMemo(() => {
     if (!church || !formState) return false;

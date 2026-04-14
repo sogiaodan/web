@@ -42,29 +42,49 @@ interface Props {
 
 export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
   const [preview, setPreview] = useState<ParishionerPreview | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
   const isOpen = !!parishionerId;
 
-  // Fetch preview data whenever ID changes
-  useEffect(() => {
-    if (!parishionerId) {
-      if (preview !== null) setPreview(null);
-      return;
-    }
-    setLoading(true);
+  // Sync state with props
+  if (parishionerId !== activeId) {
+    setActiveId(parishionerId);
+    setLoadingId(parishionerId ? parishionerId : null);
     setError(false);
-    fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
+    if (!parishionerId) {
+      setPreview(null);
+    }
+  }
+
+  // Fetch preview data asynchronously
+  useEffect(() => {
+    if (!loadingId) return;
+
+    let ignore = false;
+    fetch(`/api/v1/parishioners/${loadingId}/preview`, { credentials: 'include' })
       .then((r) => {
         if (!r.ok) throw new Error('not found');
         return r.json() as Promise<{ data: ParishionerPreview }>;
       })
-      .then((body) => setPreview(body.data))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [parishionerId, preview]);
+      .then((body) => {
+        if (!ignore) {
+          setPreview(body.data);
+          setLoadingId(null);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setError(true);
+          setLoadingId(null);
+        }
+      });
+    return () => { ignore = true; };
+  }, [loadingId]);
+
+  const loading = !!loadingId;
 
   // Body scroll lock
   useEffect(() => {
@@ -142,9 +162,7 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
                 onClick={() => {
                   if (parishionerId) {
                     setError(false);
-                    setLoading(true);
-                    fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
-                      .then(r => r.json() as Promise<{ data: ParishionerPreview }>).then(b => setPreview(b.data || null)).catch(() => setError(true)).finally(() => setLoading(false));
+                    setLoadingId(parishionerId);
                   }
                 }}
                 className="text-sm text-primary font-medium hover:underline"

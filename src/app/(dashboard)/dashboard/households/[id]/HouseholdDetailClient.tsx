@@ -7,7 +7,6 @@ import { CoupleCards } from "./components/CoupleCards";
 import { MembersTable } from "./components/MembersTable";
 import { SplitMembersSection } from "./components/SplitMembersSection";
 import Link from "next/link";
-import { notFound } from "next/navigation";
 
 export default function HouseholdDetailClient({ id }: { id: string }) {
   const { data: householdData, isLoading, error } = useHouseholdDetailQuery(id);

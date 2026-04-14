@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback, useEffect } from 'react';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import {
@@ -13,10 +13,7 @@ import {
   Megaphone,
   Wrench,
   Rows3,
-  ToggleLeft,
-  ToggleRight,
   Calendar,
-  ChevronRight,
   ChevronDown,
   ChevronUp,
   CircleStop,
@@ -195,7 +192,7 @@ function NotificationDrawer({ editing, onClose }: DrawerProps) {
     register,
     handleSubmit,
     formState: { errors },
-    watch,
+    control,
     setValue,
   } = useForm<NotifFormData>({
     resolver: zodResolver(notifSchema),
@@ -218,8 +215,8 @@ function NotificationDrawer({ editing, onClose }: DrawerProps) {
     },
   });
 
-  const displayType = watch('display_type');
-  const startsAt = watch('starts_at');
+  const displayType = useWatch({ control, name: 'display_type' });
+  const startsAt = useWatch({ control, name: 'starts_at' });
 
   useEffect(() => {
     if (editing) return; 

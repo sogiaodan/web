@@ -1,5 +1,6 @@
 import { Household } from '@/types/household';
 import Link from 'next/link';
+import Image from 'next/image';
 import { cn } from '@/lib/utils';
 
 function formatDate(dateStr?: string) {
@@ -7,7 +8,7 @@ function formatDate(dateStr?: string) {
   try {
     const d = new Date(dateStr);
     return new Intl.DateTimeFormat('vi-VN', { day: '2-digit', month: '2-digit', year: 'numeric' }).format(d);
-  } catch (e) {
+  } catch {
     return dateStr;
   }
 }
@@ -54,12 +55,14 @@ export function CoupleCards({ household }: { household: Household }) {
       <div className="relative bg-surface-container border border-outline p-4 md:p-6 rounded-lg overflow-hidden shrink-0">
         <div className="absolute top-0 right-0 w-16 h-16 bg-primary/5 -mr-8 -mt-8 rotate-45" />
         <Link href={`/dashboard/parishioners/${head?.id}?returnTo=household`} className="flex gap-4 items-start relative hover:opacity-90 transition-opacity flex-1">
-          <div className="w-16 h-16 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-sm border border-border-color bg-surface-container shadow-sm">
+          <div className="relative w-16 h-16 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-sm border border-border-color bg-surface-container shadow-sm">
             {head?.avatar_url ? (
-              <img 
+              <Image
                 src={head.avatar_url} 
                 alt="Profile of Household Head" 
-                className="w-full h-full object-cover grayscale contrast-125" 
+                fill
+                unoptimized
+                className="object-cover grayscale contrast-125" 
               />
             ) : (
               <div className="w-full h-full flex items-center justify-center">
@@ -112,12 +115,14 @@ export function CoupleCards({ household }: { household: Household }) {
         <div className="relative bg-surface-container border border-outline p-4 md:p-6 rounded-lg overflow-hidden shrink-0">
           <div className="absolute top-0 right-0 w-16 h-16 bg-secondary/5 -mr-8 -mt-8 rotate-45" />
           <Link href={`/dashboard/parishioners/${spouse?.id}?returnTo=household`} className="flex gap-4 items-start relative hover:opacity-90 transition-opacity flex-1">
-            <div className="w-16 h-16 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-sm border border-border-color bg-surface-container shadow-sm">
+            <div className="relative w-16 h-16 md:w-24 md:h-24 flex-shrink-0 overflow-hidden rounded-sm border border-border-color bg-surface-container shadow-sm">
               {spouse.avatar_url ? (
-                <img 
+                <Image
                   src={spouse.avatar_url} 
                   alt="Profile of Spouse" 
-                  className="w-full h-full object-cover grayscale contrast-125" 
+                  fill
+                  unoptimized
+                  className="object-cover grayscale contrast-125" 
                 />
               ) : (
                 <div className="w-full h-full flex items-center justify-center">

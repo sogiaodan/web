@@ -2,13 +2,13 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Church,
   Mail,
   ScrollText,
   Bell,
-  ShieldCheck,
   X,
   LogOut,
 } from 'lucide-react';
@@ -43,7 +43,7 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 px-6 pt-6 mb-8">
         <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 overflow-hidden bg-white shadow-sm shrink-0">
-          <img src="/brand/icon-512.png" alt="Logo" className="h-full w-full object-contain p-1" />
+          <Image src="/brand/icon-512.png" alt="Logo" width={48} height={48} className="h-full w-full object-contain p-1" />
         </div>
         <div className="flex flex-col">
           <h1 className="font-serif text-lg font-bold text-primary leading-none mb-1">Sổ Giáo Dân</h1>

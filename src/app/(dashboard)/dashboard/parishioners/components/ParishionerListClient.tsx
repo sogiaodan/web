@@ -41,7 +41,7 @@ export function ParishionerListClient() {
     return params;
   }, [searchParams]);
 
-  const { data, isLoading, error } = useParishionersQuery(queryParams);
+  const { data, isLoading } = useParishionersQuery(queryParams);
   
   if (isLoading && !data) {
     return (

@@ -1,6 +1,6 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useState, useEffect } from 'react';
@@ -52,7 +52,7 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
     handleSubmit,
     formState: { errors },
     setValue,
-    watch,
+    control,
   } = useForm<OnboardingFormData>({
     resolver: zodResolver(onboardingSchema),
     defaultValues: {
@@ -60,8 +60,8 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
     },
   });
 
-  const churchName = watch('name');
-  const schemaName = watch('schema_name');
+  const churchName = useWatch({ control, name: 'name' });
+  const schemaName = useWatch({ control, name: 'schema_name' });
 
   // Auto-generate schema_name whenever church name changes.
   // Skips if user has manually confirmed a custom slug (isManuallyLocked).

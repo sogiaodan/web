@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { X, ChevronRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { ActiveNotification } from '@/types/system-admin';
@@ -12,25 +12,24 @@ interface SystemBannerProps {
 
 const DISMISSED_KEY = 'sgd_dismissed_banners';
 
+const emptySubscribe = () => () => {};
+
 /** Dismissable top banner for BANNER-type notifications. */
 export default function SystemBanner({ notifications }: SystemBannerProps) {
-  const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
-  const [isHydrated, setIsHydrated] = useState(false);
-  const syncRef = useRef(false);
-  useEffect(() => {
-    if (syncRef.current) return;
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+
+  const [dismissedIds, setDismissedIds] = useState<Set<string>>(() => {
+    if (typeof window === 'undefined') return new Set();
     try {
       const saved = localStorage.getItem(DISMISSED_KEY);
-      if (saved) {
-        setDismissedIds(new Set(JSON.parse(saved)));
-      }
+      if (saved) return new Set(JSON.parse(saved));
     } catch { /* ignore */ }
-    setIsHydrated(true);
-    syncRef.current = true;
-  }, []);
-  const visible = notifications.filter(
+    return new Set();
+  });
+
+  const visible = isClient ? notifications.filter(
     (n) => n.display_type === 'BANNER' && !dismissedIds.has(n.id),
-  );
+  ) : [];
 
   const handleDismiss = (id: string) => {
     const next = new Set(dismissedIds);
@@ -38,12 +37,12 @@ export default function SystemBanner({ notifications }: SystemBannerProps) {
     setDismissedIds(next);
     try {
       localStorage.setItem(DISMISSED_KEY, JSON.stringify([...next]));
-    } catch (e: unknown) {
+    } catch {
       // ignore
     }
   };
 
-  if (!isHydrated || !visible.length) return null;
+  if (!isClient || !visible.length) return null;
 
   return (
     <div className="space-y-0">

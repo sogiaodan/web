@@ -20,7 +20,7 @@ export default function CertificatePreviewCard({
   // Format date if needed
   const formattedDate = issueDate ? new Date(issueDate).toLocaleDateString('vi-VN') : '..../..../.......';
   
-  const typeDisplay = certificateType === 'RCIA' ? 'DỰ TÒNG' : certificateType === 'MARRIAGE_PREP' ? 'HÔN NHÂN' : '...................';
+   
 
   return (
     <div className="bg-surface border border-outline rounded-sm p-5 shadow-sm">

@@ -18,18 +18,19 @@ export function SacramentFilterDrawer() {
   });
 
   // Sync local state when URL changes
-  const lastSyncRef = useRef('');
-  useEffect(() => {
-    const nextFilters = {
+  const [prevSyncKey, setPrevSyncKey] = useState(() => 
+    (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '')
+  );
+
+  const currentSyncKey = (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '');
+
+  if (currentSyncKey !== prevSyncKey) {
+    setPrevSyncKey(currentSyncKey);
+    setLocalFilters({
       date_from: searchParams.get('date_from') || '',
       date_to: searchParams.get('date_to') || '',
-    };
-    const syncKey = JSON.stringify(nextFilters);
-    if (lastSyncRef.current !== syncKey) {
-      setLocalFilters(nextFilters);
-      lastSyncRef.current = syncKey;
-    }
-  }, [searchParams]);
+    });
+  }
 
   // Trap focus escape
   useEffect(() => {

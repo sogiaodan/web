@@ -1,7 +1,7 @@
 "use client";
 
-import React, { createContext, useContext, useEffect, useState, useRef } from "react";
-import { SystemAdmin, SystemAdminGetMeResponse } from "@/types/system-admin";
+import React, { createContext, useContext, useEffect, useState, useRef, useCallback } from "react";
+import { SystemAdmin } from "@/types/system-admin";
 import { systemAdminApi } from "@/lib/system-admin-api";
 import { useRouter, usePathname } from "next/navigation";
 
@@ -24,7 +24,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
 
-  const loadAdmin = async () => {
+  const loadAdmin = useCallback(async () => {
     if (isCheckingRef.current) return;
     
     // Only attempt to load admin if we are on a super-admin route
@@ -52,7 +52,8 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       } else {
         setAdmin(null);
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error & { status?: number };
       const isAuthError = 
         error.status === 401 ||
         error.message?.includes('401') || 
@@ -66,7 +67,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
         // Clear the stale cookie via backend then hard-redirect.
         // This ensures the browser does NOT re-send the invalid token on next load.
         if (typeof window !== 'undefined' && pathname.startsWith('/super-admin/dashboard')) {
-          try { await systemAdminApi.logout(); } catch (_) { /* ignore */ }
+          try { await systemAdminApi.logout(); } catch { /* ignore */ }
           window.location.href = '/super-admin/login';
           return;
         }
@@ -76,7 +77,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       setIsLoading(false);
       isCheckingRef.current = false;
     }
-  };
+  }, [admin, pathname]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -87,7 +88,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       setAdmin(null);
       setIsLoading(false);
       // Call logout to clear the cookie on the server, then hard-redirect
-      try { await systemAdminApi.logout(); } catch (_) { /* ignore */ }
+      try { await systemAdminApi.logout(); } catch { /* ignore */ }
       if (typeof window !== 'undefined' && window.location.pathname.startsWith('/super-admin/dashboard')) {
         window.location.href = '/super-admin/login';
       }
@@ -97,7 +98,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
     return () => {
       window.removeEventListener("sysadmin:unauthorized", handlesysAdminUnauthorized);
     };
-  }, [pathname]);
+  }, [pathname, loadAdmin]);
 
   // Centralized Redirect Logic for System Admin
   useEffect(() => {
