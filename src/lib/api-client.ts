@@ -13,7 +13,7 @@ export class ApiError extends Error {
  * Automatically includes credentials (HttpOnly cookies via rewrite proxy)
  * and handles the standard API response format.
  */
-export async function apiFetch<T = any>(
+export async function apiFetch<T = unknown>(
   endpoint: string,
   options: RequestInit = {}
 ): Promise<T> {

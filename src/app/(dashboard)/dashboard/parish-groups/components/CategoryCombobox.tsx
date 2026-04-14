@@ -5,7 +5,7 @@ import { ParishGroupCategory } from '@/types/parish-group';
 import { useCreateParishGroupCategory } from '../queries/useParishGroupMutations';
 import { cn } from '@/lib/utils';
 import { Search, PlusCircle, Check, Loader2 } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface Props {
   categories: ParishGroupCategory[];
@@ -50,11 +50,11 @@ export function CategoryCombobox({ categories, value, onChange, error }: Props) 
       setIsOpen(false);
       setSearch('');
       toast.success('Đã tạo phân loại mới');
-    } catch (err: any) {
-      if (err.status === 409) {
+    } catch (err: unknown) {
+      if ((err as { status?: number }).status === 409) {
         toast.error('Phân loại này đã tồn tại');
       } else {
-        toast.error(err.message || 'Lỗi khi tạo phân loại');
+        toast.error((err as Error).message || 'Lỗi khi tạo phân loại');
       }
     }
   };
@@ -113,7 +113,7 @@ export function CategoryCombobox({ categories, value, onChange, error }: Props) 
                 ) : (
                   <PlusCircle className="w-4 h-4" />
                 )}
-                <span className="font-medium">Tạo mới "{search.trim()}"</span>
+                <span className="font-medium">Tạo mới &quot;{search.trim()}&quot;</span>
               </div>
             )}
 

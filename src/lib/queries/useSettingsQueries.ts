@@ -27,7 +27,8 @@ export function useUpdateParishMutation() {
       queryClient.invalidateQueries({ queryKey: ['settings', 'parish-info'] });
       toast.success('Parish information updated successfully');
     },
-    onError: (error: any) => {
+    onError: (err: unknown) => {
+      const error = err as Error;
       toast.error(error.message || 'Lỗi cập nhật thông tin');
     },
   });
@@ -41,7 +42,8 @@ export function useBackupMutation() {
       queryClient.invalidateQueries({ queryKey: ['settings', 'backup-status'] });
       toast.success('Data backup successful');
     },
-    onError: (error: any) => {
+    onError: (err: unknown) => {
+      const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra trong quá trình sao lưu');
     },
   });
@@ -55,7 +57,8 @@ export function useLogoUploadMutation() {
       queryClient.invalidateQueries({ queryKey: ['settings', 'parish-info'] });
       toast.success('Logo uploaded successfully');
     },
-    onError: (error: any) => {
+    onError: (err: unknown) => {
+      const error = err as Error;
       toast.error(error.message || 'Lỗi tải ảnh lên');
     },
   });

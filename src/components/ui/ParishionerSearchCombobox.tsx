@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import { Search, Loader2, Check, Lock, X } from 'lucide-react';
+import { Search, Loader2, Lock, X } from 'lucide-react';
 
 interface ParishionerLookup {
   id: string;

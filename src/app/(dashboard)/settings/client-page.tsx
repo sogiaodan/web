@@ -362,6 +362,7 @@ export default function SettingsPage() {
                     Vui lòng nhập email <span className="font-bold underline text-primary">{user?.email}</span> để xác nhận:
                   </p>
                   <FormInput
+                    label="Email xác nhận"
                     value={deleteConfirmEmail}
                     onChange={(e) => setDeleteConfirmEmail(e.target.value)}
                     placeholder="Nhập email của bạn"

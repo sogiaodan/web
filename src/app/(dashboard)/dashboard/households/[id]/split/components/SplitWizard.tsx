@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import Image from 'next/image';
 import { Household, ParishionerSummary, Zone } from '@/types/household';
 
 type WizardState = {
@@ -65,8 +66,9 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
       toast.success('Tách hộ thành công');
       router.push(`/dashboard/households/${result.id || ''}`);
       
-    } catch (err: any) {
-      toast.error(err.message || 'Đã có lỗi xảy ra');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Đã có lỗi xảy ra');
     }
   };
 
@@ -181,7 +183,14 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-outline-variant overflow-hidden flex items-center justify-center shrink-0">
                             {wizardData.personA.avatar_url ? (
-                              <img src={wizardData.personA.avatar_url} alt="Person A" className="w-full h-full object-cover" />
+                              <div className="relative w-full h-full">
+                                <Image 
+                                  src={wizardData.personA.avatar_url} 
+                                  alt="Person A" 
+                                  fill 
+                                  className="object-cover" 
+                                />
+                              </div>
                             ) : (
                               <span className="font-bold text-muted">{wizardData.personA.full_name?.charAt(0)}</span>
                             )}
@@ -223,7 +232,14 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
                         <div className="flex items-center gap-3">
                           <div className="w-10 h-10 rounded-full bg-outline-variant overflow-hidden flex items-center justify-center shrink-0">
                             {wizardData.personB.avatar_url ? (
-                              <img src={wizardData.personB.avatar_url} alt="Person B" className="w-full h-full object-cover" />
+                              <div className="relative w-full h-full">
+                                <Image 
+                                  src={wizardData.personB.avatar_url} 
+                                  alt="Person B" 
+                                  fill 
+                                  className="object-cover" 
+                                />
+                              </div>
                             ) : (
                               <span className="font-bold text-muted">{wizardData.personB.full_name?.charAt(0)}</span>
                             )}
@@ -293,7 +309,7 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
                   <div className="mt-3 pt-3 border-t border-dashed border-outline-variant">
                     <p className="text-[10px] text-[#059669] font-bold uppercase mb-1">Cập nhật hệ thống</p>
                     <p className="text-xs text-muted leading-relaxed italic">
-                      "Cập nhật <span className="font-bold">household_id</span> mới. Giữ nguyên <span className="font-bold">origin_household_id</span> để theo dõi dòng tộc."
+                      &quot;Cập nhật <span className="font-bold">household_id</span> mới. Giữ nguyên <span className="font-bold">origin_household_id</span> để theo dõi dòng tộc.&quot;
                     </p>
                   </div>
                 </div>

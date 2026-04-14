@@ -50,7 +50,7 @@ export function useDeleteParishGroupCategory() {
 export function useCreateParishGroup() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/parish-groups`, {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -65,7 +65,7 @@ export function useCreateParishGroup() {
 export function useUpdateParishGroup(id: string) {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/parish-groups/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),

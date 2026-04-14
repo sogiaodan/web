@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import Link from 'next/link';
 import {
   ChevronRight,
@@ -90,11 +90,11 @@ function DetailPageSkeleton() {
 interface FieldProps {
   label: string;
   value: string;
-  name: keyof UpdateChurchRequest | 'established_year';
+  name: keyof UpdateChurchRequest | 'established_year' | 'schema_name';
   type?: string;
   readOnly?: boolean;
   isEditing: boolean;
-  onChange: (name: keyof UpdateChurchRequest | 'established_year', value: string) => void;
+  onChange: (name: keyof UpdateChurchRequest | 'established_year' | 'schema_name', value: string) => void;
 }
 
 function FormField({ label, value, name, type = 'text', readOnly = false, isEditing, onChange }: FieldProps) {
@@ -112,7 +112,7 @@ function FormField({ label, value, name, type = 'text', readOnly = false, isEdit
         type={type}
         value={value}
         readOnly={readOnly || !isEditing}
-        onChange={(e) => onChange(name as keyof UpdateChurchRequest, e.target.value)}
+        onChange={(e) => onChange(name as any, e.target.value)}
         className={baseInput}
         min={type === 'number' ? 1500 : undefined}
         max={type === 'number' ? 2100 : undefined}
@@ -362,11 +362,16 @@ function ManagementPanel({ church, onToggleStatus }: ManagementPanelProps) {
 function BackupHealthPanel({ churchId, lastBackupAt }: { churchId: string; lastBackupAt: string | null }) {
   const backupMutation = useTriggerChurchBackupMutation(churchId);
 
-  // Calculate backup health
-  const backupAgeMs = lastBackupAt
-    ? Date.now() - new Date(lastBackupAt).getTime()
-    : null;
-  const backupAgeDays = backupAgeMs != null ? Math.floor(backupAgeMs / (1000 * 60 * 60 * 24)) : null;
+  const [backupAgeDays, setBackupAgeDays] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (!lastBackupAt) {
+      setBackupAgeDays(null);
+      return;
+    }
+    const ageMs = Date.now() - new Date(lastBackupAt).getTime();
+    setBackupAgeDays(Math.floor(ageMs / (1000 * 60 * 60 * 24)));
+  }, [lastBackupAt]);
 
   let healthColor = 'bg-green-500';
   let healthLabel = 'Tốt';
@@ -456,6 +461,7 @@ type FormState = {
   phone_number: string;
   patron_saint: string;
   established_year: string;
+  schema_name: string;
 };
 
 function buildFormState(church: ChurchDetail): FormState {
@@ -468,6 +474,7 @@ function buildFormState(church: ChurchDetail): FormState {
     phone_number: church.phone_number ?? '',
     patron_saint: church.patron_saint ?? '',
     established_year: church.established_year?.toString() ?? '',
+    schema_name: church.schema_name ?? '',
   };
 }
 
@@ -477,13 +484,18 @@ export default function ChurchDetailClientPage({ id }: Props) {
   const toggleStatusMutation = useToggleChurchStatusMutation(id);
 
   const [isEditing, setIsEditing] = useState(false);
-  const [formState, setFormState] = useState<FormState | null>(null);
+  const [formState, setFormState] = useState<FormState | null>(() => (church ? buildFormState(church) : null));
   const [showStatusDialog, setShowStatusDialog] = useState(false);
 
   // Sync form state from server data (only when not editing)
+  const lastSyncRef = useRef<string>('');
   useEffect(() => {
     if (church && !isEditing) {
-      setFormState(buildFormState(church));
+      const syncKey = church.id + isEditing + church.updated_at;
+      if (lastSyncRef.current !== syncKey) {
+        setFormState(buildFormState(church));
+        lastSyncRef.current = syncKey;
+      }
     }
   }, [church, isEditing]);
 
@@ -496,7 +508,7 @@ export default function ChurchDetailClientPage({ id }: Props) {
   }, [church, formState]);
 
   const handleFieldChange = useCallback(
-    (name: keyof UpdateChurchRequest | 'established_year', value: string) => {
+    (name: keyof UpdateChurchRequest | 'established_year' | 'schema_name', value: string) => {
       setFormState((prev) => (prev ? { ...prev, [name]: value } : prev));
     },
     [],
@@ -686,12 +698,12 @@ export default function ChurchDetailClientPage({ id }: Props) {
               onChange={handleFieldChange}
             />
             <FormField
-              label="Schema Name (Read Only)"
-              name={'name' as any}
-              value={church.schema_name}
+              label="Schema Name"
+              name="schema_name"
+              value={formState.schema_name}
               readOnly
               isEditing={isEditing}
-              onChange={() => {}}
+              onChange={handleFieldChange}
             />
           </div>
         </div>

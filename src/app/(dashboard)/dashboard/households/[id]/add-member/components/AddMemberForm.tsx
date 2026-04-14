@@ -47,15 +47,15 @@ export function AddMemberForm({ household }: { household: Household }) {
     resolver: zodResolver(newbornSchema),
     defaultValues: {
       status: 'RESIDING',
-      gender: (paramGender as any) || 'MALE',
-      relationship_to_head: (paramRel as any) || 'CHILD'
+      gender: (paramGender as z.infer<typeof Gender>) || 'MALE',
+      relationship_to_head: (paramRel as z.infer<typeof Relationship>) || 'CHILD'
     }
   });
 
   // Hỗ trợ cập nhật khi params thay đổi
   useEffect(() => {
-    if (paramRel) setValue('relationship_to_head', paramRel as any);
-    if (paramGender) setValue('gender', paramGender as any);
+    if (paramRel) setValue('relationship_to_head', paramRel as z.infer<typeof Relationship>);
+    if (paramGender) setValue('gender', paramGender as z.infer<typeof Gender>);
   }, [paramRel, paramGender, setValue]);
 
   const onSubmit = async (data: NewbornFormValues) => {
@@ -65,8 +65,9 @@ export function AddMemberForm({ household }: { household: Household }) {
       toast.success('Thêm thành viên mới thành công!');
       router.push(`/dashboard/households/${household.id}`);
       
-    } catch (err: any) {
-      toast.error(err.message || 'Đã có lỗi xảy ra');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Đã có lỗi xảy ra');
     }
   };
 

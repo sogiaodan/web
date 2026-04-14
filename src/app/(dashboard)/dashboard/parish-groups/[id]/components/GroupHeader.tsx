@@ -6,7 +6,7 @@ import Image from 'next/image';
 import { formatDate } from '@/lib/utils';
 import { useRouter } from 'next/navigation';
 import { useDeleteParishGroup } from '../../queries/useParishGroupMutations';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface Props {
   group: ParishGroupDetail;
@@ -23,8 +23,8 @@ export function GroupHeader({ group, canEdit }: Props) {
         await deleteMutation.mutateAsync(group.id);
         toast.success('Đã xóa hội đoàn');
         router.push('/dashboard/parish-groups');
-      } catch (err: any) {
-        toast.error(err.message || 'Lỗi khi xóa hội đoàn');
+      } catch (err: unknown) {
+        toast.error((err as Error).message || 'Lỗi khi xóa hội đoàn');
       }
     }
   };

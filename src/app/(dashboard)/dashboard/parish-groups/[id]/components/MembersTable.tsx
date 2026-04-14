@@ -6,7 +6,7 @@ import { useAddParishGroupMember, useUpdateParishGroupMember, useRemoveParishGro
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
 import { formatDate } from '@/lib/utils';
 import { UserPlus, Star, Edit2, Trash2, Check, X } from 'lucide-react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 
 interface Props {
   group: ParishGroupDetail;
@@ -36,11 +36,11 @@ export function MembersTable({ group, canEdit }: Props) {
       setIsAdding(false);
       setNewMemberId('');
       setNewMemberRole('');
-    } catch (err: any) {
-      if (err.status === 409) {
+    } catch (err: unknown) {
+      if ((err as { status?: number }).status === 409) {
         toast.error('Giáo dân này đã là thành viên');
       } else {
-        toast.error(err.message || 'Lỗi khi thêm thành viên');
+        toast.error((err as Error).message || 'Lỗi khi thêm thành viên');
       }
     }
   };
@@ -56,8 +56,8 @@ export function MembersTable({ group, canEdit }: Props) {
       await updateMutation.mutateAsync({ role: editRole || 'Thành viên' });
       toast.success('Đã cập nhật chức vụ');
       setEditingId(null);
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi cập nhật chức vụ');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Lỗi cập nhật chức vụ');
     }
   };
 
@@ -70,8 +70,8 @@ export function MembersTable({ group, canEdit }: Props) {
       try {
         await removeMutation.mutateAsync(membershipId);
         toast.success('Đã xóa thành viên');
-      } catch (err: any) {
-        toast.error(err.message || 'Lỗi khi xóa thành viên');
+      } catch (err: unknown) {
+        toast.error((err as Error).message || 'Lỗi khi xóa thành viên');
       }
     }
   };
@@ -103,7 +103,7 @@ export function MembersTable({ group, canEdit }: Props) {
             <label className="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant mb-1 block">
               Tìm giáo dân
             </label>
-            <ParishionerSearchCombobox value={newMemberId} onChange={setNewMemberId} />
+            <ParishionerSearchCombobox value={newMemberId} onChange={(id) => setNewMemberId(id || '')} />
           </div>
           <div className="w-full lg:w-64">
             <label className="text-[10px] uppercase tracking-wider font-bold text-on-surface-variant mb-1 block">

@@ -78,8 +78,8 @@ function TypeaheadInput({
           if (gender) url += `&gender=${gender}`;
           const res = await fetch(url, { credentials: 'include' });
           if (res.ok) {
-            const body = await res.json();
-            const data = (body.data?.items || body.data || []).map(mapResult);
+            const body = await res.json() as { data?: { items?: unknown[] } | unknown[] };
+            const data = (body.data && !Array.isArray(body.data) ? (body.data.items || []) : (body.data || [])).map(mapResult);
             setResults(data);
           }
         } catch {
@@ -290,8 +290,9 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
         router.push(`/dashboard/parishioners/${initialData?.id}`);
         router.refresh();
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi hệ thống');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Lỗi hệ thống');
     }
   };
 
@@ -313,7 +314,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
   const householdFetchUrl = (q: string) =>
     `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
 
-  const mapHousehold = (h: any): TypeaheadResult => ({
+  const mapHousehold = (h: { id: string; household_code: string; head?: { full_name: string } }): TypeaheadResult => ({
     id: h.id,
     label: `Mã hộ: ${h.household_code}`,
     sub: h.head ? `Chủ hộ: ${h.head.full_name}` : undefined,

@@ -71,8 +71,8 @@ export function StatusSyncAlert({ household }: { household: Household }) {
                 Dữ liệu tình trạng hôn phối không đồng nhất
               </h4>
               <p className="text-sm text-text-main/70 mt-1">
-                Chủ hộ đang để <span className="font-bold text-primary italic">"{maritalStatusMap[headStatus!] || 'Chưa rõ'}"</span> nhưng 
-                Phối ngẫu lại để <span className="font-bold text-primary italic">"{maritalStatusMap[spouseStatus!] || 'Chưa rõ'}"</span>. 
+                Chủ hộ đang để <span className="font-bold text-primary italic">&quot;{maritalStatusMap[headStatus!] || 'Chưa rõ'}&quot;</span> nhưng 
+                Phối ngẫu lại để <span className="font-bold text-primary italic">&quot;{maritalStatusMap[spouseStatus!] || 'Chưa rõ'}&quot;</span>. 
                 Hãy đồng nhất dữ liệu cho Sổ gia đình này.
               </p>
             </div>

@@ -5,7 +5,7 @@ export function useCreateSacrament() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/sacraments`, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -21,7 +21,7 @@ export function useUpdateSacrament(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/sacraments/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
@@ -37,7 +37,7 @@ export function useCreateMarriage() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/sacraments/marriages`, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -53,7 +53,7 @@ export function useUpdateMarriage(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/sacraments/marriages/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),
@@ -69,7 +69,7 @@ export function useBatchCreateSacraments() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async ({ endpoint, payload }: { endpoint: string, payload: any }) => {
+    mutationFn: async ({ endpoint, payload }: { endpoint: string, payload: Record<string, unknown> }) => {
       return apiFetch(endpoint, {
         method: "POST",
         body: JSON.stringify(payload),

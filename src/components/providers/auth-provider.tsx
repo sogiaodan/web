@@ -63,7 +63,8 @@ export function AuthProvider({
       } else {
         setUser(null);
       }
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       const isAuthError = error.message?.includes('401') || 
                           error.message?.includes('403') || 
                           error.message?.includes('User not found') ||

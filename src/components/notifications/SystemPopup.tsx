@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, Bell } from 'lucide-react';
 import Link from 'next/link';
 import { ActiveNotification } from '@/types/system-admin';
@@ -36,12 +36,19 @@ function persistDismissed(ids: Set<string>) {
 export default function SystemPopup({ notifications }: SystemPopupProps) {
   const [queue, setQueue] = useState<ActiveNotification[]>([]);
 
+  const lastSyncRef = useRef<string>('');
   useEffect(() => {
     const dismissed = getDismissedIds();
     const pending = notifications
       .filter((n) => n.display_type === 'POPUP' && !dismissed.has(n.id))
       .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-    setQueue(pending);
+    
+    // Only update if the IDs changed to avoid cascading renders
+    const nextIds = pending.map(n => n.id).join(',');
+    if (lastSyncRef.current !== nextIds) {
+      setQueue(pending);
+      lastSyncRef.current = nextIds;
+    }
   }, [notifications]);
 
   if (!queue.length) return null;

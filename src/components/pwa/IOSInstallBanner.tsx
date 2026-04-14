@@ -1,24 +1,28 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Share, PlusSquare } from 'lucide-react';
 
 export default function IOSInstallBanner() {
   const [showBanner, setShowBanner] = useState(false);
 
+  const syncRef = useRef(false);
   useEffect(() => {
+    if (syncRef.current) return;
     // 1. Check if it's iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
+    const nav = navigator as unknown as { standalone?: boolean };
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !((window as unknown) as { MSStream?: unknown }).MSStream;
     
     // 2. Check if already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || nav.standalone;
 
-    // 3. Check if user dismissed it before in this session (optional, can use localStorage for persistent dismiss)
+    // 3. Check if user dismissed it before in this session
     const isDismissed = localStorage.getItem('ios-pwa-banner-dismissed');
 
-    if (isIOS && !isStandalone && !isDismissed) {
+    if (isIOS && !isStandalone && !isDismissed && !showBanner) {
       setShowBanner(true);
     }
+    syncRef.current = true;
   }, []);
 
   const handleDismiss = () => {

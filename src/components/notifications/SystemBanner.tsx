@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, ChevronRight, AlertCircle } from 'lucide-react';
 import Link from 'next/link';
 import { ActiveNotification } from '@/types/system-admin';
@@ -16,18 +16,18 @@ const DISMISSED_KEY = 'sgd_dismissed_banners';
 export default function SystemBanner({ notifications }: SystemBannerProps) {
   const [dismissedIds, setDismissedIds] = useState<Set<string>>(new Set());
   const [isHydrated, setIsHydrated] = useState(false);
-
-  // Load from localStorage on mount
+  const syncRef = useRef(false);
   useEffect(() => {
+    if (syncRef.current) return;
     try {
       const saved = localStorage.getItem(DISMISSED_KEY);
-      if (saved) setDismissedIds(new Set(JSON.parse(saved)));
-    } catch (e) {
-      console.error('Failed to load dismissed banners', e);
-    }
+      if (saved) {
+        setDismissedIds(new Set(JSON.parse(saved)));
+      }
+    } catch { /* ignore */ }
     setIsHydrated(true);
+    syncRef.current = true;
   }, []);
-
   const visible = notifications.filter(
     (n) => n.display_type === 'BANNER' && !dismissedIds.has(n.id),
   );
@@ -38,7 +38,7 @@ export default function SystemBanner({ notifications }: SystemBannerProps) {
     setDismissedIds(next);
     try {
       localStorage.setItem(DISMISSED_KEY, JSON.stringify([...next]));
-    } catch (e) {
+    } catch (e: unknown) {
       // ignore
     }
   };

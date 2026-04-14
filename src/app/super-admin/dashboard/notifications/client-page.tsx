@@ -12,7 +12,6 @@ import {
   X,
   Megaphone,
   Wrench,
-  Monitor,
   Rows3,
   ToggleLeft,
   ToggleRight,
@@ -70,7 +69,7 @@ function getTypeMeta(type: NotificationDisplayType) {
 // ─── Notification Schema ──────────────────────────────────────────────────────
 
 /** Converts UTC ISO string from server to local "YYYY-MM-DDTHH:mm" for input */
-function toLocalInput(utcString?: string): string {
+function toLocalInput(utcString?: string | null): string {
   if (!utcString) return '';
   const date = new Date(utcString);
   if (isNaN(date.getTime())) return '';
@@ -153,7 +152,7 @@ function DeleteConfirmDialog({
           <div>
             <h3 className="font-serif text-lg font-bold text-foreground">Xóa thông báo?</h3>
             <p className="text-sm text-muted mt-1">
-              Thông báo <strong>"{notif.title}"</strong> sẽ bị xóa vĩnh viễn.
+              Thông báo <strong>&quot;{notif.title}&quot;</strong> sẽ bị xóa vĩnh viễn.
             </p>
           </div>
         </div>
@@ -329,7 +328,7 @@ function NotificationDrawer({ editing, onClose }: DrawerProps) {
                     className="w-full px-3 py-2.5 text-sm border border-outline rounded-sm bg-white font-mono focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none resize-y transition-all disabled:bg-vellum/60 disabled:text-muted"
                   />
                   <p className="text-[10px] text-muted italic">
-                    Khi có nội dung này, người dùng sẽ thấy nút <strong>"Xem chi tiết"</strong> dẫn tới trang /dashboard/announcements/[id].
+                    Khi có nội dung này, người dùng sẽ thấy nút <strong>&quot;Xem chi tiết&quot;</strong> dẫn tới trang /dashboard/announcements/[id].
                   </p>
                 </div>
               )}

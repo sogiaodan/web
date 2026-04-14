@@ -12,7 +12,7 @@ export interface UseSaintNamesParams {
 
 export function useSaintNamesQuery(
   params?: UseSaintNamesParams,
-  options?: Omit<UseQueryOptions<SaintName[], Error, SaintName[], any>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<SaintName[], Error, SaintName[], readonly unknown[]>, "queryKey" | "queryFn">
 ) {
   const query = new URLSearchParams();
   if (params?.search) query.append('search', params.search);

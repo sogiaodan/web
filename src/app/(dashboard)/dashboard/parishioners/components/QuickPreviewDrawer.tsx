@@ -51,7 +51,7 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
   // Fetch preview data whenever ID changes
   useEffect(() => {
     if (!parishionerId) {
-      setPreview(null);
+      if (preview !== null) setPreview(null);
       return;
     }
     setLoading(true);
@@ -59,12 +59,12 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
     fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
       .then((r) => {
         if (!r.ok) throw new Error('not found');
-        return r.json();
+        return r.json() as Promise<{ data: ParishionerPreview }>;
       })
       .then((body) => setPreview(body.data))
       .catch(() => setError(true))
       .finally(() => setLoading(false));
-  }, [parishionerId]);
+  }, [parishionerId, preview]);
 
   // Body scroll lock
   useEffect(() => {
@@ -144,7 +144,7 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
                     setError(false);
                     setLoading(true);
                     fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
-                      .then(r => r.json()).then(b => setPreview(b.data)).catch(() => setError(true)).finally(() => setLoading(false));
+                      .then(r => r.json() as Promise<{ data: ParishionerPreview }>).then(b => setPreview(b.data || null)).catch(() => setError(true)).finally(() => setLoading(false));
                   }
                 }}
                 className="text-sm text-primary font-medium hover:underline"

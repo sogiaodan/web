@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useRouter } from 'next/navigation';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { ParishGroupDetail, ParishGroupCategory } from '@/types/parish-group';
 import { useCreateParishGroup, useUpdateParishGroup } from '../queries/useParishGroupMutations';
 import { FieldLabel, getInputCls, SectionHeader } from '@/components/dashboard/shared/FormPrimitives';
@@ -19,7 +18,7 @@ const formSchema = z.object({
   category_id: z.string().min(1, 'Vui lòng chọn phân loại'),
   established_date: z.string().optional().nullable(),
   icon_url: z.string().optional().nullable(),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean(),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -40,7 +39,6 @@ export function CreateEditGroupForm({ initialData, categories, isEdit }: Props) 
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-    reset,
   } = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,14 +62,14 @@ export function CreateEditGroupForm({ initialData, categories, isEdit }: Props) 
         toast.success('Tạo hội đoàn thành công');
         router.push(`/dashboard/parish-groups/${res.id}`);
       }
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra khi lưu hội đoàn');
+    } catch (err: unknown) {
+      toast.error((err as Error).message || 'Có lỗi xảy ra khi lưu hội đoàn');
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-8 bg-surface rounded-2xl border border-outline p-6 md:p-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <SectionHeader title="Thông tin cơ bản" subtitle="Các thông tin chính của hội đoàn" />
+      <SectionHeader icon="info" title="Thông tin cơ bản" subtitle="Các thông tin chính của hội đoàn" />
       
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-2 col-span-1 md:col-span-2">
@@ -140,7 +138,7 @@ export function CreateEditGroupForm({ initialData, categories, isEdit }: Props) 
           control={control}
           name="icon_url"
           render={({ field }) => (
-            <IconGalleryPicker value={field.value} onChange={field.onChange} />
+            <IconGalleryPicker value={field.value || null} onChange={field.onChange} />
           )}
         />
       </div>

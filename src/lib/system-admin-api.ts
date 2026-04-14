@@ -50,7 +50,7 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
       window.dispatchEvent(new Event('sysadmin:unauthorized'));
     }
     
-    const err = new Error(message) as any;
+    const err = new Error(message) as Error & { status?: number };
     err.status = rs.status;
     throw err;
   }

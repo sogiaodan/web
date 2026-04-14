@@ -141,7 +141,7 @@ export function ParishGroupTable({ items, pagination, onPageChange }: Props) {
 
       {pagination && pagination.total_pages > 1 && (
         <PaginationControls
-          currentPage={pagination.page}
+          page={pagination.page}
           totalPages={pagination.total_pages}
           onPageChange={onPageChange}
         />

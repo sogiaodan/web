@@ -46,7 +46,7 @@ export const systemAdminKeys = {
 // ─── Dashboard Stats ──────────────────────────────────────────────────────────
 
 export function useSystemAdminStatsQuery(
-  options?: Omit<UseQueryOptions<SystemAdminStats, Error, SystemAdminStats, any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<SystemAdminStats, Error, SystemAdminStats, readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<SystemAdminStats, Error>({
     queryKey: systemAdminKeys.stats(),
@@ -60,7 +60,7 @@ export function useSystemAdminStatsQuery(
 
 export function useChurchesQuery(
   params?: { search?: string; status?: 'ACTIVE' | 'INACTIVE' },
-  options?: Omit<UseQueryOptions<ChurchListItem[], Error, ChurchListItem[], any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<ChurchListItem[], Error, ChurchListItem[], readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<ChurchListItem[], Error>({
     queryKey: systemAdminKeys.churches(params),
@@ -74,7 +74,7 @@ export function useChurchesQuery(
 
 export function useChurchDetailQuery(
   id: string,
-  options?: Omit<UseQueryOptions<ChurchDetail, Error, ChurchDetail, any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<ChurchDetail, Error, ChurchDetail, readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<ChurchDetail, Error>({
     queryKey: systemAdminKeys.churchDetail(id),
@@ -96,11 +96,12 @@ export function useOnboardChurchMutation() {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.stats() });
       toast.success('Khởi tạo giáo xứ thành công!');
     },
-    onError: (error: any) => {
-      if (error.status === 409) {
+    onError: (error: unknown) => {
+      const apiErr = error as { status?: number; message?: string };
+      if (apiErr.status === 409) {
         toast.error('Schema name hoặc email đã tồn tại. Vui lòng kiểm tra lại.');
       } else {
-        toast.error(error.message || 'Lỗi khi khởi tạo thực thể giáo xứ.');
+        toast.error(apiErr.message || 'Lỗi khi khởi tạo thực thể giáo xứ.');
       }
     },
   });
@@ -117,8 +118,8 @@ export function useUpdateChurchMutation(id: string) {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.churches() });
       toast.success('Cập nhật thông tin giáo xứ thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi cập nhật thông tin giáo xứ.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi cập nhật thông tin giáo xứ.');
     },
   });
 }
@@ -136,8 +137,8 @@ export function useToggleChurchStatusMutation(id: string) {
       const label = result.status === 'ACTIVE' ? 'kích hoạt' : 'vô hiệu hóa';
       toast.success(`Giáo xứ đã được ${label} thành công.`);
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi cập nhật trạng thái giáo xứ.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi cập nhật trạng thái giáo xứ.');
     },
   });
 }
@@ -145,7 +146,7 @@ export function useToggleChurchStatusMutation(id: string) {
 // ─── Contact Requests ─────────────────────────────────────────────────────────
 
 export function useSystemAdminContactRequestsQuery(
-  options?: Omit<UseQueryOptions<ContactRequest[], Error, ContactRequest[], any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<ContactRequest[], Error, ContactRequest[], readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<ContactRequest[], Error>({
     queryKey: systemAdminKeys.contactRequests(),
@@ -163,8 +164,8 @@ export function useUpdateContactRequestStatusMutation(id: string) {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.contactRequests() });
       toast.success('Cập nhật trạng thái yêu cầu liên hệ thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi cập nhật trạng thái yêu cầu liên hệ.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi cập nhật trạng thái yêu cầu liên hệ.');
     },
   });
 }
@@ -172,7 +173,7 @@ export function useUpdateContactRequestStatusMutation(id: string) {
 // ─── System Notifications ─────────────────────────────────────────────────────
 
 export function useSystemAdminNotificationsQuery(
-  options?: Omit<UseQueryOptions<SystemNotification[], Error, SystemNotification[], any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<SystemNotification[], Error, SystemNotification[], readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<SystemNotification[], Error>({
     queryKey: systemAdminKeys.notifications(),
@@ -190,8 +191,8 @@ export function useCreateSystemNotificationMutation() {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.notifications() });
       toast.success('Tạo thông báo hệ thống thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi khi tạo thông báo hệ thống.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi khi tạo thông báo hệ thống.');
     },
   });
 }
@@ -204,8 +205,8 @@ export function useUpdateSystemNotificationMutation(id: string) {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.notifications() });
       toast.success('Cập nhật thông báo hệ thống thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi khi cập nhật thông báo hệ thống.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi khi cập nhật thông báo hệ thống.');
     },
   });
 }
@@ -218,8 +219,8 @@ export function useDeleteSystemNotificationMutation(id: string) {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.notifications() });
       toast.success('Xóa thông báo hệ thống thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi khi xóa thông báo hệ thống.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi khi xóa thông báo hệ thống.');
     },
   });
 }
@@ -228,7 +229,7 @@ export function useDeleteSystemNotificationMutation(id: string) {
 
 export function useSystemAdminAuditLogsQuery(
   params?: AuditLogQuery,
-  options?: Omit<UseQueryOptions<AuditLogListResponse, Error, AuditLogListResponse, any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<AuditLogListResponse, Error, AuditLogListResponse, readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<AuditLogListResponse, Error>({
     queryKey: systemAdminKeys.auditLogs(params),
@@ -241,7 +242,7 @@ export function useSystemAdminAuditLogsQuery(
 // ─── Backups ──────────────────────────────────────────────────────────────────
 
 export function useSystemAdminBackupsQuery(
-  options?: Omit<UseQueryOptions<BackupRecord[], Error, BackupRecord[], any>, 'queryKey' | 'queryFn'>,
+  options?: Omit<UseQueryOptions<BackupRecord[], Error, BackupRecord[], readonly unknown[]>, 'queryKey' | 'queryFn'>,
 ) {
   return useQuery<BackupRecord[], Error>({
     queryKey: systemAdminKeys.backups(),
@@ -260,8 +261,8 @@ export function useTriggerChurchBackupMutation(churchId: string) {
       queryClient.invalidateQueries({ queryKey: systemAdminKeys.churchDetail(churchId) });
       toast.success('Yêu cầu sao lưu giáo xứ thành công!');
     },
-    onError: (error: any) => {
-      toast.error(error.message || 'Lỗi khi yêu cầu sao lưu giáo xứ.');
+    onError: (error: unknown) => {
+      toast.error((error as Error).message || 'Lỗi khi yêu cầu sao lưu giáo xứ.');
     },
   });
 }

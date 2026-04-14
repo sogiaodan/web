@@ -51,7 +51,7 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
   let responseBody = null;
   try {
     responseBody = responseText ? JSON.parse(responseText) : null;
-  } catch (e) {
+  } catch {
     // Non-JSON response
   }
 

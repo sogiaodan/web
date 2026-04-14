@@ -18,11 +18,17 @@ export function SacramentFilterDrawer() {
   });
 
   // Sync local state when URL changes
+  const lastSyncRef = useRef('');
   useEffect(() => {
-    setLocalFilters({
+    const nextFilters = {
       date_from: searchParams.get('date_from') || '',
       date_to: searchParams.get('date_to') || '',
-    });
+    };
+    const syncKey = JSON.stringify(nextFilters);
+    if (lastSyncRef.current !== syncKey) {
+      setLocalFilters(nextFilters);
+      lastSyncRef.current = syncKey;
+    }
   }, [searchParams]);
 
   // Trap focus escape

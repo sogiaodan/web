@@ -22,7 +22,7 @@ export function useCreateHousehold() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/households`, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -38,7 +38,7 @@ export function useAddMemberToHousehold(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/households/${id}/members`, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -56,7 +56,7 @@ export function useSplitHousehold(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/households/${id}/split`, {
         method: "POST",
         body: JSON.stringify(payload),
@@ -74,7 +74,7 @@ export function useUpdateHousehold(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/households/${id}`, {
         method: "PATCH",
         body: JSON.stringify(payload),

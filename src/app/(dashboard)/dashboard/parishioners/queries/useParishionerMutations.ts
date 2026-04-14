@@ -5,7 +5,7 @@ export function useCreateParishioner() {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/parishioners`, {
         method: 'POST',
         body: JSON.stringify(payload),
@@ -21,7 +21,7 @@ export function useUpdateParishioner(id: string) {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (payload: any) => {
+    mutationFn: async (payload: Record<string, unknown>) => {
       return apiFetch<{ id: string }>(`/api/v1/parishioners/${id}`, {
         method: 'PATCH',
         body: JSON.stringify(payload),

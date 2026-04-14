@@ -93,9 +93,10 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
 
       toast.success(isEdit ? 'Cập nhật Hôn phối thành công!' : 'Ghi nhận Hôn phối thành công!');
       router.push('/dashboard/sacraments?type=MARRIAGE');
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra khi lưu Hôn phối.');
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra khi lưu Hôn phối.');
+      console.error(error);
     }
   };
 
@@ -158,7 +159,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
           ) : (
             <div className="p-5 border border-amber-200 bg-amber-50 rounded-sm space-y-4">
               <p className="text-sm text-amber-800 font-medium mb-2">
-                Hôn phối Khác Đạo: Chọn một người công giáo và nhập tên người ngoại đạo (sẽ được tạo tự động với tư cách "Ngoại Giáo").
+                Hôn phối Khác Đạo: Chọn một người công giáo và nhập tên người ngoại đạo (sẽ được tạo tự động với tư cách &quot;Ngoại Giáo&quot;).
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Controller

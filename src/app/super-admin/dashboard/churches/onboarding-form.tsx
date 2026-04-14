@@ -130,6 +130,7 @@ export function ChurchOnboardingForm({ onSuccess, onCancel, mutation }: ChurchOn
                     <div className="flex-1">
                       <FormInput
                         {...register('schema_name')}
+                        label="Schema Name"
                         placeholder="church_da_minh"
                         error={errors.schema_name?.message}
                         disabled={isPending}
