@@ -180,6 +180,7 @@ interface FormData {
 }
 
 interface FormErrors {
+  christian_name?: string;
   full_name?: string;
   gender?: string;
   birth_date?: string;
@@ -240,6 +241,9 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
   // ── Validation ────────────────────────────────────────────────────────────
   const validate = (): boolean => {
     const newErrors: FormErrors = {};
+    if (!formData.is_non_catholic && !formData.christian_name.trim()) {
+      newErrors.christian_name = 'Tên Thánh là bắt buộc đối với Giáo dân';
+    }
     if (!formData.full_name.trim()) newErrors.full_name = 'Họ và tên là bắt buộc';
     if (!formData.gender) newErrors.gender = 'Vui lòng chọn giới tính';
     if (!formData.birth_date) newErrors.birth_date = 'Ngày sinh là bắt buộc';
@@ -274,7 +278,12 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
       };
 
       if (isEdit) {
-        await updateMutation.mutateAsync(payload);
+        // Explicitly omit fields that are not allowed by the Update DTO or are handled elsewhere
+        const updateData: any = { ...payload };
+        delete updateData.marital_status;
+        delete updateData.date_of_death;
+        
+        await updateMutation.mutateAsync(updateData);
       } else {
         const result = await createMutation.mutateAsync(payload);
         const targetId = result.id;
@@ -345,13 +354,19 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <SaintNameSelect
-              value={formData.christian_name}
-              onChange={(val) => set('christian_name', val)}
-              gender={formData.gender}
-              disabled={isSubmitting}
-              required
-            />
+            {!formData.is_non_catholic && (
+              <SaintNameSelect
+                value={formData.christian_name}
+                onChange={(val) => {
+                  set('christian_name', val);
+                  if (errors.christian_name) setErrors(p => ({ ...p, christian_name: undefined }));
+                }}
+                gender={formData.gender}
+                disabled={isSubmitting}
+                required
+                error={errors.christian_name}
+              />
+            )}
 
             {/* Full Name */}
             <div className="space-y-1.5">
@@ -393,9 +408,10 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
               <FieldError message={errors.birth_date} />
             </div>
 
-            {/* Status */}
             <div className="space-y-1.5">
-              <FieldLabel required>Trạng thái</FieldLabel>
+              <div className="flex items-center gap-2 h-6 mb-2">
+                <FieldLabel required className="!mb-0">Trạng thái</FieldLabel>
+              </div>
               <div className="relative">
                 <select
                   value={formData.status}
@@ -416,7 +432,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
 
             {/* Marital Status */}
             <div className="space-y-1.5">
-              <div className="flex items-center gap-2 group/label relative mb-2">
+              <div className="flex items-center gap-2 group/label relative h-6 mb-2">
                 <FieldLabel required className="!mb-0">Tình trạng hôn phối</FieldLabel>
                 
                 {/* Info Icon & Popover for protected status */}
@@ -431,10 +447,6 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                                     opacity-0 invisible group-hover/info:opacity-100 group-hover/info:visible transition-all duration-200 origin-bottom-left scale-95 group-hover/info:scale-100
                                     before:content-[''] before:absolute before:top-full before:left-3 before:border-8 before:border-transparent before:border-t-white
                                     after:content-[''] after:absolute after:top-full after:left-[11px] after:border-[9px] after:border-transparent after:border-t-[#8B2635]/10 after:-z-10">
-                      <h4 className="text-[12px] font-display font-bold text-[#8B2635] mb-1.5 flex items-center gap-1.5">
-                        <span className="material-symbols-outlined text-[14px]">protected_identifier</span>
-                        Dữ liệu đang được bảo vệ
-                      </h4>
                       <p className="text-[11px] text-on-surface-variant leading-relaxed mb-3">
                         Vì đây là <span className="font-bold italic">Chủ hộ / Phối ngẫu</span>, bạn cần cập nhật Tình trạng hôn phối đồng bộ cho cả hai tại trang quản lý Hộ giáo.
                       </p>
@@ -505,7 +517,14 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                     ? 'bg-primary border-primary'
                     : 'border-[#E7E5E4] group-hover:border-primary/50'
                 }`}
-                onClick={() => set('is_non_catholic', !formData.is_non_catholic)}
+                onClick={() => {
+                  const newVal = !formData.is_non_catholic;
+                  setFormData(p => ({
+                    ...p,
+                    is_non_catholic: newVal,
+                    christian_name: newVal ? '' : p.christian_name
+                  }));
+                }}
               >
                 {formData.is_non_catholic && (
                   <span className="material-symbols-outlined text-white text-xs">check</span>

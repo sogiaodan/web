@@ -90,11 +90,12 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
   const onSubmit = async (data: MarriageFormValues) => {
     if (readOnly) return;
     try {
-      const payload = { ...data, type: 'MARRIAGE' };
-      
       if (isEdit) {
-        await updateMutation.mutateAsync(payload);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { husband_id, wife_id, create_household, ...updateData } = data;
+        await updateMutation.mutateAsync(updateData);
       } else {
+        const payload = { ...data, type: 'MARRIAGE' };
         await createMutation.mutateAsync(payload);
       }
 
@@ -143,7 +144,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
                     value={field.value}
                     onChange={(id) => field.onChange(id || '')}
                     error={errors.husband_id?.message}
-                    disabled={readOnly}
+                    disabled={readOnly || isEdit}
                     initialSelected={initialHusband}
                   />
                 )}
@@ -157,7 +158,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
                     value={field.value}
                     onChange={(id) => field.onChange(id || '')}
                     error={errors.wife_id?.message}
-                    disabled={readOnly}
+                    disabled={readOnly || isEdit}
                     initialSelected={initialWife}
                   />
                 )}

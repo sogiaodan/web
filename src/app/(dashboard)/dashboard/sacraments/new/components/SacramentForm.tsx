@@ -72,11 +72,12 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
   const onSubmit = async (data: SacramentFormValues) => {
     if (readOnly) return;
     try {
-      const payload = { ...data, type };
-      
       if (isEdit) {
-        await updateMutation.mutateAsync(payload);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { parishioner_id, ...updateData } = data;
+        await updateMutation.mutateAsync(updateData);
       } else {
+        const payload = { ...data, type };
         await createMutation.mutateAsync(payload);
       }
 
@@ -103,7 +104,7 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
                 value={field.value}
                 onChange={(id) => field.onChange(id || '')}
                 error={errors.parishioner_id?.message}
-                disabled={readOnly}
+                disabled={readOnly || isEdit}
                 initialSelected={initialParishioner}
               />
             )}
