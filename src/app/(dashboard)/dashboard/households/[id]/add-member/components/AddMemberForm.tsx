@@ -170,10 +170,10 @@ export function AddMemberForm({ household }: { household: Household }) {
                 {...register('relationship_to_head')}
                 className="w-full bg-background-light border border-border-color p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all rounded-sm"
               >
-                <option value="CHILD">Con cái (Child)</option>
-                <option value="SPOUSE">Vợ/Chồng (Spouse)</option>
-                <option value="PARENT">Cha mẹ (Parent)</option>
-                <option value="GRANDCHILD">Cháu (Grandchild)</option>
+                <option value="CHILD">Con cái</option>
+                <option value="SPOUSE">Vợ/Chồng</option>
+                <option value="PARENT">Cha mẹ</option>
+                <option value="GRANDCHILD">Cháu</option>
               </select>
             </div>
 
@@ -183,10 +183,10 @@ export function AddMemberForm({ household }: { household: Household }) {
                 {...register('status')}
                 className="w-full bg-background-light border border-border-color p-3 text-sm focus:ring-1 focus:ring-primary focus:border-primary transition-all rounded-sm"
               >
-                <option value="RESIDING">Đang cư trú (Residing)</option>
-                <option value="ABSENT">Vắng mặt (Absent)</option>
-                <option value="MOVED">Chuyển xứ (Moved Parish)</option>
-                <option value="DECEASED">Đã qua đời (Deceased)</option>
+                <option value="RESIDING">Đang cư trú</option>
+                <option value="ABSENT">Vắng mặt</option>
+                <option value="MOVED">Chuyển xứ</option>
+                <option value="DECEASED">Đã qua đời</option>
               </select>
             </div>
           </div>
