@@ -140,4 +140,7 @@ export interface ParishionerLookup {
   full_name: string;
   nick_name: string | null;
   birth_date: string;
+  household_id?: string | null;
+  relationship_to_head?: string | null;
 }
+

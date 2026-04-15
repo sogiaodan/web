@@ -88,16 +88,16 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
       value: parishioner.zone?.name ?? '—',
       icon: 'location_on',
     },
-    {
+    ...(parishioner.phone_number ? [{
       label: 'SỐ ĐIỆN THOẠI',
-      value: parishioner.phone_number || '—',
+      value: parishioner.phone_number,
       icon: 'phone',
-    },
-    {
+    }] : []),
+    ...(parishioner.occupation ? [{
       label: 'NGHỀ NGHIỆP',
-      value: parishioner.occupation || '—',
+      value: parishioner.occupation,
       icon: 'work',
-    },
+    }] : []),
   ];
 
   return (
@@ -178,7 +178,7 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
         </div>
 
         {/* ── Metadata row: grid layout ── */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-y-6 gap-4 md:gap-0 mt-6 pt-6 border-t border-[#E7E5E4]">
+        <div className={`grid grid-cols-2 md:grid-cols-3 lg:grid-cols-${metadata.length} gap-y-6 gap-4 md:gap-0 mt-6 pt-6 border-t border-[#E7E5E4]`}>
           {metadata.map((m, i) => (
             <div
               key={m.label}

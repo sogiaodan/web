@@ -16,6 +16,7 @@ interface TypeaheadResult {
   id: string;
   label: string;
   sub?: string;
+  meta?: any;
 }
 
 function TypeaheadInput<T>({
@@ -117,7 +118,8 @@ function TypeaheadInput<T>({
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder}
           disabled={disabled}
-          className={`${getInputCls(disabled, !!error)} pl-10 pr-10`}
+          readOnly={!!value}
+          className={`${getInputCls(disabled, !!error)} pl-10 pr-10 ${value ? 'bg-[#F5F5F4] cursor-default' : ''}`}
         />
         {value && (
           <button
@@ -178,6 +180,8 @@ interface FormData {
   marital_status: string;
   date_of_death: string;
   relationship_to_head: string;
+  origin_household_id: string;
+  existing_parishioner_id: string;
 }
 
 interface FormErrors {
@@ -214,15 +218,22 @@ export function AddMemberForm({ household }: { household: Household }) {
     marital_status: 'SINGLE',
     date_of_death: '',
     relationship_to_head: (paramRel === 'SPOUSE' && household.spouse) ? 'CHILD' : (paramRel ?? 'CHILD'),
+    origin_household_id: '',
+    existing_parishioner_id: '',
   });
 
   const [fatherText, setFatherText] = useState('');
   const [motherText, setMotherText] = useState('');
+  const [originText, setOriginText] = useState('');
+  const [existingText, setExistingText] = useState('');
+  const [showSearch, setShowSearch] = useState(false);
+  const [selectedParishionerRole, setSelectedParishionerRole] = useState<string | null>(null);
 
   const set = (key: keyof FormData, value: FormData[keyof FormData]) =>
     setFormData((p) => ({ ...p, [key]: value }));
 
   const validate = (): boolean => {
+    if (formData.existing_parishioner_id) return true;
     const newErrors: FormErrors = {};
     if (!formData.is_non_catholic && !formData.christian_name.trim()) {
       newErrors.christian_name = 'Tên Thánh là bắt buộc đối với Giáo dân';
@@ -255,8 +266,12 @@ export function AddMemberForm({ household }: { household: Household }) {
         is_non_catholic: formData.is_non_catholic,
         status: formData.status,
         relationship_to_head: formData.relationship_to_head,
-        marital_status: formData.marital_status,
+        existing_parishioner_id: formData.existing_parishioner_id || undefined,
+        marital_status: formData.relationship_to_head === 'SPOUSE' 
+          ? (household.head?.marital_status || formData.marital_status) 
+          : formData.marital_status,
         date_of_death: formData.status === 'DECEASED' ? (formData.date_of_death || undefined) : null,
+        origin_household_id: formData.origin_household_id || undefined,
       };
 
       await addMemberMutation.mutateAsync(payload);
@@ -271,7 +286,7 @@ export function AddMemberForm({ household }: { household: Household }) {
 
   const isSubmitting = addMemberMutation.isPending;
 
-  const parishionerFetchUrl = (q: string) =>
+  const parishionerFetchUrlAll = (q: string) =>
     `/api/v1/parishioners/search?q=${encodeURIComponent(q)}&limit=8`;
 
   const mapParishioner = (p: ParishionerLookup): TypeaheadResult => ({
@@ -280,7 +295,30 @@ export function AddMemberForm({ household }: { household: Household }) {
     sub: p.birth_date
       ? `Ngày sinh: ${new Date(p.birth_date).toLocaleDateString('vi-VN')}`
       : undefined,
+    meta: { role: p.relationship_to_head }
   });
+  
+  const householdFetchUrl = (q: string) =>
+    `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
+
+  const mapHouseholdResult = (h: any): TypeaheadResult => ({
+    id: h.id,
+    label: `Hộ giáo: ${h.household_code}`,
+    sub: h.head ? `Chủ hộ: ${h.head.full_name}` : 'Không rõ chủ hộ',
+    meta: {
+      head_id: h.head?.id,
+      spouse_id: h.spouse?.id
+    }
+  });
+
+  const handleSelectHousehold = (item: TypeaheadResult) => {
+    setFormData(p => ({
+      ...p,
+      origin_household_id: item.id,
+      father_id: item.meta?.head_id || p.father_id,
+      mother_id: item.meta?.spouse_id || p.mother_id
+    }));
+  };
 
   const handleClearParent = (type: 'FATHER' | 'MOTHER') => {
     set(type === 'FATHER' ? 'father_id' : 'mother_id', '');
@@ -300,36 +338,106 @@ export function AddMemberForm({ household }: { household: Household }) {
     else if (spouse?.gender === 'FEMALE') inferredMother = spouse;
   }
 
-  // Inference note for user
-  let relationshipNotice = null;
-  if (formData.relationship_to_head === 'CHILD') {
-    relationshipNotice = `Thành viên này sẽ là "Con cái". Hệ thống tự nhận diện cha mẹ từ Chủ hộ và Phối ngẫu hiện tại. Bạn chỉ cần tìm thêm nếu người còn lại khuyết.`;
-  } else if (formData.relationship_to_head === 'SPOUSE') {
-    relationshipNotice = `Thành viên này là "Vợ/Chồng" của Chủ hộ. Hệ thống sẽ tự động liên kết Hôn phối.`;
-  } else if (formData.relationship_to_head === 'PARENT') {
-    relationshipNotice = `Thành viên này là "Cha mẹ" của Chủ hộ. Thành viên này sẽ là Thân phụ/Thân mẫu của Chủ hộ.`;
-  }
+  const isSelectedUserHead = formData.existing_parishioner_id === head?.id;
+  const isSelectedUserSpouse = formData.existing_parishioner_id === spouse?.id;
+  
+  // If the searched person is already a HEAD or SPOUSE in ANY household, hide the option.
+  const isPersonAlreadyAuthoritative = selectedParishionerRole === 'HEAD' || selectedParishionerRole === 'SPOUSE';
+  // If the person is already a CHILD in their own household, they shouldn't be added as CHILD again elsewhere.
+  const isPersonAlreadyChild = selectedParishionerRole === 'CHILD';
+
+  const hideSpouseOption = !!household.spouse || isSelectedUserHead || isSelectedUserSpouse || isPersonAlreadyAuthoritative;
+  const hideChildOption = isPersonAlreadyChild;
 
   return (
-    <form onSubmit={handleSubmit} noValidate>
-      <div className="space-y-8">
-        <div className="mb-8 md:mb-10 text-center">
-          <h2 className="text-xl md:text-3xl font-display font-bold text-[#1C1917] mb-3">Thêm thành viên Hộ giáo</h2>
-          <div className="inline-flex items-center justify-center gap-2 text-[#78716C] bg-[#F5F5F4] px-4 py-2 rounded-full border border-[#E7E5E4]">
-            <span className="material-symbols-outlined text-lg text-primary">family_history</span>
-            <span className="text-sm font-medium font-body">Hộ giáo: {household.head?.full_name || 'Không rõ chủ hộ'}</span>
-          </div>
+    <form onSubmit={handleSubmit} noValidate className="space-y-8 pb-20">
+      <div className="mb-8 md:mb-10 text-center">
+        <h2 className="text-xl md:text-3xl font-display font-bold text-[#1C1917] mb-3">Thêm thành viên Hộ giáo</h2>
+        <div className="inline-flex items-center justify-center gap-2 text-[#78716C] bg-[#F5F5F4] px-4 py-2 rounded-full border border-[#E7E5E4]">
+          <span className="material-symbols-outlined text-lg text-primary">family_history</span>
+          <span className="text-sm font-medium font-body">Hộ giáo: {household.head?.full_name || 'Không rõ chủ hộ'}</span>
         </div>
+      </div>
 
-        {relationshipNotice && (
-          <div className="flex gap-3 bg-[#E0F2FE] border border-[#BAE6FD] rounded p-4">
-             <span className="material-symbols-outlined text-[#0284C7] text-lg shrink-0">info</span>
-             <p className="text-xs font-body text-[#0369A1] leading-relaxed">
-               {relationshipNotice}
-             </p>
+      {/* ── COLLAPSIBLE SEARCH SECTION ── */}
+      <div className="flex flex-col items-center">
+        <button
+          type="button"
+          onClick={() => setShowSearch(!showSearch)}
+          className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
+            showSearch 
+              ? 'bg-primary text-white shadow-md' 
+              : 'text-[#78716C] bg-[#F5F5F4] hover:bg-[#E7E5E4] border border-[#E7E5E4]'
+          }`}
+        >
+          <span className="material-symbols-outlined text-lg">
+            {showSearch ? 'keyboard_arrow_up' : 'person_search'}
+          </span>
+          <span className="text-sm font-semibold font-body">
+            {showSearch ? 'Ẩn tìm kiếm giáo dân' : 'Tìm giáo dân đã có sẵn (Gắn kết quan hệ)'}
+          </span>
+        </button>
+        
+        {showSearch && (
+          <div className="w-full mt-6 bg-[#FAF9F6] border-2 border-dashed border-[#E7E5E4] rounded-xl p-6 animate-in fade-in slide-in-from-top-4 duration-300">
+            <div className="flex flex-col md:flex-row gap-6 items-end">
+              <div className="flex-1">
+                <TypeaheadInput
+                  label="Tìm giáo dân đã có sẵn trong hệ thống"
+                  value={formData.existing_parishioner_id}
+                  displayText={existingText}
+                  onDisplayTextChange={setExistingText}
+                  onSelect={(item) => {
+                    set('existing_parishioner_id', item.id);
+                    const role = item.meta?.role;
+                    setSelectedParishionerRole(role);
+                    if (role === 'CHILD') {
+                      set('relationship_to_head', 'GRANDCHILD');
+                    }
+                  }}
+                  onClear={() => {
+                    set('existing_parishioner_id', '');
+                    setExistingText('');
+                    setSelectedParishionerRole(null);
+                  }}
+                  fetchUrl={parishionerFetchUrlAll}
+                  mapResult={mapParishioner}
+                  placeholder="Nhập tên giáo dân hoặc mã định danh..."
+                  disabled={isSubmitting}
+                />
+              </div>
+              {formData.existing_parishioner_id && (
+                <div className="w-full md:w-64">
+                   <div className="space-y-1.5">
+                      <FieldLabel required>Quan hệ với Chủ hộ</FieldLabel>
+                      <div className="relative">
+                        <select
+                          value={formData.relationship_to_head}
+                          onChange={(e) => set('relationship_to_head', e.target.value)}
+                          disabled={isSubmitting}
+                          className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
+                        >
+                          {!hideChildOption && <option value="CHILD">Con cái</option>}
+                          {!hideSpouseOption && <option value="SPOUSE">Vợ/Chồng</option>}
+                          <option value="PARENT">Cha mẹ</option>
+                          <option value="GRANDCHILD">Cháu</option>
+                        </select>
+                        <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
+                      </div>
+                    </div>
+                </div>
+              )}
+            </div>
+            {!formData.existing_parishioner_id && (
+              <p className="mt-3 text-[11px] text-[#78716C] italic font-body">
+                * Sử dụng tính năng này để liên kết giáo dân đã có hộ riêng về hộ gốc (genealogy link).
+              </p>
+            )}
           </div>
         )}
+      </div>
 
+      {!formData.existing_parishioner_id && (
         <div className="bg-surface border border-[#E7E5E4] rounded p-6">
           <SectionHeader
             icon="person"
@@ -407,45 +515,6 @@ export function AddMemberForm({ household }: { household: Household }) {
               </div>
             </div>
 
-            <div className="space-y-1.5">
-              <FieldLabel required>Quan hệ với Chủ hộ</FieldLabel>
-              <div className="relative">
-                <select
-                  value={formData.relationship_to_head}
-                  onChange={(e) => set('relationship_to_head', e.target.value)}
-                  disabled={isSubmitting}
-                  className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
-                >
-                  <option value="CHILD">Con cái</option>
-                  {!household.spouse && <option value="SPOUSE">Vợ/Chồng</option>}
-                  <option value="PARENT">Cha mẹ</option>
-                  <option value="GRANDCHILD">Cháu</option>
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <FieldLabel required>Tình trạng hôn phối</FieldLabel>
-              <div className="relative">
-                <select
-                  value={formData.marital_status}
-                  onChange={(e) => set('marital_status', e.target.value)}
-                  disabled={isSubmitting}
-                  className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
-                >
-                  <option value="SINGLE">Độc Thân</option>
-                  <option value="MARRIED">Đã Kết Hôn</option>
-                  <option value="MIXED_RELIGION">Đã Kết Hôn (Khác Đạo)</option>
-                  <option value="IRREGULAR">Kết Hôn (Mắc Ngăn Trở)</option>
-                  <option value="SEPARATED">Ly Thân</option>
-                  <option value="DIVORCED">Ly Dị</option>
-                  <option value="WIDOWED">Góa</option>
-                </select>
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
-              </div>
-            </div>
-
             {formData.status === 'DECEASED' && (
                <div className="space-y-1.5">
                   <FieldLabel>Ngày qua đời</FieldLabel>
@@ -458,6 +527,26 @@ export function AddMemberForm({ household }: { household: Household }) {
                      className={getInputCls(isSubmitting)}
                   />
                </div>
+            )}
+
+            {!formData.existing_parishioner_id && (
+              <div className="space-y-1.5">
+                <FieldLabel required>Quan hệ với Chủ hộ</FieldLabel>
+                <div className="relative">
+                  <select
+                    value={formData.relationship_to_head}
+                    onChange={(e) => set('relationship_to_head', e.target.value)}
+                    disabled={isSubmitting}
+                    className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
+                  >
+                    {!hideChildOption && <option value="CHILD">Con cái</option>}
+                    {!hideSpouseOption && <option value="SPOUSE">Vợ/Chồng</option>}
+                    <option value="PARENT">Cha mẹ</option>
+                    <option value="GRANDCHILD">Cháu</option>
+                  </select>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
+                </div>
+              </div>
             )}
           </div>
 
@@ -497,94 +586,121 @@ export function AddMemberForm({ household }: { household: Household }) {
             </label>
           </div>
         </div>
+      )}
 
-        {formData.relationship_to_head === 'SPOUSE' && head && (
-          <div className="bg-surface border border-[#E7E5E4] rounded p-6">
-            <SectionHeader
-              icon="favorite"
-              title="Thông tin Vợ / Chồng"
-              subtitle="Tự động liên kết hôn phối với Chủ hộ"
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-               <div className="space-y-1.5">
-                 <FieldLabel>Phối ngẫu (Chủ hộ)</FieldLabel>
-                 <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
-                   <div>
-                     <p className="text-sm font-semibold text-[#1C1917] font-body">{[head.christian_name, head.full_name].filter(Boolean).join(' ')}</p>
-                     <p className="text-xs text-[#78716C] font-body">Vai trò: Chủ hộ</p>
-                   </div>
-                   <span className="material-symbols-outlined text-[#8B2635] text-xl">favorite</span>
-                 </div>
-               </div>
-            </div>
-          </div>
-        )}
-
-        {formData.relationship_to_head !== 'PARENT' && (
-          <div className="bg-surface border border-[#E7E5E4] rounded p-6">
-            <SectionHeader
-              icon="family_restroom"
-              title="Thân phụ và Thân mẫu"
-              subtitle="Thông tin cha mẹ ruột của thành viên đang thêm."
-            />
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {inferredFather ? (
-                <div className="space-y-1.5">
-                  <FieldLabel>Thân phụ (Cha)</FieldLabel>
-                  <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-[#1C1917] font-body">{[inferredFather.christian_name, inferredFather.full_name].filter(Boolean).join(' ')}</p>
-                      <p className="text-xs text-[#78716C] font-body">Đã nhận diện từ Hộ giáo</p>
-                    </div>
-                    <span className="material-symbols-outlined text-[#78716C] text-xl">shield_person</span>
+      {formData.relationship_to_head === 'SPOUSE' && head && !formData.existing_parishioner_id && (
+        <div className="bg-surface border border-[#E7E5E4] rounded p-6">
+          <SectionHeader
+            icon="favorite"
+            title="Thông tin Vợ / Chồng"
+            subtitle="Tự động liên kết hôn phối với Chủ hộ"
+          />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-1.5">
+                <FieldLabel>Phối ngẫu (Chủ hộ)</FieldLabel>
+                <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#1C1917] font-body">{[head.christian_name, head.full_name].filter(Boolean).join(' ')}</p>
+                    <p className="text-xs text-[#78716C] font-body">Vai trò: Chủ hộ</p>
                   </div>
+                  <span className="material-symbols-outlined text-[#8B2635] text-xl">favorite</span>
                 </div>
-              ) : (
-                <TypeaheadInput
-                  label="Thân phụ (Cha)"
-                  value={formData.father_id}
-                  displayText={fatherText}
-                  onDisplayTextChange={setFatherText}
-                  onSelect={(item) => set('father_id', item.id)}
-                  onClear={() => handleClearParent('FATHER')}
-                  fetchUrl={parishionerFetchUrl}
-                  mapResult={mapParishioner}
-                  placeholder="Tìm kiếm giáo dân nam..."
-                  disabled={isSubmitting}
-                  gender="MALE"
-                />
-              )}
-
-              {inferredMother ? (
-                <div className="space-y-1.5">
-                  <FieldLabel>Thân mẫu (Mẹ)</FieldLabel>
-                  <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
-                    <div>
-                      <p className="text-sm font-semibold text-[#1C1917] font-body">{[inferredMother.christian_name, inferredMother.full_name].filter(Boolean).join(' ')}</p>
-                      <p className="text-xs text-[#78716C] font-body">Đã nhận diện từ Hộ giáo</p>
-                    </div>
-                    <span className="material-symbols-outlined text-[#78716C] text-xl">pregnant_woman</span>
-                  </div>
-                </div>
-              ) : (
-                <TypeaheadInput
-                  label="Thân mẫu (Mẹ)"
-                  value={formData.mother_id}
-                  displayText={motherText}
-                  onDisplayTextChange={setMotherText}
-                  onSelect={(item) => set('mother_id', item.id)}
-                  onClear={() => handleClearParent('MOTHER')}
-                  fetchUrl={parishionerFetchUrl}
-                  mapResult={mapParishioner}
-                  placeholder="Tìm kiếm giáo dân nữ..."
-                  disabled={isSubmitting}
-                  gender="FEMALE"
-                />
-              )}
-            </div>
+              </div>
           </div>
-        )}
+        </div>
+      )}
 
+      {/* ── SECTION: FAMILY (Genealogy) ── */}
+      <div className="bg-surface border border-[#E7E5E4] rounded p-6">
+        <SectionHeader
+          icon="family_restroom"
+          title="Thân phụ và Thân mẫu"
+          subtitle="Thông tin cha mẹ ruột của thành viên đang thêm."
+        />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {formData.relationship_to_head === 'SPOUSE' ? (
+          <div className="md:col-span-2">
+            <TypeaheadInput
+              label="Hộ giáo của Phụ mẫu (Hộ gốc)"
+              value={formData.origin_household_id}
+              displayText={originText}
+              onDisplayTextChange={setOriginText}
+              onSelect={handleSelectHousehold}
+              onClear={() => {
+                set('origin_household_id', '');
+                set('father_id', '');
+                set('mother_id', '');
+              }}
+              fetchUrl={householdFetchUrl}
+              mapResult={mapHouseholdResult}
+              placeholder="Nhập mã hộ hoặc tên chủ hộ của gia đình cha mẹ..."
+              disabled={isSubmitting}
+            />
+            <p className="mt-2 text-[10px] text-[#78716C] italic font-body">
+              * Hệ thống sẽ tự động liên kết thành viên này là con cái trong hộ giáo được chọn.
+            </p>
+          </div>
+        ) : (
+          <>
+            {inferredFather ? (
+              <div className="space-y-1.5">
+                <FieldLabel>Thân phụ (Cha)</FieldLabel>
+                <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#1C1917] font-body">{[inferredFather.christian_name, inferredFather.full_name].filter(Boolean).join(' ')}</p>
+                    <p className="text-xs text-[#78716C] font-body">Đã nhận diện từ Hộ giáo</p>
+                  </div>
+                  <span className="material-symbols-outlined text-[#78716C] text-xl">shield_person</span>
+                </div>
+              </div>
+            ) : (
+              <TypeaheadInput
+                label="Thân phụ (Cha)"
+                value={formData.father_id}
+                displayText={fatherText}
+                onDisplayTextChange={setFatherText}
+                onSelect={(item) => set('father_id', item.id)}
+                onClear={() => handleClearParent('FATHER')}
+                fetchUrl={parishionerFetchUrlAll}
+                mapResult={mapParishioner}
+                placeholder="Tìm kiếm giáo dân nam..."
+                disabled={isSubmitting}
+                gender="MALE"
+              />
+            )}
+
+            {inferredMother ? (
+              <div className="space-y-1.5">
+                <FieldLabel>Thân mẫu (Mẹ)</FieldLabel>
+                <div className="p-3 border border-[#E7E5E4] bg-[#F5F5F4] rounded flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-semibold text-[#1C1917] font-body">{[inferredMother.christian_name, inferredMother.full_name].filter(Boolean).join(' ')}</p>
+                    <p className="text-xs text-[#78716C] font-body">Đã nhận diện từ Hộ giáo</p>
+                  </div>
+                  <span className="material-symbols-outlined text-[#78716C] text-xl">pregnant_woman</span>
+                </div>
+              </div>
+            ) : (
+              <TypeaheadInput
+                label="Thân mẫu (Mẹ)"
+                value={formData.mother_id}
+                displayText={motherText}
+                onDisplayTextChange={setMotherText}
+                onSelect={(item) => set('mother_id', item.id)}
+                onClear={() => handleClearParent('MOTHER')}
+                fetchUrl={parishionerFetchUrlAll}
+                mapResult={mapParishioner}
+                placeholder="Tìm kiếm giáo dân nữ..."
+                disabled={isSubmitting}
+                gender="FEMALE"
+              />
+            )}
+          </>
+        )}
+        </div>
+      </div>
+
+      {!formData.existing_parishioner_id && (
         <div className="bg-surface border border-[#E7E5E4] rounded p-6">
           <SectionHeader
             icon="contact_phone"
@@ -622,42 +738,35 @@ export function AddMemberForm({ household }: { household: Household }) {
             </div>
           </div>
         </div>
+      )}
 
-        <div className="flex gap-3 bg-[#F5F5F4] border border-[#E7E5E4] rounded p-4">
-          <span className="material-symbols-outlined text-primary text-lg shrink-0">info</span>
-          <p className="text-xs font-body text-[#78716C] leading-relaxed">
-            Dữ liệu được lưu trữ tự động trong cơ sở dữ liệu hệ thống để liên kết với Gia phả.
-            Mã hồ sơ sẽ được cấp tự động sau khi lưu.
-          </p>
-        </div>
-
-        <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            onClick={() => router.back()}
-            disabled={isSubmitting}
-            className="w-full sm:w-auto h-12 px-6 border border-[#E7E5E4] text-[#1C1917] text-sm font-medium rounded hover:bg-[#F5F5F4] transition-all active:scale-95 disabled:opacity-50"
-          >
-            Hủy
-          </button>
-          <button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full sm:w-auto h-12 px-8 bg-primary text-white text-sm font-bold rounded hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {isSubmitting ? (
-              <>
-                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
-                <span>Đang lưu...</span>
-              </>
-            ) : (
-              <>
-                <span className="material-symbols-outlined text-lg">save</span>
-                <span>Thêm thành viên</span>
-              </>
-            )}
-          </button>
-        </div>
+      {/* SUBMIT BUTTONS */}
+      <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-3 pt-6 border-t border-[#E7E5E4]">
+        <button
+          type="button"
+          onClick={() => router.back()}
+          disabled={isSubmitting}
+          className="w-full sm:w-auto h-12 px-6 border border-[#E7E5E4] text-[#1C1917] text-sm font-medium rounded hover:bg-[#F5F5F4] transition-all active:scale-95 disabled:opacity-50"
+        >
+          Hủy
+        </button>
+        <button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full sm:w-auto h-12 px-8 bg-primary text-white text-sm font-bold rounded hover:opacity-90 transition-all active:scale-95 disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {isSubmitting ? (
+            <>
+              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <span>Đang lưu...</span>
+            </>
+          ) : (
+            <>
+              <span className="material-symbols-outlined text-lg">save</span>
+              <span>Lưu thông tin</span>
+            </>
+          )}
+        </button>
       </div>
     </form>
   );

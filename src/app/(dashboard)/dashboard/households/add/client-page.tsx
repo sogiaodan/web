@@ -14,9 +14,163 @@ import {
 import Link from 'next/link';
 import { useZones } from '@/components/providers/zones-provider';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
-import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useCreateHousehold } from '../queries/useHouseholdMutations';
+import { ParishionerLookup } from '@/types/parishioner';
+import { useCallback, useEffect, useRef } from 'react';
+
+// ─── Typeahead Lookup ─────────────────────────────────────────────────────────
+
+interface TypeaheadResult {
+  id: string;
+  label: string;
+  sub?: string;
+  meta?: any;
+}
+
+function TypeaheadInput<T>({
+  label,
+  required,
+  value,
+  displayText,
+  onDisplayTextChange,
+  onSelect,
+  onClear,
+  fetchUrl,
+  mapResult,
+  placeholder,
+  disabled,
+  error,
+  gender,
+}: {
+  label: string;
+  required?: boolean;
+  value: string;
+  displayText: string;
+  onDisplayTextChange: (v: string) => void;
+  onSelect: (item: TypeaheadResult) => void;
+  onClear: () => void;
+  fetchUrl: (q: string) => string;
+  mapResult: (data: T) => TypeaheadResult;
+  placeholder: string;
+  disabled?: boolean;
+  error?: string;
+  gender?: 'MALE' | 'FEMALE';
+}) {
+  const [results, setResults] = useState<TypeaheadResult[]>([]);
+  const [open, setOpen] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const debounceRef = useRef<NodeJS.Timeout | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (containerRef.current && !containerRef.current.contains(e.target as Node)) {
+        setOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handler);
+    return () => document.removeEventListener('mousedown', handler);
+  }, []);
+
+  const search = useCallback(
+    (q: string) => {
+      if (!q.trim() || q.trim().length < 1) {
+        setResults([]);
+        setOpen(false);
+        return;
+      }
+      if (debounceRef.current) clearTimeout(debounceRef.current);
+      setLoading(true);
+      setOpen(true);
+      debounceRef.current = setTimeout(async () => {
+        try {
+          let url = fetchUrl(q);
+          if (gender) url += `&gender=${gender}`;
+          const res = await fetch(url, { credentials: 'include' });
+          if (res.ok) {
+            const body = await res.json() as { data?: { items?: unknown[] } | unknown[] };
+            const data = (body.data && !Array.isArray(body.data) ? (body.data.items || []) : (body.data || [])).map((item) => mapResult(item as T));
+            setResults(data);
+          }
+        } catch {
+          setResults([]);
+        } finally {
+          setLoading(false);
+        }
+      }, 350);
+    },
+    [fetchUrl, mapResult, gender]
+  );
+
+  const handleChange = (v: string) => {
+    onDisplayTextChange(v);
+    if (!v) {
+      onClear();
+      setResults([]);
+      setOpen(false);
+      return;
+    }
+    search(v);
+  };
+
+  return (
+    <div className="space-y-1.5 relative" ref={containerRef}>
+      <FieldLabel required={required}>{label}</FieldLabel>
+      <div className="relative">
+        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">
+           <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </span>
+        <input
+          type="text"
+          value={displayText}
+          onChange={(e) => handleChange(e.target.value)}
+          placeholder={placeholder}
+          disabled={disabled}
+          className={`${getInputCls(disabled, !!error)} pl-11 pr-10`}
+        />
+        {value && (
+          <button
+            type="button"
+            onClick={() => { onClear(); onDisplayTextChange(''); setResults([]); setOpen(false); }}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-sacred-crimson transition-colors"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          </button>
+        )}
+      </div>
+      {error && <p className="text-xs text-red-500 font-medium">{error}</p>}
+
+      {/* Dropdown */}
+      {open && displayText && (
+        <div className="absolute left-0 right-0 top-full mt-1 bg-white border border-slate-200 rounded shadow-xl z-[100] max-h-52 overflow-y-auto">
+          {loading ? (
+            <div className="p-4 text-center text-sm text-slate-500">Đang tìm kiếm...</div>
+          ) : results.length > 0 ? (
+            <ul>
+              {results.map((r) => (
+                <li
+                  key={r.id}
+                  onClick={() => { onSelect(r); onDisplayTextChange(r.label); setOpen(false); }}
+                  className="px-4 py-3 hover:bg-slate-50 cursor-pointer flex items-start justify-between gap-2 border-b border-slate-100 last:border-0 transition-colors"
+                >
+                  <div>
+                    <p className="text-sm font-semibold text-slate-900">{r.label}</p>
+                    {r.sub && <p className="text-xs text-slate-500">{r.sub}</p>}
+                  </div>
+                  <svg className="text-slate-300 shrink-0 mt-0.5" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/></svg>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <div className="p-4 text-center text-sm text-slate-500 italic">Không tìm thấy kết quả</div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function AddHouseholdPage() {
   const router = useRouter();
@@ -44,7 +198,46 @@ export default function AddHouseholdPage() {
     nick_name: '',
     gender: 'MALE',
     birth_date: '',
+    father_id: '',
+    mother_id: '',
+    origin_household_id: '',
   });
+
+  const [originHouseholdText, setOriginHouseholdText] = useState('');
+
+  const householdFetchUrl = (q: string) =>
+    `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
+
+  const mapHouseholdResult = (h: any): TypeaheadResult => ({
+    id: h.id,
+    label: `Hộ giáo: ${h.household_code}`,
+    sub: h.head ? `Chủ hộ: ${h.head.full_name}` : 'Không rõ chủ hộ',
+    meta: {
+      head: h.head,
+      spouse: h.spouse
+    }
+  });
+
+  const handleSelectHousehold = (item: TypeaheadResult) => {
+    const head = item.meta?.head;
+    const spouse = item.meta?.spouse;
+    
+    let fId = '';
+    let mId = '';
+    
+    if (head?.gender === 'MALE') fId = head.id;
+    else if (head?.gender === 'FEMALE') mId = head.id;
+    
+    if (spouse?.gender === 'MALE') fId = spouse.id;
+    else if (spouse?.gender === 'FEMALE') mId = spouse.id;
+    
+    setFormData(p => ({
+      ...p,
+      origin_household_id: item.id,
+      father_id: fId,
+      mother_id: mId
+    }));
+  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -72,6 +265,9 @@ export default function AddHouseholdPage() {
             nick_name: formData.nick_name || undefined,
             gender: formData.gender,
             birth_date: formData.birth_date,
+            father_id: formData.father_id || undefined,
+            mother_id: formData.mother_id || undefined,
+            origin_household_id: formData.origin_household_id || undefined,
           }
       };
 
@@ -104,9 +300,7 @@ export default function AddHouseholdPage() {
         <h1 className="text-4xl font-serif font-bold text-slate-900 tracking-tight">
           Thiết Lập Hộ Giáo Mới
         </h1>
-        <p className="mt-2 text-slate-600 text-lg">
-          Khởi tạo thông tin gia đình và chủ hộ để bắt đầu quản lý.
-        </p>
+
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-8 pb-20">
@@ -118,13 +312,14 @@ export default function AddHouseholdPage() {
         )}
 
         {/* SECTION: HOUSEHOLD */}
-        <section className="bg-white rounded shadow-sm border border-slate-200 overflow-hidden">
+        <section className="bg-white rounded shadow-sm border border-slate-200">
+
           <SectionHeader
             icon="home"
             title="Thông Tin Hộ Giáo"
           />
           
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <div className="space-y-1.5">
               <FieldLabel required>Mã Hộ Giáo</FieldLabel>
               <input 
@@ -252,13 +447,14 @@ export default function AddHouseholdPage() {
         </section>
 
         {/* SECTION: HEAD OF HOUSEHOLD */}
-        <section className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
+        <section className="bg-white rounded-2xl shadow-sm border border-slate-200">
+
           <SectionHeader
             icon="person"
             title="Thông Tin Chủ Hộ"
           />
           
-          <div className="p-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
             <SaintNameSelect
               value={formData.christian_name}
               onChange={(val) => setFormData(p => ({ ...p, christian_name: val }))}
@@ -326,6 +522,39 @@ export default function AddHouseholdPage() {
                 />
               </div>
             )}
+
+            {/* PARENT SELECTION (Genealogy) */}
+            <div className="md:col-span-2 pt-6 border-t border-slate-100">
+              <SectionHeader
+                icon="family_history"
+                title="Thân Phụ & Thân Mẫu (Hộ Gốc)"
+                variant="sub"
+              />
+              <div className="mt-4">
+                <TypeaheadInput
+                  label="Hộ Giáo Của Phụ Mẫu"
+                  value={formData.origin_household_id}
+                  displayText={originHouseholdText}
+                  onDisplayTextChange={setOriginHouseholdText}
+                  onSelect={handleSelectHousehold}
+                  onClear={() => {
+                    setFormData(p => ({
+                      ...p,
+                      origin_household_id: '',
+                      father_id: '',
+                      mother_id: ''
+                    }));
+                  }}
+                  fetchUrl={householdFetchUrl}
+                  mapResult={mapHouseholdResult}
+                  placeholder="Nhập mã hộ hoặc tên chủ hộ của gia đình cha mẹ..."
+                  disabled={isSubmitting}
+                />
+                <p className="mt-2 text-[10px] text-slate-500 italic">
+                  * Hệ thống sẽ tự động nhận diện Cha/Mẹ từ hộ giáo được chọn để liên kết gia phả.
+                </p>
+              </div>
+            </div>
           </div>
         </section>
 
