@@ -2,7 +2,6 @@
 
 import React, { useRef, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { Zone } from '@/types/zone';
 
 interface Props {

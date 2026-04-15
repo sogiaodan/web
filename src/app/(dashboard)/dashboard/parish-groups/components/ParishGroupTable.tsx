@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { PaginationControls } from '@/components/ui/PaginationControls';
 import { ShieldCheck } from 'lucide-react';
 import Image from 'next/image';
-import { formatDate } from '@/lib/utils';
 
 interface Props {
   items: ParishGroup[];

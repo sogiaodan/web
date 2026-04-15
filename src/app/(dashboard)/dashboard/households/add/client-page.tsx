@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import { 
   ArrowLeft, 
   Save, 
-  Phone, 
   MapPin, 
   AlertCircle,
   Loader2,
@@ -14,10 +13,10 @@ import {
 import Link from 'next/link';
 import { useZones } from '@/components/providers/zones-provider';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
-import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useCreateHousehold } from '../queries/useHouseholdMutations';
-import { ParishionerLookup } from '@/types/parishioner';
+// import { ParishionerLookup } from '@/types/parishioner';
 import { useCallback, useEffect, useRef } from 'react';
 
 // ─── Typeahead Lookup ─────────────────────────────────────────────────────────
@@ -26,7 +25,7 @@ interface TypeaheadResult {
   id: string;
   label: string;
   sub?: string;
-  meta?: any;
+  meta?: Record<string, unknown>;
 }
 
 function TypeaheadInput<T>({
@@ -208,7 +207,12 @@ export default function AddHouseholdPage() {
   const householdFetchUrl = (q: string) =>
     `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
 
-  const mapHouseholdResult = (h: any): TypeaheadResult => ({
+  const mapHouseholdResult = (h: {
+    id: string;
+    household_code: string;
+    head?: { id: string; full_name: string; gender: string };
+    spouse?: { id: string; gender: string };
+  }): TypeaheadResult => ({
     id: h.id,
     label: `Hộ giáo: ${h.household_code}`,
     sub: h.head ? `Chủ hộ: ${h.head.full_name}` : 'Không rõ chủ hộ',
@@ -219,8 +223,13 @@ export default function AddHouseholdPage() {
   });
 
   const handleSelectHousehold = (item: TypeaheadResult) => {
-    const head = item.meta?.head;
-    const spouse = item.meta?.spouse;
+    const meta = item.meta as { 
+      head?: { id: string; gender: string }; 
+      spouse?: { id: string; gender: string }; 
+    } | undefined;
+    
+    const head = meta?.head;
+    const spouse = meta?.spouse;
     
     let fId = '';
     let mId = '';
@@ -528,7 +537,6 @@ export default function AddHouseholdPage() {
               <SectionHeader
                 icon="family_history"
                 title="Thân Phụ & Thân Mẫu (Hộ Gốc)"
-                variant="sub"
               />
               <div className="mt-4">
                 <TypeaheadInput

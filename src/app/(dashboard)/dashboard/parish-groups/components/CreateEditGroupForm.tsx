@@ -53,7 +53,7 @@ export function CreateEditGroupForm({ initialData, isEdit }: Props) {
   const onSubmit = async (data: FormValues) => {
     try {
       // ── Sanitize Data ──────────────────────────────────────────────────────
-      const payload: any = { ...data };
+      const payload: Record<string, unknown> = { ...data };
       
       // 1. If date is empty string, convert to null to satisfy API
       if (payload.established_date === '') {
@@ -73,7 +73,7 @@ export function CreateEditGroupForm({ initialData, isEdit }: Props) {
         router.push(`/dashboard/parish-groups/${result.id}`);
       }
     } catch (err: unknown) {
-      toast.error((err as Error).message || 'Có lỗi xảy ra khi lưu hội đoàn');
+      toast.error(err instanceof Error ? err.message : 'Có lỗi xảy ra khi lưu hội đoàn');
     }
   };
 

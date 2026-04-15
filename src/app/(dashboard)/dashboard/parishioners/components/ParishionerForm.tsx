@@ -279,7 +279,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
 
       if (isEdit) {
         // Explicitly omit fields that are not allowed by the Update DTO or are handled elsewhere
-        const updateData: any = { ...payload };
+        const updateData: Record<string, unknown> = { ...payload };
         delete updateData.marital_status;
         delete updateData.date_of_death;
         

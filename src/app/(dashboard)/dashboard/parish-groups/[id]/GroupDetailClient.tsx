@@ -25,7 +25,7 @@ export default function GroupDetailClient({ id }: Props) {
   }
 
   if (error || !group) {
-    const isThrottle = (error as any)?.status === 429;
+    const isThrottle = (error as { status?: number })?.status === 429;
     return (
       <div className="bg-surface rounded-2xl border border-outline p-12 text-center shadow-sm animate-in fade-in zoom-in duration-300">
         <div className="inline-flex items-center justify-center w-16 h-16 rounded-full bg-red-50 mb-4">
@@ -37,7 +37,7 @@ export default function GroupDetailClient({ id }: Props) {
         <p className="text-on-surface-variant mb-6 max-w-md mx-auto">
           {isThrottle 
             ? 'Bạn đang gửi quá nhiều yêu cầu cùng lúc. Vui lòng đợi một lát rồi thử lại.' 
-            : (error?.message || 'Không tìm thấy thông tin hội đoàn này trong hệ thống.')}
+            : (error instanceof Error ? error.message : 'Không tìm thấy thông tin hội đoàn này trong hệ thống.')}
         </p>
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
           <button 

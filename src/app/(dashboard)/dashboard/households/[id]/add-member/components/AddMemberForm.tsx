@@ -16,7 +16,7 @@ interface TypeaheadResult {
   id: string;
   label: string;
   sub?: string;
-  meta?: any;
+  meta?: Record<string, unknown>;
 }
 
 function TypeaheadInput<T>({
@@ -253,7 +253,7 @@ export function AddMemberForm({ household }: { household: Household }) {
     }
 
     try {
-      const payload: any = {
+      const payload: Record<string, unknown> = {
         christian_name: formData.christian_name || undefined,
         full_name: formData.full_name,
         nick_name: formData.nick_name || undefined,
@@ -301,7 +301,12 @@ export function AddMemberForm({ household }: { household: Household }) {
   const householdFetchUrl = (q: string) =>
     `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
 
-  const mapHouseholdResult = (h: any): TypeaheadResult => ({
+  const mapHouseholdResult = (h: {
+    id: string;
+    household_code: string;
+    head?: { id: string; full_name: string };
+    spouse?: { id: string };
+  }): TypeaheadResult => ({
     id: h.id,
     label: `Hộ giáo: ${h.household_code}`,
     sub: h.head ? `Chủ hộ: ${h.head.full_name}` : 'Không rõ chủ hộ',
@@ -312,11 +317,12 @@ export function AddMemberForm({ household }: { household: Household }) {
   });
 
   const handleSelectHousehold = (item: TypeaheadResult) => {
+    const meta = item.meta as { head_id?: string; spouse_id?: string } | undefined;
     setFormData(p => ({
       ...p,
       origin_household_id: item.id,
-      father_id: item.meta?.head_id || p.father_id,
-      mother_id: item.meta?.spouse_id || p.mother_id
+      father_id: meta?.head_id || p.father_id,
+      mother_id: meta?.spouse_id || p.mother_id
     }));
   };
 
@@ -389,7 +395,7 @@ export function AddMemberForm({ household }: { household: Household }) {
                   onDisplayTextChange={setExistingText}
                   onSelect={(item) => {
                     set('existing_parishioner_id', item.id);
-                    const role = item.meta?.role;
+                    const role = item.meta?.role as string | null;
                     setSelectedParishionerRole(role);
                     if (role === 'CHILD') {
                       set('relationship_to_head', 'GRANDCHILD');

@@ -1,7 +1,7 @@
 "use client";
 
 import { ParishGroupDetail } from '@/types/parish-group';
-import { Calendar, Info, Clock, ShieldCheck } from 'lucide-react';
+import { Calendar, Info, Clock } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface Props {

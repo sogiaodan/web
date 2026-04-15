@@ -310,7 +310,26 @@ function IconSacrament() {
   );
 }
 
-function PrintableCertificate({ sacrament, baptism, parishInfo }: { sacrament: any; baptism?: any; parishInfo?: any }) {
+function PrintableCertificate({ sacrament, baptism, parishInfo }: { 
+  sacrament: { 
+    type: string; 
+    parishioner: { 
+      christian_name: string; 
+      full_name: string; 
+      birth_date: string; 
+      birth_place?: string; 
+    }; 
+    date: string; 
+    place: string; 
+    minister?: { full_name: string }; 
+    godparent_name?: string; 
+    book_no?: string; 
+    page_no?: string; 
+    registry_number?: string; 
+  }; 
+  baptism?: { date: string | null; place?: string | null }; 
+  parishInfo?: { diocese?: string | null; deanery?: string | null; name?: string | null }; 
+}) {
   const isConfirmation = sacrament.type === 'CONFIRMATION';
   const isBaptism = sacrament.type === 'BAPTISM';
   

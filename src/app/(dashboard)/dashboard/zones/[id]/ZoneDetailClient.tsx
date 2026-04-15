@@ -33,7 +33,7 @@ export default function ZoneDetailClient({ id }: { id: string }) {
     return params;
   }, [searchParams]);
 
-  const { data: zone, isLoading, error } = useZoneDetailQuery(id, queryParams as any);
+  const { data: zone, isLoading, error } = useZoneDetailQuery(id, queryParams as Record<string, string>);
 
   if (isLoading) {
     return (

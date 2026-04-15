@@ -1,4 +1,4 @@
-import { ShieldCheck, Users, Tags } from 'lucide-react';
+import { ShieldCheck, Users } from 'lucide-react';
 
 interface Props {
   totalGroups: number;

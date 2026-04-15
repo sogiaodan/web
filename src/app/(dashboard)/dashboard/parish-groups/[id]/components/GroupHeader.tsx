@@ -69,7 +69,7 @@ export function GroupHeader({ group, canEdit }: Props) {
               </div>
               {group.description && (
                 <p className="text-on-surface-variant/80 font-body text-base max-w-3xl leading-relaxed italic">
-                  "{group.description}"
+                  &quot;{group.description}&quot;
                 </p>
               )}
             </div>
