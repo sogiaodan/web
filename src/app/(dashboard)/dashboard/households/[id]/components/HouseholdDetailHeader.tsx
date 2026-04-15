@@ -57,7 +57,8 @@ export function HouseholdDetailHeader({ household }: { household: Household }) {
           <span className="material-symbols-outlined text-lg">person_add</span>
           Thêm thành viên
         </Link>
-        <Link 
+        {/* Temporarily hide split functionality as requested */}
+        {/* <Link 
           href={`/dashboard/households/${household.id}/split`}
           className="flex items-center justify-center gap-2 bg-surface text-primary border border-primary/40
                      px-5 text-sm font-semibold min-h-[48px] rounded-sm transition-all hover:bg-primary/5
@@ -65,7 +66,7 @@ export function HouseholdDetailHeader({ household }: { household: Household }) {
         >
           <span className="material-symbols-outlined text-lg">church</span>
           Thủ tục Hôn phối / Tách hộ
-        </Link>
+        </Link> */}
         <button 
           onClick={() => setIsEditModalOpen(true)}
           className="flex items-center justify-center gap-2 bg-white text-slate-700 border border-slate-300
