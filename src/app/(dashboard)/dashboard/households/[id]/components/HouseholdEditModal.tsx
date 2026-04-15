@@ -20,7 +20,6 @@ export function HouseholdEditModal({ household, isOpen, onClose }: HouseholdEdit
   const [formData, setFormData] = useState({
     household_code: household.household_code || '',
     address: household.address || '',
-    phone_number: household.phone_number || '',
     zone_id: household.zone_id || household.zone?.id || '',
     marital_status: household.head?.marital_status || 'MARRIED',
     physical_book_no: household.physical_book_no || '',
@@ -139,17 +138,6 @@ export function HouseholdEditModal({ household, isOpen, onClose }: HouseholdEdit
               />
             </div>
 
-            <div className="space-y-1.5">
-              <FieldLabel>Số Điện Thoại</FieldLabel>
-              <input 
-                type="tel"
-                name="phone_number"
-                value={formData.phone_number}
-                onChange={handleChange}
-                disabled={isSubmitting}
-                className={getInputCls(isSubmitting)}
-              />
-            </div>
 
             <div className="space-y-1.5">
               <FieldLabel>Ngày Cấp Sổ</FieldLabel>
@@ -162,6 +150,13 @@ export function HouseholdEditModal({ household, isOpen, onClose }: HouseholdEdit
                 className={getInputCls(isSubmitting)}
               />
             </div>
+
+
+
+
+
+
+
             
             <div className="space-y-1.5">
               <FieldLabel>Số Quyển / STT</FieldLabel>

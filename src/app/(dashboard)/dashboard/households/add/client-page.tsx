@@ -32,7 +32,6 @@ export default function AddHouseholdPage() {
     // Household Info
     household_code: '',
     address: '',
-    phone_number: '',
     zone_id: '',
     book_issue_date: '',
     physical_book_no: '',
@@ -61,7 +60,6 @@ export default function AddHouseholdPage() {
       const payload = {
           household_code: formData.household_code,
           address: formData.address,
-          phone_number: formData.phone_number,
           zone_id: formData.zone_id || undefined,
           book_issue_date: formData.book_issue_date || undefined,
           physical_book_no: formData.physical_book_no || undefined,
@@ -180,37 +178,6 @@ export default function AddHouseholdPage() {
                 </select>
               </div>
             </div>
-
-            <div className="space-y-1.5 md:col-span-2">
-              <FieldLabel>Địa Chỉ Cư Trú</FieldLabel>
-              <div className="relative">
-                <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-                <textarea 
-                  name="address"
-                  rows={2}
-                  placeholder="Số nhà, đường, giáo họ..."
-                  value={formData.address}
-                  onChange={handleChange}
-                  className={getInputCls(isSubmitting) + " pl-12"}
-                />
-              </div>
-            </div>
-
-            <div className="space-y-1.5">
-              <FieldLabel>Số Điện Thoại Gia Đình</FieldLabel>
-              <div className="relative">
-                <Phone className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
-                <input 
-                  type="tel"
-                  name="phone_number"
-                  placeholder="09xxx..."
-                  value={formData.phone_number}
-                  onChange={handleChange}
-                  className={getInputCls(isSubmitting) + " pl-12"}
-                />
-              </div>
-            </div>
-
             <div className="space-y-1.5">
               <FieldLabel>Ngày Cấp Sổ</FieldLabel>
               <input 
@@ -221,6 +188,10 @@ export default function AddHouseholdPage() {
                 className={getInputCls(isSubmitting)}
               />
             </div>
+
+
+
+
 
             <div className="md:col-span-2 pt-2">
               <button
@@ -237,6 +208,20 @@ export default function AddHouseholdPage() {
 
             {showOptional && (
               <>
+                <div className="space-y-1.5 md:col-span-2">
+                  <FieldLabel>Địa Chỉ Cư Trú</FieldLabel>
+                  <div className="relative">
+                    <MapPin className="absolute left-4 top-3.5 w-4 h-4 text-slate-400" />
+                    <textarea 
+                      name="address"
+                      rows={2}
+                      placeholder="Số nhà, đường, giáo họ..."
+                      value={formData.address}
+                      onChange={handleChange}
+                      className={getInputCls(isSubmitting) + " pl-12"}
+                    />
+                  </div>
+                </div>
                 <div className="space-y-1.5">
                   <FieldLabel>Số Quyển / Số Thứ Tự</FieldLabel>
                   <input 
