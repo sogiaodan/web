@@ -51,7 +51,7 @@ export function useSystemAdminStatsQuery(
   return useQuery<SystemAdminStats, Error>({
     queryKey: systemAdminKeys.stats(),
     queryFn: () => systemAdminApi.getStats(),
-    staleTime: 30_000,
+    staleTime: 30000,
     ...options,
   });
 }
@@ -65,7 +65,7 @@ export function useChurchesQuery(
   return useQuery<ChurchListItem[], Error>({
     queryKey: systemAdminKeys.churches(params),
     queryFn: () => systemAdminApi.getChurches(params),
-    staleTime: 30_000,
+    staleTime: 30000,
     ...options,
   });
 }
@@ -80,7 +80,7 @@ export function useChurchDetailQuery(
     queryKey: systemAdminKeys.churchDetail(id),
     queryFn: () => systemAdminApi.getChurchById(id),
     enabled: !!id,
-    staleTime: 30_000,
+    staleTime: 30000,
     ...options,
   });
 }
@@ -151,7 +151,7 @@ export function useSystemAdminContactRequestsQuery(
   return useQuery<ContactRequest[], Error>({
     queryKey: systemAdminKeys.contactRequests(),
     queryFn: () => systemAdminApi.getContactRequests(),
-    staleTime: 30_000,
+    staleTime: 30000,
     ...options,
   });
 }

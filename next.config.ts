@@ -51,6 +51,12 @@ const nextConfig: NextConfig = {
     // Must be an absolute path in recent Next.js versions.
     root: path.resolve(__dirname, '..'),
   },
+  // Ensure modern packages are transpiled for older Safari (iPhone X)
+  transpilePackages: [
+    "@tanstack/react-query",
+    "lucide-react",
+    "sonner"
+  ],
 };
 
 export default withSentryConfig(nextConfig, {
