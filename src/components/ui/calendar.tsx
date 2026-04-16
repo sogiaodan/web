@@ -10,6 +10,21 @@ import { buttonVariants } from "@/components/ui/button"
 
 export type CalendarProps = React.ComponentProps<typeof DayPicker>
 
+// Override month names: "Tháng 01" ... "Tháng 12" instead of spelled-out Vietnamese
+const MONTHS = [
+  'Tháng 01', 'Tháng 02', 'Tháng 03', 'Tháng 04',
+  'Tháng 05', 'Tháng 06', 'Tháng 07', 'Tháng 08',
+  'Tháng 09', 'Tháng 10', 'Tháng 11', 'Tháng 12',
+];
+
+const customViLocale = {
+  ...vi,
+  localize: {
+    ...vi.localize,
+    month: (index: number, options?: { width?: string }) => MONTHS[index] ?? MONTHS[0],
+  },
+};
+
 function Calendar({
   className,
   classNames,
@@ -18,14 +33,18 @@ function Calendar({
 }: CalendarProps) {
   return (
     <DayPicker
-      locale={vi}
+      locale={customViLocale as Parameters<typeof DayPicker>[0]['locale']}
       showOutsideDays={showOutsideDays}
       className={cn("p-3 font-body", className)}
       classNames={{
         months: "flex flex-col sm:flex-row space-y-4 sm:space-x-4 sm:space-y-0",
         month: "space-y-4",
         month_caption: "flex justify-center pt-1 relative items-center",
-        caption_label: "text-sm font-medium",
+        caption_label: "text-sm font-medium hidden",
+        dropdowns: "flex gap-1 items-center justify-center",
+        dropdown: "relative",
+        months_dropdown: "appearance-none bg-surface border border-outline rounded px-2 py-1 text-sm font-medium cursor-pointer hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary pr-6",
+        years_dropdown: "appearance-none bg-surface border border-outline rounded px-2 py-1 text-sm font-medium cursor-pointer hover:bg-surface-hover focus:outline-none focus:ring-2 focus:ring-primary pr-6",
         nav: "space-x-1 flex items-center",
         button_previous: cn(
           buttonVariants({ variant: "outline" }),
