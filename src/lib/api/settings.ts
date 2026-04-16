@@ -56,15 +56,15 @@ export const SettingsAPI = {
     return { data, message: '', status: 200 };
   },
 
-  updateProfile: async (data: UpdateProfileParams): Promise<any> => {
-    return apiFetch<any>('/api/v1/settings/profile', {
+  updateProfile: async (data: UpdateProfileParams): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/profile', {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
-  changePassword: async (data: any): Promise<any> => {
-    return apiFetch<any>('/api/v1/settings/change-password', {
+  changePassword: async (data: Record<string, unknown>): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/change-password', {
       method: 'POST',
       body: JSON.stringify(data)
     });
@@ -111,15 +111,15 @@ export const SettingsAPI = {
     return { data, message: '', status: 200 };
   },
 
-  updateParishInfo: async (data: Partial<ParishInfo>): Promise<any> => {
-    return apiFetch<any>('/api/v1/settings/parish', {
+  updateParishInfo: async (data: Partial<ParishInfo>): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/parish', {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
 
-  uploadLogo: async (file: File): Promise<any> => {
+  uploadLogo: async (file: File): Promise<unknown> => {
     const formData = new FormData();
     formData.append('logo', file);
     
@@ -134,7 +134,7 @@ export const SettingsAPI = {
     if (!response.ok) {
       throw new Error(responseData?.message || 'Logo upload failed');
     }
-    return responseData;
+    return responseData as unknown;
   }
 };
 
@@ -178,22 +178,22 @@ export const SettingsAccountsAPI = {
     return { data } as AccountsResponse;
   },
 
-  create: async (data: any): Promise<any> => {
-    return apiFetch<any>('/api/v1/settings/accounts', {
+  create: async (data: Record<string, unknown>): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/accounts', {
       method: 'POST',
       body: JSON.stringify(data)
     });
   },
 
-  update: async (id: string, data: any): Promise<any> => {
-    return apiFetch<any>(`/api/v1/settings/accounts/${id}`, {
+  update: async (id: string, data: Record<string, unknown>): Promise<unknown> => {
+    return apiFetch<unknown>(`/api/v1/settings/accounts/${id}`, {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
-  toggleStatus: async (id: string, status: string): Promise<any> => {
-    return apiFetch<any>(`/api/v1/settings/accounts/${id}/status`, {
+  toggleStatus: async (id: string, status: string): Promise<unknown> => {
+    return apiFetch<unknown>(`/api/v1/settings/accounts/${id}/status`, {
       method: 'PATCH',
       body: JSON.stringify({ status })
     });
@@ -207,11 +207,17 @@ export const SettingsAccountsAPI = {
     });
     const body = await rs.json().catch(() => null);
     if (!rs.ok) {
-      const err: any = new Error(body?.message || 'Có lỗi xảy ra');
-      err.code = body?.message?.code;
+      const err = new Error(body?.message || 'Có lỗi xảy ra') as Error & { code?: string };
+      err.code = body?.message?.code || body?.code;
       throw err;
     }
     return body; // { data, message, status }
+  },
+
+  leaveParish: async (): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/accounts/me/leave', {
+      method: 'POST'
+    });
   },
 };
 
@@ -233,22 +239,22 @@ export const SettingsSaintsAPI = {
     return { data, message: '', status: 200 };
   },
 
-  create: async (data: { name: string; gender: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
-    return apiFetch<any>('/api/v1/settings/saints', {
+  create: async (data: { name: string; gender: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<unknown> => {
+    return apiFetch<unknown>('/api/v1/settings/saints', {
       method: 'POST',
       body: JSON.stringify(data)
     });
   },
 
-  update: async (name: string, data: { new_name?: string; gender?: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<any> => {
-    return apiFetch<any>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
+  update: async (name: string, data: { new_name?: string; gender?: 'MALE' | 'FEMALE'; is_popular?: boolean }): Promise<unknown> => {
+    return apiFetch<unknown>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
       method: 'PATCH',
       body: JSON.stringify(data)
     });
   },
 
-  delete: async (name: string): Promise<any> => {
-    return apiFetch<any>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
+  delete: async (name: string): Promise<unknown> => {
+    return apiFetch<unknown>(`/api/v1/settings/saints/${encodeURIComponent(name)}`, {
       method: 'DELETE'
     });
   }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft, Trash2, Printer, Plus, CheckCircle2 } from 'lucide-react';
@@ -8,9 +8,10 @@ import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchComb
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { HouseholdSearchCombobox } from '@/components/ui/HouseholdSearchCombobox';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
-import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
+import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useBatchCreateSacraments } from '../../queries/useSacramentMutations';
+import { useAuth } from '@/components/providers/auth-provider';
 
 interface GeneralInfo {
   date: string;
@@ -19,6 +20,13 @@ interface GeneralInfo {
 }
 
 type SacramentType = 'BAPTISM' | 'EUCHARIST' | 'CONFIRMATION';
+
+interface ParishionerPreview {
+  id: string;
+  christian_name: string | null;
+  full_name: string;
+  birth_date: string | null;
+}
 
 interface BaseTempParticipant {
   tempId: string;
@@ -54,11 +62,14 @@ interface TempStandard extends BaseTempParticipant {
 
 export function BatchSacramentClient() {
   const router = useRouter();
+  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState<SacramentType>('BAPTISM');
 
   const [generalInfo, setGeneralInfo] = useState<GeneralInfo>({
     date: new Date().toISOString().substring(0, 10),
-    place: 'Tại Giáo xứ',
+    place: user?.church_name 
+      ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+      : 'Tại Giáo xứ',
     minister_id: '',
   });
 
@@ -81,7 +92,7 @@ export function BatchSacramentClient() {
 
   // Standard fields
   const [sParishionerId, setSParishionerId] = useState('');
-  const [sParishionerData, setSParishionerData] = useState<any>(null);
+  const [sParishionerData, setSParishionerData] = useState<ParishionerPreview | null>(null);
   const [sGodparent, setSGodparent] = useState('');
 
   // ── Handlers ──
@@ -146,7 +157,7 @@ export function BatchSacramentClient() {
     if (!sParishionerId) return toast.error('Vui lòng chọn Người lãnh nhận.');
 
     // Check duplicate
-    if (participants.some((p: any) => p.parishioner_id === sParishionerId)) {
+    if (participants.some((p) => (p as TempStandard).parishioner_id === sParishionerId)) {
       return toast.error('Giáo dân này đã có trong danh sách chờ.');
     }
 
@@ -177,7 +188,7 @@ export function BatchSacramentClient() {
     setIsSubmitting(true);
     try {
       let endpoint = '';
-      let payload: any = {};
+      let payload: Record<string, unknown> = {};
 
       if (activeTab === 'BAPTISM') {
         endpoint = '/api/v1/sacraments/batch-baptism';
@@ -185,16 +196,19 @@ export function BatchSacramentClient() {
           date: generalInfo.date,
           place: generalInfo.place,
           minister_id: generalInfo.minister_id,
-          participants: participants.map((p: any) => ({
-            christian_name: p.christian_name || null,
-            full_name: p.full_name,
-            gender: p.gender,
-            birth_date: p.birth_date,
-            father_id: p.father_id || null,
-            mother_id: p.mother_id || null,
-            household_id: p.household_id || null,
-            godparent_name: p.godparent_name || null,
-          }))
+          participants: participants.map((p) => {
+            const item = p as TempBaptism;
+            return {
+              christian_name: item.christian_name || null,
+              full_name: item.full_name,
+              gender: item.gender,
+              birth_date: item.birth_date,
+              father_id: item.father_id || null,
+              mother_id: item.mother_id || null,
+              household_id: item.household_id || null,
+              godparent_name: item.godparent_name || null,
+            };
+          })
         };
       } else {
         endpoint = '/api/v1/sacraments/batch-eucharist';
@@ -203,10 +217,13 @@ export function BatchSacramentClient() {
           date: generalInfo.date,
           place: generalInfo.place,
           minister_id: generalInfo.minister_id,
-          participants: participants.map((p: any) => ({
-            parishioner_id: p.parishioner_id,
-            godparent_name: p.godparent_name || null,
-          }))
+          participants: participants.map((p) => {
+            const item = p as TempStandard;
+            return {
+              parishioner_id: item.parishioner_id,
+              godparent_name: item.godparent_name || null,
+            };
+          })
         };
       }
 
@@ -214,7 +231,8 @@ export function BatchSacramentClient() {
 
       toast.success(`Đã ghi nhận ${participants.length} hồ sơ thành công!`);
       router.push('/dashboard/sacraments');
-    } catch (err: any) {
+    } catch (errValue: unknown) {
+      const err = errValue as Error;
       toast.error(err.message || 'Lỗi hệ thống');
     } finally {
       setIsSubmitting(false);
@@ -269,7 +287,7 @@ export function BatchSacramentClient() {
             <FieldLabel required>Ngày cử hành</FieldLabel>
             <div className="relative">
               <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-[18px]">calendar_today</span>
-              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} className={`${getInputCls(isSubmitting)} pl-10`} />
+              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} max={new Date().toISOString().substring(0,10)} className={`${getInputCls(isSubmitting)} pl-10`} />
             </div>
           </div>
           <div>
@@ -329,7 +347,7 @@ export function BatchSacramentClient() {
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-1">
                     <GenderSelect
                       value={bGender}
-                      onChange={(g) => setBGender(g as any)}
+                      onChange={(g) => setBGender(g as 'MALE' | 'FEMALE')}
                       disabled={isSubmitting}
                       variant="toggle"
                       label="Giới tính"
@@ -344,7 +362,7 @@ export function BatchSacramentClient() {
                   {/* Godparent */}
                   <div className="space-y-1.5">
                     <FieldLabel>Người đỡ đầu</FieldLabel>
-                    <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
+                    <input type="text" value={bGodparent} onChange={e => setBGodparent(e.target.value)} placeholder="VD: Giuse Nguyễn Văn A" className={getInputCls(isSubmitting)} />
                   </div>
 
                  {/* Add button */}
@@ -358,12 +376,18 @@ export function BatchSacramentClient() {
                      <p className="text-sm text-[#78716C] font-body mb-4">
                        Tìm kiếm giáo dân đã có hồ sơ để ghi nhận vào khóa bí tích này.
                      </p>
-                     <ParishionerSearchCombobox value={sParishionerId} onChange={(id, p) => { setSParishionerId(id || ''); setSParishionerData(p); }} />
+                     <ParishionerSearchCombobox 
+                      value={sParishionerId} 
+                      onChange={(id, p) => { 
+                        setSParishionerId(id || ''); 
+                        setSParishionerData(p as ParishionerPreview | null); 
+                      }} 
+                    />
                   </div>
 
                   <div className="mb-6 space-y-1.5">
                     <FieldLabel>Người đỡ đầu (NẾU CÓ)</FieldLabel>
-                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="Tên Thánh, Họ và Tên" className={getInputCls(isSubmitting)} />
+                    <input type="text" value={sGodparent} onChange={e => setSGodparent(e.target.value)} placeholder="VD: Giuse Nguyễn Văn A" className={getInputCls(isSubmitting)} />
                   </div>
 
                   <button onClick={handleAddStandard} className="w-full flex items-center justify-center gap-2 bg-primary text-white h-11 rounded font-bold hover:bg-primary/90 transition-colors">

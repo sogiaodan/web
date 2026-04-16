@@ -1,6 +1,6 @@
 'use client';
-
-import { useState, useEffect, useRef } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useForm } from 'react-hook-form';
@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 
 import { useAuth } from '@/components/providers/auth-provider';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
+import { ParishInfo } from '@/lib/api/settings';
 import { 
   useParishQuery, 
   useUpdateParishMutation, 
@@ -79,7 +80,7 @@ export default function ParishInformationPage() {
       established_year: Number.isNaN(data.established_year) ? null : data.established_year,
     };
 
-    updateParish.mutate(payload as any, {
+    updateParish.mutate(payload as Partial<ParishInfo>, {
       onSuccess: () => {
         reset(data); // Reset isDirty
       }
@@ -148,9 +149,11 @@ export default function ParishInformationPage() {
             <div className="col-span-1 flex flex-col items-center">
               <div className="relative group rounded-xl overflow-hidden mb-3 border-2 border-dashed border-outline hover:border-primary/50 transition-colors w-40 h-40 flex items-center justify-center bg-surface-container">
                 {parishInfo?.logo_url ? (
-                  <img 
+                  <Image 
                     src={parishInfo.logo_url.startsWith('http') ? parishInfo.logo_url : (parishInfo.logo_url.startsWith('/') ? parishInfo.logo_url : `/storage/${parishInfo.logo_url}`)} 
                     alt="Parish Logo" 
+                    width={160}
+                    height={160}
                     className="w-full h-full object-contain p-2"
                     crossOrigin="anonymous"
                   />
@@ -251,11 +254,19 @@ export default function ParishInformationPage() {
                         Năm Thành lập
                       </label>
                       <input
-                        type="number"
+                        type="text"
                         id="established_year"
-                        {...register('established_year', { valueAsNumber: true })}
+                        inputMode="numeric"
+                        {...register('established_year', { 
+                          setValueAs: (v) => v === "" ? null : parseInt(v, 10) 
+                        })}
                         className={`block w-full rounded border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[48px] transition-all ${errors.established_year ? 'border-primary' : 'border-outline'}`}
                         placeholder="VD: 1870"
+                        onKeyPress={(e) => {
+                          if (!/[0-9]/.test(e.key)) {
+                            e.preventDefault();
+                          }
+                        }}
                       />
                       {errors.established_year && <p className="mt-1 text-xs text-primary">{errors.established_year.message}</p>}
                     </div>

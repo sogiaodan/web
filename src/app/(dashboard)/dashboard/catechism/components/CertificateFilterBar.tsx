@@ -74,6 +74,7 @@ function CertificateDateFilter() {
   });
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalFilters({
       date_from: searchParams.get('date_from') || '',
       date_to: searchParams.get('date_to') || '',

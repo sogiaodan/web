@@ -52,4 +52,4 @@ export interface CreateZoneDto {
   description?: string;
 }
 
-export interface UpdateZoneDto extends Partial<CreateZoneDto> {}
+export type UpdateZoneDto = Partial<CreateZoneDto>;

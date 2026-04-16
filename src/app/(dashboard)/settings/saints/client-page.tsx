@@ -32,7 +32,7 @@ export default function SaintsPage() {
     queryFn: () => SettingsSaintsAPI.list(),
   });
 
-  const saints = response?.data || [];
+  const saints = useMemo(() => response?.data || [], [response?.data]);
 
   // Client-side filtering
   const filteredSaints = useMemo(() => {
@@ -357,9 +357,10 @@ function SaintFormModal({
         toast.success('Cập nhật tên thánh thành công');
       }
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.message || 'Thao tác thất bại');
-      if (err.message && err.message.toLowerCase().includes('exist')) {
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Thao tác thất bại');
+      if (error.message && error.message.toLowerCase().includes('exist')) {
         setErrorName('Tên thánh đã tồn tại.');
       }
     } finally {
@@ -506,8 +507,9 @@ function DeleteConfirmationModal({
       await SettingsSaintsAPI.delete(saint.name);
       toast.success('Xóa tên thánh thành công');
       onSuccess();
-    } catch (err: any) {
-      toast.error(err.message || 'Không thể xóa tên thánh. Tên thánh có thể đang được sử dụng.');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Không thể xóa tên thánh. Tên thánh có thể đang được sử dụng.');
     } finally {
       setIsSubmitting(false);
     }

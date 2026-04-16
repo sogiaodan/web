@@ -3,8 +3,13 @@
 import MetricCard from '@/components/dashboard/MetricCard';
 import { Church, ShieldCheck, Activity, PlusCircle } from 'lucide-react';
 import Link from 'next/link';
+import { useSystemAdminStatsQuery } from '@/lib/queries/useSystemAdminQueries';
+import { LoadingSection } from '@/components/ui/LoadingSection';
+
 
 export default function SystemAdminDashboardPage() {
+  const { data: stats, isLoading } = useSystemAdminStatsQuery();
+
   return (
     <div className="space-y-8 animate-in fade-in duration-500">
       <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4">
@@ -13,9 +18,9 @@ export default function SystemAdminDashboardPage() {
           <p className="text-muted mt-1 italic font-medium">Báo cáo trạng thái vận hành các thực thể giáo xứ toàn cầu.</p>
         </div>
         
-        <Link 
-          href="/super-admin/dashboard/churches" 
-          className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all hover:-translate-y-0.5 active:translate-y-0 group"
+        <Link
+          href="/super-admin/dashboard/churches"
+          className="inline-flex items-center justify-center gap-2 bg-primary text-white px-6 py-3 rounded-sm font-bold shadow-lg shadow-primary/20 hover:bg-primary/90 transition-all hover:-translate-y-0.5 active:translate-y-0 group min-h-[48px] w-full sm:w-auto"
         >
           <PlusCircle className="h-5 w-5 group-hover:rotate-90 transition-transform duration-300" />
           ONBOARD GIÁO XỨ MỚI
@@ -23,24 +28,32 @@ export default function SystemAdminDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <MetricCard
-          label="TỔNG GIÁO XỨ"
-          value={12}
-          href="/super-admin/dashboard/churches"
-          icon={Church}
-        />
-        <MetricCard
-          label="TRẠNG THÁI CENTRAL"
-          value="ON"
-          href="#"
-          icon={ShieldCheck}
-        />
-        <MetricCard
-          label="YÊU CẦU CHỜ"
-          value={0}
-          href="#"
-          icon={Activity}
-        />
+        {isLoading ? (
+          <div className="col-span-full">
+            <LoadingSection message="Đang tải số liệu hệ thống..." className="py-10" />
+          </div>
+        ) : (
+          <>
+            <MetricCard
+              label="TỔNG GIÁO XỨ"
+              value={stats?.total_churches ?? 0}
+              href="/super-admin/dashboard/churches"
+              icon={Church}
+            />
+            <MetricCard
+              label="TRẠNG THÁI CENTRAL"
+              value={stats?.system_status ?? 'OFF'}
+              href="#"
+              icon={ShieldCheck}
+            />
+            <MetricCard
+              label="YÊU CẦU CHỜ"
+              value={stats?.pending_contact_requests ?? 0}
+              href="#"
+              icon={Activity}
+            />
+          </>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
@@ -61,6 +74,19 @@ export default function SystemAdminDashboardPage() {
                     <p className="text-xs text-muted">Hệ thống đã chuyển sang sử dụng SUPER_ADMIN_JWT_SECRET độc lập.</p>
                 </div>
             </div>
+            {stats && (
+              <div className="flex gap-4 p-4 bg-vellum/50 border-l-4 border-green-400/40 rounded-r">
+                <div className="h-2 w-2 rounded-full bg-green-500 mt-1.5 shrink-0" />
+                <div>
+                  <p className="text-sm font-bold text-foreground leading-none mb-1">
+                    {stats.active_churches} / {stats.total_churches} giáo xứ đang hoạt động
+                  </p>
+                  <p className="text-xs text-muted">
+                    {stats.total_users} tài khoản quản lý trên toàn hệ thống.
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

@@ -2,12 +2,12 @@
 
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { Eye, FileText } from 'lucide-react';
 import { CertificateListItem, CertificateType } from '@/types/catechism';
-import { PaginationControls } from '@/components/ui/PaginationControls';
 import { formatDate } from '@/lib/utils';
 import { useDeleteCatechism } from '../queries/useCatechismMutations';
+import { PaginationControls } from '@/components/ui/PaginationControls';
 
 interface CertificateTableProps {
   items: CertificateListItem[];
@@ -47,8 +47,6 @@ export function CertificateTable({
   page,
   limit,
   total,
-  canEdit,
-  isAdmin,
 }: CertificateTableProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -68,10 +66,7 @@ export function CertificateTable({
     router.push(`${pathname}?${params.toString()}`);
   };
 
-  const handleDeleteRequest = (id: string) => {
-    setDeletingId(id);
-    setDeleteDialogOpen(true);
-  };
+
 
   const handleDeleteConfirm = async () => {
     if (!deletingId) return;

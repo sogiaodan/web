@@ -1,6 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { apiFetch } from "@/lib/api-client";
-import { SacramentListResponse, MarriageListResponse, SacramentType } from "@/types/sacrament";
+import { SacramentListResponse, MarriageListResponse } from "@/types/sacrament";
 
 export function useSacramentsQuery(params?: Record<string, string>) {
   const type = params?.type || 'BAPTISM';
@@ -23,14 +23,15 @@ export function useSacramentsQuery(params?: Record<string, string>) {
   });
 }
 
-export function useSacramentDetailQuery(id: string, isMarriage: boolean) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export function useSacramentDetailQuery<T = any>(id: string, isMarriage: boolean) {
   const endpoint = isMarriage
     ? `/api/v1/sacraments/marriages/${id}`
     : `/api/v1/sacraments/${id}`;
 
-  return useQuery<any, Error>({
+  return useQuery<T, Error>({
     queryKey: ["sacraments", isMarriage ? "marriages" : "standard", id],
-    queryFn: () => apiFetch<any>(endpoint),
+    queryFn: () => apiFetch<T>(endpoint),
     enabled: !!id,
     staleTime: 60_000,
   });

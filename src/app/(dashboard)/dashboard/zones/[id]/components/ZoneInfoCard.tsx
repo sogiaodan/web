@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { ParishionerLookup } from '@/types/zone';
 
 interface ZoneInfoCardProps {
@@ -23,9 +24,11 @@ export function ZoneInfoCard({ head, description }: ZoneInfoCardProps) {
         {/* Avatar */}
         <div className="flex-shrink-0">
           {head?.avatar_url ? (
-            <img 
+            <Image 
               src={head.avatar_url} 
               alt="Avatar" 
+              width={80}
+              height={80}
               className="w-16 h-16 md:w-20 md:h-20 rounded-full object-cover border border-outline grayscale contrast-125"
             />
           ) : (

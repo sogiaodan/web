@@ -1,20 +1,23 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
+import { ParishionerSearchCombobox, ParishionerLookup } from '@/components/ui/ParishionerSearchCombobox';
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
-import { Loader2, Home } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/providers/auth-provider';
 
 const marriageSchema = z.object({
   husband_id: z.string().min(1, 'Vui lòng chọn Chú rể'),
   wife_id: z.string().min(1, 'Vui lòng chọn Cô dâu'),
-  marriage_date: z.string().optional(),
+  marriage_date: z.string().optional().refine((val) => {
+    if (!val) return true;
+    return new Date(val).getTime() <= new Date().getTime();
+  }, 'Ngày hôn phối không được lớn hơn ngày hiện tại'),
   place: z.string().optional(),
   status: z.enum(['VALID', 'ANNULLED', 'DRAFT']),
   witness_1_name: z.string().optional(),
@@ -36,8 +39,8 @@ type MarriageFormValues = z.infer<typeof marriageSchema>;
 interface MarriageFormProps {
   id?: string;
   initialData?: Partial<MarriageFormValues>;
-  initialHusband?: any;
-  initialWife?: any;
+  initialHusband?: ParishionerLookup | null;
+  initialWife?: ParishionerLookup | null;
   readOnly?: boolean;
 }
 
@@ -45,6 +48,7 @@ import { useCreateMarriage, useUpdateMarriage } from '../../queries/useSacrament
 
 export function MarriageForm({ id, initialData, initialHusband, initialWife, readOnly = false }: MarriageFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
   
   const createMutation = useCreateMarriage();
   const updateMutation = useUpdateMarriage(id || '');
@@ -61,7 +65,9 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
       husband_id: initialData?.husband_id || '',
       wife_id: initialData?.wife_id || '',
       marriage_date: initialData?.marriage_date || '',
-      place: initialData?.place || '',
+      place: initialData?.place || (user?.church_name 
+        ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+        : ''),
       status: initialData?.status || 'VALID',
       witness_1_name: initialData?.witness_1_name || '',
       witness_2_name: initialData?.witness_2_name || '',
@@ -78,24 +84,27 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
   });
 
   const isEdit = !!id;
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isMixedReligion = watch('is_mixed_religion');
 
   const onSubmit = async (data: MarriageFormValues) => {
     if (readOnly) return;
     try {
-      const payload = { ...data, type: 'MARRIAGE' };
-      
       if (isEdit) {
-        await updateMutation.mutateAsync(payload);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { husband_id, wife_id, create_household, ...updateData } = data;
+        await updateMutation.mutateAsync(updateData);
       } else {
+        const payload = { ...data, type: 'MARRIAGE' };
         await createMutation.mutateAsync(payload);
       }
 
       toast.success(isEdit ? 'Cập nhật Hôn phối thành công!' : 'Ghi nhận Hôn phối thành công!');
       router.push('/dashboard/sacraments?type=MARRIAGE');
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra khi lưu Hôn phối.');
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra khi lưu Hôn phối.');
+      console.error(error);
     }
   };
 
@@ -135,7 +144,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
                     value={field.value}
                     onChange={(id) => field.onChange(id || '')}
                     error={errors.husband_id?.message}
-                    disabled={readOnly}
+                    disabled={readOnly || isEdit}
                     initialSelected={initialHusband}
                   />
                 )}
@@ -149,7 +158,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
                     value={field.value}
                     onChange={(id) => field.onChange(id || '')}
                     error={errors.wife_id?.message}
-                    disabled={readOnly}
+                    disabled={readOnly || isEdit}
                     initialSelected={initialWife}
                   />
                 )}
@@ -158,7 +167,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
           ) : (
             <div className="p-5 border border-amber-200 bg-amber-50 rounded-sm space-y-4">
               <p className="text-sm text-amber-800 font-medium mb-2">
-                Hôn phối Khác Đạo: Chọn một người công giáo và nhập tên người ngoại đạo (sẽ được tạo tự động với tư cách "Ngoại Giáo").
+                Hôn phối Khác Đạo: Chọn một người công giáo và nhập tên người ngoại đạo (sẽ được tạo tự động với tư cách &quot;Ngoại Giáo&quot;).
               </p>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <Controller
@@ -221,6 +230,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
               </label>
               <input
                 type="date"
+                max={new Date().toISOString().substring(0, 10)}
                 disabled={readOnly}
                 {...register('marriage_date')}
                 className={`w-full bg-surface border rounded-sm px-3 py-3 text-sm font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${

@@ -1,32 +1,32 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useSyncExternalStore } from 'react';
 import { X, Share, PlusSquare } from 'lucide-react';
 
+const emptySubscribe = () => () => {};
+
 export default function IOSInstallBanner() {
-  const [showBanner, setShowBanner] = useState(false);
+  const isClient = useSyncExternalStore(emptySubscribe, () => true, () => false);
+  const [dismissed, setDismissed] = useState(false);
 
-  useEffect(() => {
-    // 1. Check if it's iOS
-    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
-    
-    // 2. Check if already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (navigator as any).standalone;
+  if (!isClient || dismissed) return null;
 
-    // 3. Check if user dismissed it before in this session (optional, can use localStorage for persistent dismiss)
-    const isDismissed = localStorage.getItem('ios-pwa-banner-dismissed');
+  // 1. Check if it's iOS
+  const nav = navigator as unknown as { standalone?: boolean };
+  const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !((window as unknown) as { MSStream?: unknown }).MSStream;
+  
+  // 2. Check if already installed
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || nav.standalone;
 
-    if (isIOS && !isStandalone && !isDismissed) {
-      setShowBanner(true);
-    }
-  }, []);
+  // 3. Check if user dismissed it before in this session
+  const isDismissedLocal = localStorage.getItem('ios-pwa-banner-dismissed');
+
+  if (!isIOS || isStandalone || isDismissedLocal) return null;
 
   const handleDismiss = () => {
-    setShowBanner(false);
+    setDismissed(true);
     localStorage.setItem('ios-pwa-banner-dismissed', 'true');
   };
-
-  if (!showBanner) return null;
 
   return (
     <div className="fixed bottom-6 left-4 right-4 z-[200] md:left-auto md:right-8 md:w-96 animate-in fade-in slide-in-from-bottom-4 duration-500">

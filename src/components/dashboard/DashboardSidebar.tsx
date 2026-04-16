@@ -11,7 +11,8 @@ import {
   Settings,
   Church,
   X,
-  Scroll
+  Scroll,
+  ShieldCheck
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -23,6 +24,7 @@ const NAV_ITEMS = [
   { href: '/dashboard/sacraments', label: 'Bí tích', icon: BookOpen },
   { href: '/dashboard/catechism', label: 'Chứng chỉ', icon: Scroll },
   { href: '/dashboard/zones', label: 'Giáo khu', icon: Map },
+  { href: '/dashboard/parish-groups', label: 'Hội đoàn', icon: ShieldCheck },
 ];
 
 interface DashboardSidebarProps {
@@ -145,7 +147,7 @@ export default function DashboardSidebar({ isOpen, onClose, onOpenAccountPanel }
       />
 
       <div className={clsx(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-surface border-r border-outline transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 h-dvh",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-surface border-r border-outline transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 h-dvh",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="absolute top-4 right-4 lg:hidden">

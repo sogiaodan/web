@@ -2,7 +2,6 @@
 
 import React, { useRef, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
-import Link from 'next/link';
 import { Zone } from '@/types/zone';
 
 interface Props {
@@ -104,7 +103,8 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
           </button>
         )}
 
-        {/* Add New Parishioner */}
+        {/* Add New Parishioner (Tạm ẩn: Yêu cầu mọi giáo dân phải nằm trong Hộ giáo) */}
+        {/* 
         {canEdit && (
           <Link
             id="add-parishioner-btn"
@@ -115,6 +115,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
             <span>Thêm Giáo dân mới</span>
           </Link>
         )}
+        */}
       </div>
 
       {/* Mobile Layout */}
@@ -150,6 +151,8 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
             </button>
           )}
         </div>
+        {/* Add New Parishioner Mobile (Tạm ẩn) */}
+        {/*
         {canEdit && (
           <Link
             href="/dashboard/parishioners/create"
@@ -159,6 +162,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
             <span>Thêm Giáo dân mới</span>
           </Link>
         )}
+        */}
       </div>
 
       {/* ── Active Filter Chips (both desktop + mobile) ──────────────────── */}

@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useZones } from '@/components/providers/zones-provider';
 
+import Image from 'next/image';
+
 export function HouseholdTable({ households, total, page, limit }: { 
   households: Household[], 
   total: number, 
@@ -94,11 +96,14 @@ export function HouseholdTable({ households, total, page, limit }: {
                   <td className="px-6 py-5">
                     <div className="flex items-center gap-3">
                       {item.head?.avatar_url ? (
-                        <img 
-                          src={item.head.avatar_url} 
-                          alt={item.head?.full_name} 
-                          className="w-10 h-10 rounded-full object-cover border border-border-color grayscale contrast-125 shrink-0" 
-                        />
+                        <div className="relative w-10 h-10 rounded-full overflow-hidden border border-border-color shrink-0">
+                          <Image 
+                            src={item.head.avatar_url} 
+                            alt={item.head?.full_name || ''} 
+                            fill
+                            className="object-cover grayscale contrast-125" 
+                          />
+                        </div>
                       ) : (
                         <div className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center border border-border-color shrink-0">
                           <span className="font-display font-bold text-on-surface-variant">

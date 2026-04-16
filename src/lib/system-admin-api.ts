@@ -2,54 +2,64 @@ import {
   SystemAdminLoginResponse, 
   SystemAdminGetMeResponse,
   ChurchOnboardingRequest,
-  ChurchOnboardingResponse
+  ChurchOnboardingResponse,
+  SystemAdminStats,
+  ChurchListItem,
+  ChurchDetail,
+  UpdateChurchRequest,
+  UpdateChurchResponse,
+  ToggleChurchStatusRequest,
+  ToggleChurchStatusResponse,
+  ContactRequest,
+  UpdateContactRequestStatusRequest,
+  UpdateContactRequestStatusResponse,
+  SystemNotification,
+  CreateSystemNotificationRequest,
+  UpdateSystemNotificationRequest,
+  AuditLogQuery,
+  AuditLogListResponse,
+  BackupRecord,
+  TriggerBackupResponse,
 } from '../types/system-admin';
 
 const BASE_URL = '/api/v1/system-admin';
 
 /**
- * Base fetch client that automatically includes credentials (cookies)
+ * Base fetch client that automatically includes credentials (cookies).
+ * Mirrors apiFetch from @/lib/api-client but dispatches the
+ * `sysadmin:unauthorized` event instead of `auth:unauthorized`.
  */
 async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+  const headers = new Headers(options.headers as HeadersInit);
+  if (!headers.has('Content-Type') && !(options.body instanceof FormData)) {
+    headers.set('Content-Type', 'application/json');
+  }
+
   const rs = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,
-    headers: {
-      'Content-Type': 'application/json',
-      ...options.headers,
-    },
-    credentials: options.credentials || 'include',
+    headers,
+    credentials: 'include',
   });
 
   const responseBody = await rs.json().catch(() => null);
 
   if (!rs.ok) {
-    const message = responseBody?.message || '';
+    const message = responseBody?.message || `Request failed with status ${rs.status}`;
     
-    if (rs.status === 401) {
-      const code = responseBody?.code;
-      const isTokenInvalidError = code === 'TOKEN_EXPIRED' || code === 'TOKEN_MISSING' || code === 'INSUFFICIENT_PERMISSIONS' || code === 'INVALID_TOKEN';
-      
-      if (isTokenInvalidError && typeof window !== 'undefined') {
-        window.dispatchEvent(new Event('sysadmin:unauthorized'));
-      }
+    if (rs.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new Event('sysadmin:unauthorized'));
     }
     
-    if (message) {
-      throw new Error(message);
-    }
-    throw new Error(`Request failed with status ${rs.status}`);
+    const err = new Error(message) as Error & { status?: number };
+    err.status = rs.status;
+    throw err;
   }
 
   if (rs.status === 204 || responseBody == null) {
     return null as T;
   }
 
-  if (typeof responseBody !== 'object' || !('data' in responseBody)) {
-    throw new Error('Unexpected API response shape: missing data field');
-  }
-
-  // Expect API to return { data, message, status } wrapper
-  return responseBody.data as T;
+  return responseBody?.data as T;
 }
 
 export const systemAdminApi = {
@@ -70,10 +80,114 @@ export const systemAdminApi = {
     });
   },
 
+  // ─── Stats ──────────────────────────────────────────────────────────────
+
+  getStats: async (): Promise<SystemAdminStats> => {
+    return apiFetch<SystemAdminStats>('/stats');
+  },
+
+  // ─── Churches ────────────────────────────────────────────────────────────
+
+  getChurches: async (params?: { search?: string; status?: 'ACTIVE' | 'INACTIVE' }): Promise<ChurchListItem[]> => {
+    const qs = new URLSearchParams();
+    if (params?.search) qs.set('search', params.search);
+    if (params?.status) qs.set('status', params.status);
+    const query = qs.toString();
+    return apiFetch<ChurchListItem[]>(`/churches${query ? `?${query}` : ''}`);
+  },
+
   createChurch: async (data: ChurchOnboardingRequest): Promise<ChurchOnboardingResponse> => {
     return apiFetch<ChurchOnboardingResponse>('/churches', {
       method: 'POST',
       body: JSON.stringify(data),
     });
+  },
+
+  getChurchById: async (id: string): Promise<ChurchDetail> => {
+    return apiFetch<ChurchDetail>(`/churches/${id}`);
+  },
+
+  updateChurch: async (id: string, data: UpdateChurchRequest): Promise<UpdateChurchResponse> => {
+    return apiFetch<UpdateChurchResponse>(`/churches/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  toggleChurchStatus: async (
+    id: string,
+    data: ToggleChurchStatusRequest,
+  ): Promise<ToggleChurchStatusResponse> => {
+    return apiFetch<ToggleChurchStatusResponse>(`/churches/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // ─── Contact Requests ─────────────────────────────────────────────────────
+
+  getContactRequests: async (): Promise<ContactRequest[]> => {
+    return apiFetch<ContactRequest[]>('/contact-requests');
+  },
+
+  updateContactRequestStatus: async (
+    id: string,
+    data: UpdateContactRequestStatusRequest,
+  ): Promise<UpdateContactRequestStatusResponse> => {
+    return apiFetch<UpdateContactRequestStatusResponse>(`/contact-requests/${id}/status`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  // ─── System Notifications ─────────────────────────────────────────────────
+
+  getNotifications: async (): Promise<SystemNotification[]> => {
+    return apiFetch<SystemNotification[]>('/notifications');
+  },
+
+  createNotification: async (data: CreateSystemNotificationRequest): Promise<{ id: string }> => {
+    return apiFetch<{ id: string }>('/notifications', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    });
+  },
+
+  updateNotification: async (
+    id: string,
+    data: UpdateSystemNotificationRequest,
+  ): Promise<{ id: string }> => {
+    return apiFetch<{ id: string }>(`/notifications/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(data),
+    });
+  },
+
+  deleteNotification: async (id: string): Promise<null> => {
+    return apiFetch<null>(`/notifications/${id}`, { method: 'DELETE' });
+  },
+
+  // ─── Audit Logs ───────────────────────────────────────────────────────────
+
+  getAuditLogs: async (params?: AuditLogQuery): Promise<AuditLogListResponse> => {
+    const qs = new URLSearchParams();
+    if (params?.page) qs.set('page', String(params.page));
+    if (params?.limit) qs.set('limit', String(params.limit));
+    if (params?.action_type) qs.set('action_type', params.action_type);
+    if (params?.church_id) qs.set('church_id', params.church_id);
+    if (params?.date_from) qs.set('date_from', params.date_from);
+    if (params?.date_to) qs.set('date_to', params.date_to);
+    const query = qs.toString();
+    return apiFetch<AuditLogListResponse>(`/audit-logs${query ? `?${query}` : ''}`);
+  },
+
+  // ─── Backups ─────────────────────────────────────────────────────────────
+
+  getBackups: async (): Promise<BackupRecord[]> => {
+    return apiFetch<BackupRecord[]>('/backups');
+  },
+
+  triggerChurchBackup: async (id: string): Promise<TriggerBackupResponse> => {
+    return apiFetch<TriggerBackupResponse>(`/churches/${id}/backup`, { method: 'POST' });
   },
 };

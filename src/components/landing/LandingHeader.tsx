@@ -1,9 +1,9 @@
 'use client';
 
+import Image from 'next/image';
 import { useState } from 'react';
 import Link from 'next/link';
 import { Menu, X } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useAuth } from '@/components/providers/auth-provider';
 import { PROJECT_LINKS } from '@/lib/configs';
 
@@ -38,7 +38,7 @@ export function LandingHeader() {
         {/* Left: Logo */}
         <Link href="/" className="flex items-center gap-2 hover:opacity-90 transition-opacity min-h-[44px] min-w-[44px]">
           <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-primary overflow-hidden bg-white shadow-sm">
-            <img src="/brand/icon-192.png" alt="Logo" className="h-full w-full object-contain" />
+            <Image src="/brand/icon-192.png" alt="Logo" width={40} height={40} className="h-full w-full object-contain" />
           </div>
           <span className="font-serif text-[20px] font-bold text-foreground">
             Sổ Giáo Dân

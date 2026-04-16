@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 import { withSentryConfig } from "@sentry/nextjs";
-import path from "path";
 
+import path from "path";
 import packageJson from "./package.json";
 
 const nextConfig: NextConfig = {
@@ -46,6 +46,11 @@ const nextConfig: NextConfig = {
       },
     ];
   },
+  turbopack: {
+    // Explicitly set the monorepo root to silence inference warnings.
+    // Must be an absolute path in recent Next.js versions.
+    root: path.resolve(__dirname, '..'),
+  },
 };
 
 export default withSentryConfig(nextConfig, {
@@ -67,12 +72,4 @@ export default withSentryConfig(nextConfig, {
   sourcemaps: {
     deleteSourcemapsAfterUpload: true,
   },
-
-  // Note: These features currently have limited support with Turbopack.
-  // We use the standard options to satisfy Typescript definitions.
-  reactComponentAnnotation: {
-    enabled: true,
-  },
-  disableLogger: true,
-  automaticVercelMonitors: true,
 });

@@ -7,15 +7,33 @@ import { ZoneInfoCard } from "./components/ZoneInfoCard";
 import { ZoneStatCards } from "./components/ZoneStatCards";
 import { ZoneParishionerTable } from "./components/ZoneParishionerTable";
 import { useSearchParams } from "next/navigation";
+import { useMemo } from "react";
 
 export default function ZoneDetailClient({ id }: { id: string }) {
   const searchParams = useSearchParams();
-  const page = searchParams.get("page") || "1";
-  const limit = searchParams.get("limit") || "10";
-
-  const { data: zone, isLoading, error } = useZoneDetailQuery(id, { page, limit });
   const { user } = useAuth();
   const canEdit = user?.role === "ADMIN" || user?.role === "EDITOR";
+
+  const queryParams = useMemo(() => {
+    const params: Record<string, string | string[]> = {};
+    searchParams.forEach((value, key) => {
+      if (params[key]) {
+        if (Array.isArray(params[key])) {
+          (params[key] as string[]).push(value);
+        } else {
+          params[key] = [params[key] as string, value];
+        }
+      } else {
+        params[key] = value;
+      }
+    });
+
+    params.page = params.page || "1";
+    params.limit = params.limit || "10";
+    return params;
+  }, [searchParams]);
+
+  const { data: zone, isLoading, error } = useZoneDetailQuery(id, queryParams as Record<string, string>);
 
   if (isLoading) {
     return (
@@ -60,8 +78,8 @@ export default function ZoneDetailClient({ id }: { id: string }) {
           zoneId={zone.id}
           items={zone.parishioners?.items || []}
           total={zone.parishioners?.pagination?.total || 0}
-          page={Number(page)}
-          limit={Number(limit)}
+          page={Number(queryParams.page)}
+          limit={Number(queryParams.limit)}
         />
       </div>
     </div>

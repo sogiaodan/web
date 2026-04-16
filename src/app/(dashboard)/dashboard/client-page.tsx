@@ -6,7 +6,6 @@ import { Users, Home, RefreshCcw } from 'lucide-react';
 import MetricCard from '@/components/dashboard/MetricCard';
 import ActivityFeed from '@/components/dashboard/ActivityFeed';
 import OnboardingState from '@/components/dashboard/OnboardingState';
-import { ApiResponse } from '@/lib/auth-api';
 import { DashboardSummaryResponse } from '@/components/dashboard/DashboardHeader';
 
 

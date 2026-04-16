@@ -1,9 +1,11 @@
 'use client';
 
-import { Menu, Bell, HelpCircle } from 'lucide-react';
+import { Menu, HelpCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
-import { ApiResponse } from '@/lib/auth-api';
+import NotificationPanel from '@/components/notifications/NotificationPanel';
+import { useActiveNotificationsQuery } from '@/lib/queries/useActiveNotificationsQuery';
+import { ActivityLog } from '@/components/dashboard/ActivityRow';
 
 export interface DashboardSummaryResponse {
   church_name: string;
@@ -11,7 +13,7 @@ export interface DashboardSummaryResponse {
     total_parishioners: number;
     total_households: number;
   };
-  activities: any[];
+  activities: ActivityLog[];
 }
 
 
@@ -26,6 +28,8 @@ export default function DashboardHeader({ onMenuClick, onHelpClick }: DashboardH
     queryFn: () => apiFetch<DashboardSummaryResponse>('/api/v1/dashboard/summary'),
     staleTime: 30000,
   });
+
+  const { data: activeNotifications = [] } = useActiveNotificationsQuery();
 
   return (
     <header className="sticky top-0 z-30 flex h-14 shrink-0 items-center justify-between border-b border-outline bg-surface px-4 shadow-sm lg:h-16 lg:px-8">
@@ -66,13 +70,9 @@ export default function DashboardHeader({ onMenuClick, onHelpClick }: DashboardH
           <span className="sr-only">Trợ giúp & Góp ý</span>
           <HelpCircle className="h-5 w-5 lg:h-4 lg:w-4" aria-hidden="true" />
         </button>
-        <button
-          type="button"
-          className="relative rounded bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary focus:outline-none focus:ring-2 focus:ring-primary h-[48px] w-[48px] lg:h-[32px] lg:w-[32px] flex items-center justify-center border border-primary/20 transition-colors duration-150"
-        >
-          <span className="sr-only">Xem thông báo</span>
-          <Bell className="h-5 w-5 lg:h-4 lg:w-4" aria-hidden="true" />
-        </button>
+
+        {/* Live notification panel */}
+        <NotificationPanel notifications={activeNotifications} />
       </div>
     </header>
   );

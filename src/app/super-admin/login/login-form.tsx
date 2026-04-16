@@ -38,7 +38,8 @@ export function SystemAdminLoginForm() {
       login(response.user);
       toast.success('Xác thực quản trị hệ thống thành công');
       router.replace('/super-admin/dashboard');
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Lỗi xác thực hệ thống Central.');
     } finally {
       setIsSubmitting(false);

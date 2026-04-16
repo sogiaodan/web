@@ -6,7 +6,7 @@ import { Lock, Edit2, Trash2, Printer, Check, X, Loader2 } from 'lucide-react';
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
 import CertificateBusinessNotes from './CertificateBusinessNotes';
 import CertificatePreviewCard from './CertificatePreviewCard';
-import { CertificateDetail, CertificateType } from '@/types/catechism';
+import { CertificateType } from '@/types/catechism';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useCatechismDetailQuery } from '../queries/useCatechismQuery';
 import { useCreateCatechism, useUpdateCatechism, useDeleteCatechism } from '../queries/useCatechismMutations';
@@ -39,7 +39,9 @@ export function CertificateForm({
   const router = useRouter();
   const { user } = useAuth();
   
-  const parishName = user?.church_name || 'Giáo xứ Thánh Mẫu Hạ Hồi';
+  const parishName = user?.church_name 
+    ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+    : '';
   const isAdmin = user?.role === 'ADMIN';
   const isViewer = user?.role === 'VIEWER';
 
@@ -80,7 +82,7 @@ export function CertificateForm({
   const [toast, setToast] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
 
-  const canWrite = !isViewer && (isAdmin || mode === 'create');
+  // Unused canWrite removed
 
   const showToast = (type: 'success' | 'error', message: string) => {
     setToast({ type, message });
@@ -128,12 +130,13 @@ export function CertificateForm({
         router.push('/dashboard/catechism');
         router.refresh();
       }, 1200);
-    } catch (err: any) {
-      if (err.status === 409) {
+    } catch (err: unknown) {
+      const error = err as Error & { status?: number };
+      if (error.status === 409) {
         const typeLabel = form.certificate_type === 'RCIA' ? 'RCIA' : 'Hôn nhân';
         showToast('error', `Giáo dân này đã có chứng chỉ ${typeLabel} trong hệ thống.`);
       } else {
-        showToast('error', err.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
+        showToast('error', error.message || 'Không thể kết nối đến máy chủ. Vui lòng thử lại.');
       }
     }
   };
@@ -232,7 +235,7 @@ export function CertificateForm({
         >
           <div className="mb-6">
             <ParishionerSearchCombobox
-              label="NGƯỜI LÃNH NHẬN (PARISHIONER)"
+              label="NGƯỜI LÃNH NHẬN"
               value={form.parishioner_id || ''}
               onChange={(id, item) => {
                 setForm((prev) => ({ 

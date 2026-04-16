@@ -4,7 +4,7 @@ import { Lora, Work_Sans } from 'next/font/google';
 import { Toaster } from 'sonner';
 import { AuthProvider } from '@/components/providers/auth-provider';
 import { SystemAdminProvider } from '@/components/providers/system-admin-provider';
-import { serverFetch } from '@/lib/api-server';
+import { apiServerFetch } from '@/lib/api-server';
 import { GetMeResponse } from '@/lib/auth-api';
 import Providers from './providers';
 import IOSInstallBanner from '@/components/pwa/IOSInstallBanner';
@@ -54,7 +54,7 @@ export default async function RootLayout({
 }>) {
   // Pre-fetch user session once at the root to avoid client-side "pop-in"
   // and eliminate redundant /me requests across components.
-  const meRes = await serverFetch<GetMeResponse>('/api/v1/auth/me');
+  const meRes = await apiServerFetch<GetMeResponse>('/api/v1/auth/me');
   const initialUser = meRes?.data?.user || null;
 
   return (
@@ -63,9 +63,10 @@ export default async function RootLayout({
       className={`${lora.variable} ${workSans.variable} h-full antialiased`}
     >
       <head>
+        {/* eslint-disable-next-line @next/next/no-page-custom-font */}
         <link
           rel="stylesheet"
-          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200"
+          href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200&display=swap"
         />
       </head>
       <body className="min-h-full flex flex-col font-sans bg-vellum text-foreground">

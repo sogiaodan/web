@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { CreateZoneDto, UpdateZoneDto, ZoneDetail, ParishionerLookup } from '@/types/zone';
+import { CreateZoneDto, ZoneDetail, ParishionerLookup } from '@/types/zone';
 import { toast } from 'sonner';
 import { useCreateZone, useUpdateZone } from '../queries/useZoneMutations';
 
@@ -99,8 +99,9 @@ export function ZoneForm({ initialData, isEdit }: ZoneFormProps) {
 
       router.push(isEdit ? `/dashboard/zones/${initialData?.id}` : '/dashboard/zones');
       
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi kết nối');
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Lỗi kết nối');
     }
   };
 

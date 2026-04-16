@@ -10,14 +10,14 @@ export interface UseZonesParams {
 
 export function useZonesQuery(
   params?: UseZonesParams, 
-  options?: Omit<UseQueryOptions<ZoneListResponse, Error, ZoneListResponse, any>, "queryKey" | "queryFn">
+  options?: Omit<UseQueryOptions<ZoneListResponse, Error, ZoneListResponse, readonly unknown[]>, "queryKey" | "queryFn">
 ) {
   const queryParams = new URLSearchParams();
   if (params?.limit) queryParams.append('limit', params.limit.toString());
   const queryString = queryParams.toString();
   const url = `/api/v1/zones${queryString ? `?${queryString}` : ""}`;
 
-  return useQuery<ZoneListResponse, Error>({
+  return useQuery<ZoneListResponse, Error, ZoneListResponse, readonly unknown[]>({
     queryKey: ["zones", params],
     queryFn: () => apiFetch<ZoneListResponse>(url),
     ...options,

@@ -9,6 +9,7 @@ import { ParishionerFilterBar } from './ParishionerFilterBar';
 import { ParishionerSummaryCards } from './ParishionerSummaryCards';
 import { useParishionersQuery } from '../queries/useParishionerQueries';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
+import { LoadingSection } from '@/components/ui/LoadingSection';
 
 export function ParishionerListClient() {
   const { user } = useAuth();
@@ -41,20 +42,10 @@ export function ParishionerListClient() {
     return params;
   }, [searchParams]);
 
-  const { data, isLoading, error } = useParishionersQuery(queryParams);
+  const { data, isLoading } = useParishionersQuery(queryParams);
   
   if (isLoading && !data) {
-    return (
-      <div className="space-y-6 animate-pulse">
-        <div className="h-12 bg-white border border-outline rounded-sm mb-6" />
-        <div className="bg-white border border-outline rounded-sm overflow-hidden">
-          <div className="h-10 bg-slate-50 border-b border-outline" />
-          {[...Array(5)].map((_, i) => (
-            <div key={i} className="h-16 border-b border-outline last:border-0" />
-          ))}
-        </div>
-      </div>
-    );
+    return <LoadingSection message="Đang tải danh sách giáo dân..." className="py-20" />;
   }
 
   const items = data?.items || [];

@@ -1,13 +1,13 @@
 import { API_BASE_URL } from './configs';
 import { cookies } from 'next/headers';
 
-export interface ServerApiResponse<T = any> {
+export interface ServerApiResponse<T = unknown> {
   data: T;
   message?: string;
   status?: number;
 }
 
-export async function serverFetch<T = any>(endpoint: string, options: RequestInit = {}): Promise<ServerApiResponse<T> | null> {
+export async function apiServerFetch<T = unknown>(endpoint: string, options: RequestInit = {}): Promise<ServerApiResponse<T> | null> {
   const cookieStore = await cookies();
   const cookieHeader = cookieStore.toString();
 

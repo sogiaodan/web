@@ -8,12 +8,9 @@ import { LoginForm } from './login-form';
 import { Lock } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '@/components/providers/auth-provider';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
 
 export default function LoginPage() {
-  const { user, isLoading } = useAuth();
-  const router = useRouter();
+  const { isLoading } = useAuth();
 
   // Redirection is now handled centrally by AuthProvider to prevent history loops 
   // and ensure a single source of truth for auth-based navigation.

@@ -34,7 +34,8 @@ export function ForgotPasswordForm() {
       await authApi.forgotPassword(data.email);
       toast.success('Nếu email tồn tại trong hệ thống, chúng tôi đã gửi hướng dẫn đặt lại mật khẩu.');
       setIsSuccess(true);
-    } catch (error: any) {
+    } catch (err: unknown) {
+      const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra, vui lòng thử lại sau');
     } finally {
       setIsSubmitting(false);

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Mail, MapPin, Phone } from 'lucide-react';
 import { CONTACT_INFO, PROJECT_LINKS } from '@/lib/configs';
@@ -34,7 +35,7 @@ export function LandingFooter() {
               className="flex items-center gap-2.5 hover:opacity-90 transition-opacity focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/50 rounded"
             >
               <div className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-white/80 overflow-hidden bg-white/10 shadow-sm">
-                <img src="/brand/icon-192.png" alt="Logo" className="h-full w-full object-contain" />
+                <Image src="/brand/icon-192.png" alt="Logo" width={40} height={40} className="h-full w-full object-contain" />
               </div>
               <span className="font-serif text-[20px] font-bold text-white">
                 Sổ Giáo Dân

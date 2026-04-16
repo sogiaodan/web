@@ -42,29 +42,52 @@ interface Props {
 
 export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
   const [preview, setPreview] = useState<ParishionerPreview | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+  const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string | null>(null);
   const drawerRef = useRef<HTMLDivElement>(null);
 
   const isOpen = !!parishionerId;
 
-  // Fetch preview data whenever ID changes
+  // Sync state with props
   useEffect(() => {
-    if (!parishionerId) {
-      setPreview(null);
-      return;
+    if (parishionerId !== activeId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveId(parishionerId);
+      setLoadingId(parishionerId ? parishionerId : null);
+      setError(false);
+      if (!parishionerId) {
+        setPreview(null);
+      }
     }
-    setLoading(true);
-    setError(false);
-    fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
+  }, [parishionerId, activeId]);
+
+  // Fetch preview data asynchronously
+  useEffect(() => {
+    if (!loadingId) return;
+
+    let ignore = false;
+    fetch(`/api/v1/parishioners/${loadingId}/preview`, { credentials: 'include' })
       .then((r) => {
         if (!r.ok) throw new Error('not found');
-        return r.json();
+        return r.json() as Promise<{ data: ParishionerPreview }>;
       })
-      .then((body) => setPreview(body.data))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, [parishionerId]);
+      .then((body) => {
+        if (!ignore) {
+          setPreview(body.data);
+          setLoadingId(null);
+        }
+      })
+      .catch(() => {
+        if (!ignore) {
+          setError(true);
+          setLoadingId(null);
+        }
+      });
+    return () => { ignore = true; };
+  }, [loadingId]);
+
+  const loading = !!loadingId;
 
   // Body scroll lock
   useEffect(() => {
@@ -142,9 +165,7 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
                 onClick={() => {
                   if (parishionerId) {
                     setError(false);
-                    setLoading(true);
-                    fetch(`/api/v1/parishioners/${parishionerId}/preview`, { credentials: 'include' })
-                      .then(r => r.json()).then(b => setPreview(b.data)).catch(() => setError(true)).finally(() => setLoading(false));
+                    setLoadingId(parishionerId);
                   }
                 }}
                 className="text-sm text-primary font-medium hover:underline"

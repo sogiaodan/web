@@ -2,20 +2,25 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
+import Image from 'next/image';
 import {
   LayoutDashboard,
   Church,
-  Settings,
-  ShieldCheck,
+  Mail,
+  ScrollText,
+  Bell,
   X,
-  LogOut
+  LogOut,
 } from 'lucide-react';
 import clsx from 'clsx';
 import { useSystemAdmin } from '@/components/providers/system-admin-provider';
 
 const ADMIN_NAV_ITEMS = [
-  { href: '/super-admin/dashboard', label: 'Tổng quan hệ thống', icon: LayoutDashboard },
-  { href: '/super-admin/dashboard/churches', label: 'Quản trị Giáo xứ', icon: Church },
+  { href: '/super-admin/dashboard',                   label: 'Tổng quan hệ thống', icon: LayoutDashboard, exact: true },
+  { href: '/super-admin/dashboard/churches',          label: 'Quản trị Giáo xứ',   icon: Church },
+  { href: '/super-admin/dashboard/crm',               label: 'CRM Inbox',           icon: Mail },
+  { href: '/super-admin/dashboard/audit-logs',        label: 'Nhật ký hệ thống',   icon: ScrollText },
+  { href: '/super-admin/dashboard/notifications',     label: 'Thông báo',           icon: Bell },
 ];
 
 interface SystemAdminSidebarProps {
@@ -37,20 +42,20 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
   const SidebarContent = (
     <>
       <div className="flex h-16 shrink-0 items-center gap-3 px-6 pt-6 mb-8">
-        <div className="flex h-12 w-12 items-center justify-center rounded bg-primary text-white shadow-md">
-          <ShieldCheck className="h-6 w-6" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full border border-primary/20 overflow-hidden bg-white shadow-sm shrink-0">
+          <Image src="/brand/icon-512.png" alt="Logo" width={48} height={48} className="h-full w-full object-contain p-1" />
         </div>
-        <div>
-          <h1 className="font-serif text-xl font-bold text-primary leading-tight">Hệ Thống</h1>
-          <p className="text-[10px] uppercase tracking-widest text-muted font-bold">SUPER ADMIN</p>
+        <div className="flex flex-col">
+          <h1 className="font-serif text-lg font-bold text-primary leading-none mb-1">Sổ Giáo Dân</h1>
+          <p className="text-[9px] uppercase tracking-widest text-muted font-bold">QUẢN TRỊ HỆ THỐNG</p>
         </div>
       </div>
 
       <nav className="flex flex-1 flex-col px-4 gap-y-1 overflow-y-auto mt-4">
         {ADMIN_NAV_ITEMS.map((item) => {
-          const isActive = item.href === '/super-admin/dashboard' 
-            ? pathname === '/super-admin/dashboard' 
-            : pathname.startsWith(item.href);
+        const isActive = item.exact
+          ? pathname === item.href
+          : pathname.startsWith(item.href);
           const Icon = item.icon;
           
           return (
@@ -114,7 +119,7 @@ export default function SystemAdminSidebar({ isOpen, onClose }: SystemAdminSideb
       />
 
       <div className={clsx(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-white border-r border-outline transition-transform duration-300 ease-in-out lg:static lg:translate-x-0 h-dvh",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-white border-r border-outline transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 h-dvh",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="absolute top-4 right-4 lg:hidden">

@@ -1,20 +1,22 @@
 'use client';
 
-import { useState } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
-import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
+import { ParishionerSearchCombobox, ParishionerLookup } from '@/components/ui/ParishionerSearchCombobox';
 import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
 import { SacramentType } from '@/types/sacrament';
 import { Loader2 } from 'lucide-react';
+import { useAuth } from '@/components/providers/auth-provider';
 
 const sacramentSchema = z.object({
   parishioner_id: z.string().min(1, 'Vui lòng chọn người lãnh nhận'),
-  date: z.string().min(1, 'Vui lòng chọn ngày lãnh nhận'),
+  date: z.string().min(1, 'Vui lòng chọn ngày lãnh nhận').refine((val) => {
+    return new Date(val).getTime() <= new Date().getTime();
+  }, 'Ngày lãnh nhận không được lớn hơn ngày hiện tại'),
   place: z.string().optional(),
   minister_id: z.string().optional(),
   godparent_name: z.string().optional(),
@@ -30,7 +32,7 @@ interface SacramentFormProps {
   type: SacramentType;
   id?: string;
   initialData?: Partial<SacramentFormValues>;
-  initialParishioner?: any;
+  initialParishioner?: ParishionerLookup | null;
   readOnly?: boolean;
 }
 
@@ -38,6 +40,7 @@ import { useCreateSacrament, useUpdateSacrament } from '../../queries/useSacrame
 
 export function SacramentForm({ type, id, initialData, initialParishioner, readOnly = false }: SacramentFormProps) {
   const router = useRouter();
+  const { user } = useAuth();
   
   const createMutation = useCreateSacrament();
   const updateMutation = useUpdateSacrament(id || '');
@@ -52,7 +55,9 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
     defaultValues: {
       parishioner_id: initialData?.parishioner_id || '',
       date: initialData?.date || '',
-      place: initialData?.place || '',
+      place: initialData?.place || (user?.church_name 
+        ? (user.church_name.toLowerCase().startsWith('giáo xứ') ? user.church_name : `Giáo xứ ${user.church_name}`) 
+        : ''),
       minister_id: initialData?.minister_id || '',
       godparent_name: initialData?.godparent_name || '',
       book_no: initialData?.book_no || '',
@@ -67,19 +72,21 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
   const onSubmit = async (data: SacramentFormValues) => {
     if (readOnly) return;
     try {
-      const payload = { ...data, type };
-      
       if (isEdit) {
-        await updateMutation.mutateAsync(payload);
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { parishioner_id, ...updateData } = data;
+        await updateMutation.mutateAsync(updateData);
       } else {
+        const payload = { ...data, type };
         await createMutation.mutateAsync(payload);
       }
 
       toast.success(isEdit ? 'Cập nhật bí tích thành công!' : 'Ghi nhận bí tích thành công!');
       router.push('/dashboard/sacraments');
-    } catch (err: any) {
-      toast.error(err.message || 'Có lỗi xảy ra khi lưu bí tích.');
-      console.error(err);
+    } catch (err: unknown) {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra khi lưu bí tích.');
+      console.error(error);
     }
   };
 
@@ -97,7 +104,7 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
                 value={field.value}
                 onChange={(id) => field.onChange(id || '')}
                 error={errors.parishioner_id?.message}
-                disabled={readOnly}
+                disabled={readOnly || isEdit}
                 initialSelected={initialParishioner}
               />
             )}
@@ -110,6 +117,7 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
               </label>
               <input
                 type="date"
+                max={new Date().toISOString().substring(0, 10)}
                 disabled={readOnly}
                 {...register('date')}
                 className={`w-full bg-surface border rounded-sm px-3 py-3 text-sm font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${
@@ -155,7 +163,7 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
                 type="text"
                 disabled={readOnly}
                 {...register('godparent_name')}
-                placeholder="Nhập tên người đỡ đầu"
+                placeholder="VD: Giuse Nguyễn Văn A"
                 className={`w-full bg-surface border border-outline rounded-sm px-3 py-3 text-sm font-body text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${readOnly ? 'opacity-70 cursor-not-allowed bg-surface-container' : ''}`}
               />
             </div>

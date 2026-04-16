@@ -41,11 +41,11 @@ export function AdvancedFilterDrawer({ zones }: Props) {
   });
 
 
-  // Sync local state when URL changes
+  // Sync local state when URL or open state changes
   useEffect(() => {
     const statuses = searchParams.getAll('status');
     const singleStatus = searchParams.get('status');
-    
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalFilters({
       christian_name: searchParams.get('christian_name') || '',
       age_min: searchParams.get('age_min') || '',
