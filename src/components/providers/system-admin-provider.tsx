@@ -24,31 +24,40 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
 
+  const hasAttemptedFetch = useRef(false);
+
   const loadAdmin = useCallback(async () => {
     if (isCheckingRef.current) return;
     
     // Only attempt to load admin if we are on a super-admin route
-    if (!pathname.startsWith('/super-admin')) {
+    // (using window.location.pathname so we don't need pathname in deps)
+    if (typeof window !== 'undefined' && !window.location.pathname.startsWith('/super-admin')) {
       setIsLoading(false);
       return;
     }
 
     isCheckingRef.current = true;
-    setIsLoading(true);
+    
+    // If we haven't attempted a fetch yet, show the full-page loading spinner.
+    // Subsequent calls (e.g. from internal navigation) will happen quietly.
+    if (!hasAttemptedFetch.current) {
+      setIsLoading(true);
+    }
     
     // Safety timeout: 5 seconds to prevent permanent white-screen/loading-hang
     const timeout = setTimeout(() => {
-      if (!admin) {
-        setIsLoading(false);
-        setAdmin(null);
-      }
+      setIsLoading(false);
       isCheckingRef.current = false;
     }, 5000);
 
     try {
       const response = await systemAdminApi.getMe();
       if (response && response.user) {
-        setAdmin(response.user);
+        // Only update if it's different to avoid re-render loops (though dependency fix helps)
+        setAdmin(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(response.user)) return prev;
+          return response.user;
+        });
       } else {
         setAdmin(null);
       }
@@ -66,22 +75,29 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
         setAdmin(null);
         // Clear the stale cookie via backend then hard-redirect.
         // This ensures the browser does NOT re-send the invalid token on next load.
-        if (typeof window !== 'undefined' && pathname.startsWith('/super-admin/dashboard')) {
+        if (typeof window !== 'undefined' && window.location.pathname.startsWith('/super-admin/dashboard')) {
           try { await systemAdminApi.logout(); } catch { /* ignore */ }
           window.location.href = '/super-admin/login';
           return;
         }
       }
     } finally {
+      hasAttemptedFetch.current = true;
       clearTimeout(timeout);
       setIsLoading(false);
       isCheckingRef.current = false;
     }
-  }, [admin, pathname]);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
-    loadAdmin();
+    
+    // Trigger loadAdmin only when navigating into the super-admin section.
+    // If already attempted (hasAttemptedFetch = true), it silently ignores
+    // intra-dashboard navigations (preventing the 429 Too Many Requests loop).
+    if (pathname.startsWith('/super-admin') && !hasAttemptedFetch.current) {
+      loadAdmin();
+    }
     
     const handlesysAdminUnauthorized = async () => {
       console.log("[system-admin-provider] Bắt được sự kiện 401 Unauthorized, tiến hành ép đăng xuất.");
@@ -98,7 +114,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
     return () => {
       window.removeEventListener("sysadmin:unauthorized", handlesysAdminUnauthorized);
     };
-  }, [pathname, loadAdmin]);
+  }, [loadAdmin, pathname]);
 
   // Centralized Redirect Logic for System Admin
   useEffect(() => {

@@ -44,23 +44,26 @@ export function AuthProvider({
     if (isCheckingRef.current) return;
     isCheckingRef.current = true;
 
-    if (forceLoading && !user) {
+    // Use a local variable or ref to track if we've successfully loaded
+    // instead of relying on the closure user which could be stale.
+    if (forceLoading) {
       setIsLoading(true);
     }
     
     // Safety timeout
     const timeout = setTimeout(() => {
-      if (!user) {
-        setIsLoading(false);
-        setUser(null);
-      }
+      setIsLoading(false);
+      setUser(null);
       isCheckingRef.current = false;
     }, 5000);
 
     try {
       const response = await authApi.getMe();
       if (response && response.user) {
-        setUser(response.user);
+        setUser(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(response.user)) return prev;
+          return response.user;
+        });
       } else {
         setUser(null);
       }
@@ -84,7 +87,7 @@ export function AuthProvider({
       setIsLoading(false);
       isCheckingRef.current = false;
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
