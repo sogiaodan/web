@@ -18,19 +18,13 @@ export function SacramentFilterDrawer() {
   });
 
   // Sync local state when URL changes
-  const [prevSyncKey, setPrevSyncKey] = useState(() => 
-    (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '')
-  );
-
-  const currentSyncKey = (searchParams.get('date_from') || '') + (searchParams.get('date_to') || '');
-
-  if (currentSyncKey !== prevSyncKey) {
-    setPrevSyncKey(currentSyncKey);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLocalFilters({
       date_from: searchParams.get('date_from') || '',
       date_to: searchParams.get('date_to') || '',
     });
-  }
+  }, [searchParams]);
 
   // Trap focus escape
   useEffect(() => {

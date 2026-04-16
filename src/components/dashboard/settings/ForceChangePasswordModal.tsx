@@ -51,7 +51,7 @@ export default function ForceChangePasswordModal({ isOpen }: ForceChangePassword
         new_password: data.new_password,
       });
       toast.success('Mật khẩu đã được cập nhật. Vui lòng đăng nhập lại.', { duration: 5000 });
-      
+
       // Delay to show toast then redirect to login to force fresh session
       setTimeout(() => {
         window.location.href = '/login';
@@ -83,10 +83,10 @@ export default function ForceChangePasswordModal({ isOpen }: ForceChangePassword
 
         <div className="p-6 space-y-6">
           <div className="p-4 bg-amber-50 border border-amber-100 rounded-sm flex gap-3">
-             <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-             <p className="text-[13px] text-amber-800 leading-normal">
-               Vì đây là lần đầu bạn đăng nhập bằng mật khẩu tạm thời, hệ thống yêu cầu bạn thiết lập mật khẩu mới để đảm bảo an toàn.
-             </p>
+            <AlertTriangle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+            <p className="text-[13px] text-amber-800 leading-normal">
+              Vì đây là lần đầu bạn đăng nhập bằng mật khẩu tạm thời, hệ thống yêu cầu bạn thiết lập mật khẩu mới để đảm bảo an toàn.
+            </p>
           </div>
 
           <form id="force-password-form" onSubmit={handleSubmit(onSubmit)} className="space-y-5">
@@ -137,7 +137,7 @@ export default function ForceChangePasswordModal({ isOpen }: ForceChangePassword
                   {showNewPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
-              <p className="text-[10px] text-muted italic">Tối thiểu 8 ký tự, gm chữ cái và chữ số.</p>
+              <p className="text-[10px] text-muted italic">Tối thiểu 8 ký tự, gồm chữ cái và chữ số.</p>
               {errors.new_password && <p className="text-xs font-medium text-primary">{errors.new_password.message}</p>}
             </div>
 

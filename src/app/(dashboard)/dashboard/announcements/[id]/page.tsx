@@ -8,6 +8,7 @@ import { fetchActiveNotifications } from '@/lib/api/notifications';
 import { ActiveNotification, NotificationDisplayType } from '@/types/system-admin';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import clsx from 'clsx';
+import DOMPurify from 'isomorphic-dompurify';
 
 function formatDate(iso: string | null | undefined) {
   if (!iso) return '—';
@@ -123,7 +124,7 @@ export default function AnnouncementDetailPage() {
           prose-a:text-primary prose-a:underline
           prose-strong:text-foreground
           prose-ul:list-disc prose-ol:list-decimal"
-        dangerouslySetInnerHTML={{ __html: notif.extended_content }}
+        dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(notif.extended_content) }}
       />
     </div>
   );

@@ -50,14 +50,17 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
   const isOpen = !!parishionerId;
 
   // Sync state with props
-  if (parishionerId !== activeId) {
-    setActiveId(parishionerId);
-    setLoadingId(parishionerId ? parishionerId : null);
-    setError(false);
-    if (!parishionerId) {
-      setPreview(null);
+  useEffect(() => {
+    if (parishionerId !== activeId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      setActiveId(parishionerId);
+      setLoadingId(parishionerId ? parishionerId : null);
+      setError(false);
+      if (!parishionerId) {
+        setPreview(null);
+      }
     }
-  }
+  }, [parishionerId, activeId]);
 
   // Fetch preview data asynchronously
   useEffect(() => {

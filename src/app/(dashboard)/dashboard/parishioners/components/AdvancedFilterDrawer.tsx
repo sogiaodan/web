@@ -42,10 +42,11 @@ export function AdvancedFilterDrawer({ zones }: Props) {
 
 
   // Sync local state when URL or open state changes
-  const [prevSyncKey, setPrevSyncKey] = useState(() => {
+  useEffect(() => {
     const statuses = searchParams.getAll('status');
     const singleStatus = searchParams.get('status');
-    const filters = {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    setLocalFilters({
       christian_name: searchParams.get('christian_name') || '',
       age_min: searchParams.get('age_min') || '',
       age_max: searchParams.get('age_max') || '',
@@ -53,27 +54,8 @@ export function AdvancedFilterDrawer({ zones }: Props) {
       status: statuses.length > 0 ? statuses : (singleStatus ? [singleStatus] : []),
       marital_status: searchParams.get('marital_status') || '',
       zone_id: searchParams.get('zone_id') || '',
-    };
-    return JSON.stringify(filters) + isOpen;
-  });
-
-  const statuses = searchParams.getAll('status');
-  const singleStatus = searchParams.get('status');
-  const nextFilters = {
-    christian_name: searchParams.get('christian_name') || '',
-    age_min: searchParams.get('age_min') || '',
-    age_max: searchParams.get('age_max') || '',
-    gender: searchParams.get('gender') || '',
-    status: statuses.length > 0 ? statuses : (singleStatus ? [singleStatus] : []),
-    marital_status: searchParams.get('marital_status') || '',
-    zone_id: searchParams.get('zone_id') || '',
-  };
-  const currentSyncKey = JSON.stringify(nextFilters) + isOpen;
-
-  if (currentSyncKey !== prevSyncKey) {
-    setPrevSyncKey(currentSyncKey);
-    setLocalFilters(nextFilters);
-  }
+    });
+  }, [searchParams, isOpen]);
 
   // Trap focus escape
   useEffect(() => {
