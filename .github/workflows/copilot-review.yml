@@ -9,13 +9,21 @@ on:
 jobs:
   request-copilot:
     runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+      contents: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         
+      - name: Install Copilot CLI
+        run: gh extension install github/gh-copilot
+        
       - name: Request Copilot Review
         env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # GitHub recommends using a PAT with 'Copilot: Read/Write' named COPILOT_GITHUB_TOKEN
+          # for any automation involving Copilot.
+          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
           gh pr edit ${{ github.event.pull_request.number }} --add-reviewer copilot
