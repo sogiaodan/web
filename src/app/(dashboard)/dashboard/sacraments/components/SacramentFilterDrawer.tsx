@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 export function SacramentFilterDrawer() {
   const router = useRouter();
@@ -134,22 +135,18 @@ export function SacramentFilterDrawer() {
             </label>
             <div className="flex items-center gap-3">
               <div className="flex-1 relative">
-                <span className="block text-xs font-medium text-on-surface-variant mb-1">Từ ngày</span>
-                <input
-                  type="date"
+                <DatePicker
+                  label="Từ ngày"
                   value={localFilters.date_from}
-                  onChange={(e) => setLocalFilters((p) => ({ ...p, date_from: e.target.value }))}
-                  className="w-full bg-surface border border-outline rounded px-3 py-2 text-sm font-body text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  onChange={(val) => setLocalFilters((p) => ({ ...p, date_from: val }))}
                 />
               </div>
               <span className="text-on-surface-variant text-sm shrink-0 mt-5">—</span>
               <div className="flex-1 relative">
-                <span className="block text-xs font-medium text-on-surface-variant mb-1">Đến ngày</span>
-                <input
-                  type="date"
+                <DatePicker
+                  label="Đến ngày"
                   value={localFilters.date_to}
-                  onChange={(e) => setLocalFilters((p) => ({ ...p, date_to: e.target.value }))}
-                  className="w-full bg-surface border border-outline rounded px-3 py-2 text-sm font-body text-on-surface focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all"
+                  onChange={(val) => setLocalFilters((p) => ({ ...p, date_to: val }))}
                 />
               </div>
             </div>

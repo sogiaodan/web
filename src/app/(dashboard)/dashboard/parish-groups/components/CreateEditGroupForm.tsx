@@ -10,6 +10,7 @@ import { useCreateParishGroup, useUpdateParishGroup } from '../queries/useParish
 import { FieldLabel, getInputCls, SectionHeader } from '@/components/dashboard/shared/FormPrimitives';
 import { IconGalleryPicker, PRESET_ICONS } from './IconGalleryPicker';
 import { PrimaryButton } from '@/components/ui/PrimaryButton';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 const formSchema = z.object({
   name: z.string().min(1, 'Vui lòng nhập tên hội đoàn'),
@@ -104,14 +105,18 @@ export function CreateEditGroupForm({ initialData, isEdit }: Props) {
         </div>
 
 
-        <div className="space-y-1.5">
-          <FieldLabel>Ngày thành lập</FieldLabel>
-          <input
-            type="date"
-            {...register('established_date')}
-            className={getInputCls(!!errors.established_date)}
-          />
-        </div>
+        <Controller
+          control={control}
+          name="established_date"
+          render={({ field }) => (
+            <DatePicker
+              label="Ngày thành lập"
+              value={field.value || ''}
+              onChange={field.onChange}
+              error={errors.established_date?.message}
+            />
+          )}
+        />
 
         {isEdit && (
           <div className="space-y-1.5 flex items-center gap-4 mt-6">

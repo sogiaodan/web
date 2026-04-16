@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Lock, Edit2, Trash2, Printer, Check, X, Loader2 } from 'lucide-react';
 import { ParishionerSearchCombobox } from '@/components/ui/ParishionerSearchCombobox';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 import CertificateBusinessNotes from './CertificateBusinessNotes';
 import CertificatePreviewCard from './CertificatePreviewCard';
 import { CertificateType } from '@/types/catechism';
@@ -298,28 +299,18 @@ export function CertificateForm({
               )}
             </div>
 
-            <div>
-              <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                Ngày Cấp <span className="text-primary">*</span>
-              </label>
-              <input
-                type="date"
-                value={form.issue_date}
-                onChange={(e) => {
-                  setForm((prev) => ({ ...prev, issue_date: e.target.value }));
-                  if (errors.issue_date) setErrors((er) => ({ ...er, issue_date: undefined }));
-                }}
-                disabled={disabled}
-                className={`w-full px-3 py-3 bg-surface border rounded-sm outline-none text-sm font-body text-on-surface transition-all focus:ring-2 focus:border-transparent ${
-                  errors.issue_date
-                    ? 'border-red-500 focus:ring-red-500'
-                    : 'border-outline focus:ring-primary'
-                } ${disabled ? 'opacity-70 cursor-not-allowed' : ''}`}
-              />
-              {errors.issue_date && (
-                <p className="mt-1 text-xs text-red-500 font-medium">{errors.issue_date}</p>
-              )}
-            </div>
+            <DatePicker
+              label="Ngày Cấp"
+              required
+              value={form.issue_date}
+              onChange={(val) => {
+                setForm((prev) => ({ ...prev, issue_date: val }));
+                if (errors.issue_date) setErrors((er) => ({ ...er, issue_date: undefined }));
+              }}
+              disabled={disabled}
+              error={errors.issue_date}
+              className="w-full"
+            />
 
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">

@@ -6,6 +6,7 @@ import { useZones } from '@/components/providers/zones-provider';
 import { useUpdateHousehold } from '../../queries/useHouseholdMutations';
 import { FieldLabel, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { Loader2, Save, X } from 'lucide-react';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 interface HouseholdEditModalProps {
   household: Household;
@@ -139,17 +140,12 @@ export function HouseholdEditModal({ household, isOpen, onClose }: HouseholdEdit
             </div>
 
 
-            <div className="space-y-1.5">
-              <FieldLabel>Ngày Cấp Sổ</FieldLabel>
-              <input 
-                type="date"
-                name="book_issue_date"
-                value={formData.book_issue_date}
-                onChange={handleChange}
-                disabled={isSubmitting}
-                className={getInputCls(isSubmitting)}
-              />
-            </div>
+            <DatePicker
+              label="Ngày Cấp Sổ"
+              value={formData.book_issue_date}
+              onChange={(val) => setFormData((prev) => ({ ...prev, book_issue_date: val }))}
+              disabled={isSubmitting}
+            />
 
 
 

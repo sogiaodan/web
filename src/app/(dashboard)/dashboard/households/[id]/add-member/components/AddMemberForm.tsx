@@ -9,6 +9,7 @@ import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useAddMemberToHousehold } from '../../../queries/useHouseholdMutations';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 // ─── Typeahead Lookup ─────────────────────────────────────────────────────────
 
@@ -490,18 +491,18 @@ export function AddMemberForm({ household }: { household: Household }) {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <FieldLabel required>Ngày sinh</FieldLabel>
-              <input
-                type="date"
-                value={formData.birth_date}
-                onChange={(e) => { set('birth_date', e.target.value); if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined })); }}
-                disabled={isSubmitting}
-                max={new Date().toISOString().split('T')[0]}
-                className={getInputCls(isSubmitting, !!errors.birth_date)}
-              />
-              <FieldError message={errors.birth_date} />
-            </div>
+            <DatePicker
+              label="Ngày sinh"
+              required
+              value={formData.birth_date}
+              onChange={(val) => {
+                set('birth_date', val);
+                if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined }));
+              }}
+              disabled={isSubmitting}
+              error={errors.birth_date}
+              max={new Date().toLocaleDateString('en-CA')}
+            />
 
             <div className="space-y-1.5">
               <FieldLabel required>Trạng thái sinh hoạt</FieldLabel>
@@ -522,17 +523,13 @@ export function AddMemberForm({ household }: { household: Household }) {
             </div>
 
             {formData.status === 'DECEASED' && (
-               <div className="space-y-1.5">
-                  <FieldLabel>Ngày qua đời</FieldLabel>
-                  <input
-                     type="date"
-                     value={formData.date_of_death}
-                     onChange={(e) => set('date_of_death', e.target.value)}
-                     disabled={isSubmitting}
-                     max={new Date().toISOString().split('T')[0]}
-                     className={getInputCls(isSubmitting)}
-                  />
-               </div>
+               <DatePicker
+                  label="Ngày qua đời"
+                  value={formData.date_of_death}
+                  onChange={(val) => set('date_of_death', val)}
+                  disabled={isSubmitting}
+                  max={new Date().toLocaleDateString('en-CA')}
+               />
             )}
 
             {!formData.existing_parishioner_id && (

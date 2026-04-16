@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
 import Image from 'next/image';
 import { Household, ParishionerSummary, Zone } from '@/types/household';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 type WizardState = {
   personA: ParishionerSummary | null;
@@ -138,13 +139,11 @@ export function SplitWizard({ originHousehold, zones }: { originHousehold: House
                     />
                   </div>
                   <div className="space-y-2">
-                    <label className="text-sm font-bold text-muted uppercase tracking-wide">Ngày lập hộ</label>
-                    <input 
+                    <DatePicker
+                      label="Ngày lập hộ"
                       value={wizardData.bookIssueDate}
-                      onChange={e => setWizardData(prev => ({...prev, bookIssueDate: e.target.value}))}
+                      onChange={(val) => setWizardData(prev => ({ ...prev, bookIssueDate: val }))}
                       disabled={step === 3}
-                      className="w-full border-outline rounded focus:ring-primary focus:border-primary text-sm disabled:bg-surface-container" 
-                      type="date" 
                     />
                   </div>
                   <div className="md:col-span-2 space-y-2">

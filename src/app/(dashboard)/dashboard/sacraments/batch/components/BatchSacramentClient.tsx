@@ -12,6 +12,7 @@ import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/s
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useBatchCreateSacraments } from '../../queries/useSacramentMutations';
 import { useAuth } from '@/components/providers/auth-provider';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 interface GeneralInfo {
   date: string;
@@ -284,11 +285,13 @@ export function BatchSacramentClient() {
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div>
-            <FieldLabel required>Ngày cử hành</FieldLabel>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-[18px]">calendar_today</span>
-              <input type="date" value={generalInfo.date} onChange={e => setGeneralInfo({...generalInfo, date: e.target.value})} max={new Date().toISOString().substring(0,10)} className={`${getInputCls(isSubmitting)} pl-10`} />
-            </div>
+            <DatePicker
+              label="Ngày cử hành"
+              required
+              value={generalInfo.date}
+              onChange={(val) => setGeneralInfo({ ...generalInfo, date: val })}
+              max={new Date().toLocaleDateString('en-CA')}
+            />
           </div>
           <div>
             <FieldLabel required>Địa điểm cử hành</FieldLabel>
@@ -354,8 +357,13 @@ export function BatchSacramentClient() {
                       required
                     />
                     <div className="flex-1">
-                      <FieldLabel required>Ngày sinh</FieldLabel>
-                      <input type="date" value={bBirthDate} onChange={e => setBBirthDate(e.target.value)} max={new Date().toISOString().substring(0,10)} className={`${getInputCls(isSubmitting)} py-[7px]`} />
+                      <DatePicker
+                        label="Ngày sinh"
+                        required
+                        value={bBirthDate}
+                        onChange={(val) => setBBirthDate(val)}
+                        max={new Date().toLocaleDateString('en-CA')}
+                      />
                     </div>
                   </div>
 
