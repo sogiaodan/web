@@ -326,6 +326,7 @@ export default function AddHouseholdPage() {
           <SectionHeader
             icon="home"
             title="Thông Tin Hộ Giáo"
+            className="px-6 pt-6"
           />
           
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
@@ -393,9 +394,17 @@ export default function AddHouseholdPage() {
               />
             </div>
 
-
-
-
+            <div className="space-y-1.5">
+              <FieldLabel>Số Quyển / Số Thứ Tự</FieldLabel>
+              <input 
+                type="text"
+                name="physical_book_no"
+                placeholder="Ví dụ: Q-05, STT-123"
+                value={formData.physical_book_no}
+                onChange={handleChange}
+                className={getInputCls(isSubmitting)}
+              />
+            </div>
 
             <div className="md:col-span-2 pt-2">
               <button
@@ -406,7 +415,7 @@ export default function AddHouseholdPage() {
                 <span className="mr-2 h-5 w-5 bg-sacred-crimson/10 rounded-full flex items-center justify-center font-serif">
                   {showOptional ? '−' : '+'}
                 </span>
-                {showOptional ? 'Ẩn bớt các trường không bắt buộc' : 'Hiển thị thêm các thông tin bổ sung (Số quyển, Ghi chú...)'}
+                {showOptional ? 'Ẩn bớt các trường không bắt buộc' : 'Hiển thị thêm các thông tin bổ sung (Địa chỉ, Ghi chú...)'}
               </button>
             </div>
 
@@ -426,17 +435,7 @@ export default function AddHouseholdPage() {
                     />
                   </div>
                 </div>
-                <div className="space-y-1.5">
-                  <FieldLabel>Số Quyển / Số Thứ Tự</FieldLabel>
-                  <input 
-                    type="text"
-                    name="physical_book_no"
-                    placeholder="Ví dụ: Q-05, STT-123"
-                    value={formData.physical_book_no}
-                    onChange={handleChange}
-                    className={getInputCls(isSubmitting)}
-                  />
-                </div>
+
 
 
                 <div className="space-y-1.5 md:col-span-2">
@@ -461,6 +460,7 @@ export default function AddHouseholdPage() {
           <SectionHeader
             icon="person"
             title="Thông Tin Chủ Hộ"
+            className="px-6 pt-6"
           />
           
           <div className="p-6 grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">

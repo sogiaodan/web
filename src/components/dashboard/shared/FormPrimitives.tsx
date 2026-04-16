@@ -32,7 +32,7 @@ export function FieldError({ message }: { message?: string }) {
  */
 export function SectionHeader({ icon, title, subtitle, className = '' }: { icon: string; title: string; subtitle?: string; className?: string }) {
   return (
-    <div className={`flex items-start gap-3 mb-6 pb-4 border-b border-[#E7E5E4] ${className}`}>
+    <div className={`flex items-center gap-3 mb-6 pb-4 border-b border-[#E7E5E4] ${className}`}>
       <div className="w-9 h-9 rounded bg-primary/10 flex items-center justify-center shrink-0">
         <span className="material-symbols-outlined text-primary text-lg">{icon}</span>
       </div>
