@@ -13,6 +13,10 @@ jobs:
       pull-requests: write
       contents: read
 
+    env:
+      # GitHub CLI requires GH_TOKEN to be set in Actions
+      GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -21,9 +25,5 @@ jobs:
         run: gh extension install github/gh-copilot
         
       - name: Request Copilot Review
-        env:
-          # GitHub recommends using a PAT with 'Copilot: Read/Write' named COPILOT_GITHUB_TOKEN
-          # for any automation involving Copilot.
-          GH_TOKEN: ${{ secrets.COPILOT_GITHUB_TOKEN || secrets.GITHUB_TOKEN }}
         run: |
-          gh pr edit ${{ github.event.pull_request.number }} --add-reviewer copilot
+          gh pr edit ${{ github.event.pull_request.number }} --add-reviewer github-copilot
