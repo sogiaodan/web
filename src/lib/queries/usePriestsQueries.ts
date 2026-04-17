@@ -77,6 +77,7 @@ export function useCreatePriest() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PRIESTS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
       toast.success('Thêm linh mục thành công');
     },
     onError: (err: unknown) => {
@@ -112,6 +113,7 @@ export function useDeletePriest() {
       apiFetch<void>(`/api/v1/priests/${id}`, { method: 'DELETE' }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [PRIESTS_QUERY_KEY] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
       toast.success('Đã xóa linh mục thành công');
     },
     onError: (err: unknown) => {

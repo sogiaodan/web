@@ -39,6 +39,7 @@ export function AuthProvider({
   const pathname = usePathname();
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
+  const pendingRedirect = useRef<string | null>(null);
 
   const loadUser = useCallback(async (forceLoading = true) => {
     if (isCheckingRef.current) return;
@@ -124,8 +125,13 @@ export function AuthProvider({
       redirectSentinel.current.count = 0;
     }
 
+    if (pendingRedirect.current === pathname) {
+      pendingRedirect.current = null; // Navigation completed
+    }
+
     const performRedirect = (target: string) => {
       if (pathname === target) return; // ALREADY THERE - prevent redundant history entries and requests
+      if (pendingRedirect.current === target) return; // ALREADY NAVIGATING
       
       if (redirectSentinel.current.count > 2) {
         console.error(`[auth-sentinel] Loop detected! Blocking redirect to ${target} from ${pathname}`);
@@ -134,6 +140,7 @@ export function AuthProvider({
       
       redirectSentinel.current.count++;
       redirectSentinel.current.lastTime = now;
+      pendingRedirect.current = target;
       console.log(`[auth] Redirecting (${redirectSentinel.current.count}/3) to ${target} from ${pathname}`);
       router.replace(target);
     };

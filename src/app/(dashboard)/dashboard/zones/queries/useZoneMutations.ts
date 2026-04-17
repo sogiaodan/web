@@ -16,6 +16,7 @@ export function useCreateZone() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["zones"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
     },
   });
 }
@@ -48,6 +49,7 @@ export function useDeleteZone(id: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["zones"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
     },
   });
 }

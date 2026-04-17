@@ -14,6 +14,7 @@ export function useDeleteHousehold(id: string) {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["households"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
     },
   });
 }
@@ -30,6 +31,7 @@ export function useCreateHousehold() {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["households"] });
+      queryClient.invalidateQueries({ queryKey: ["dashboard_summary"] });
     },
   });
 }

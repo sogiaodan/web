@@ -23,6 +23,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
   const pathname = usePathname();
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
+  const pendingRedirect = useRef<string | null>(null);
 
   const hasAttemptedFetch = useRef(false);
 
@@ -129,8 +130,13 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       redirectSentinel.current.count = 0;
     }
 
+    if (pendingRedirect.current === pathname) {
+      pendingRedirect.current = null;
+    }
+
     const performRedirect = (target: string) => {
       if (pathname === target) return; 
+      if (pendingRedirect.current === target) return;
       
       if (redirectSentinel.current.count > 2) {
         console.error(`[system-admin-sentinel] Loop detected! Blocking redirect to ${target}`);
@@ -139,6 +145,7 @@ export function SystemAdminProvider({ children }: { children: React.ReactNode })
       
       redirectSentinel.current.count++;
       redirectSentinel.current.lastTime = now;
+      pendingRedirect.current = target;
       router.replace(target);
     };
 
