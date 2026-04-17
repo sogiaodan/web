@@ -13,6 +13,7 @@ export interface ParishionerSummary {
   relationship_to_head?: string;
   marital_status?: string;
   phone_number?: string;
+  origin_household_id?: string;
 }
 
 export interface SplitMemberSummary {

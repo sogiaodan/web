@@ -91,12 +91,30 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
   const onSubmit = async (data: MarriageFormValues) => {
     if (readOnly) return;
     try {
+      // Create a clean payload object from data
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      const { non_catholic_name, non_catholic_gender, ...cleanData } = data;
+      const payload: any = { ...cleanData };
+
+      // Map non_catholic_party if mixed religion
+      if (data.is_mixed_religion && non_catholic_name && non_catholic_gender) {
+        payload.non_catholic_party = {
+          full_name: non_catholic_name,
+          gender: non_catholic_gender
+        };
+      }
+
+      // Remove empty string fields that cause validation errors
+      if (!payload.minister_id) delete payload.minister_id;
+      if (!payload.witness_1_name) delete payload.witness_1_name;
+      if (!payload.witness_2_name) delete payload.witness_2_name;
+      if (!payload.marriage_date) delete payload.marriage_date;
+
       if (isEdit) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { husband_id, wife_id, create_household, ...updateData } = data;
+        const { husband_id, wife_id, create_household, ...updateData } = payload;
         await updateMutation.mutateAsync(updateData);
       } else {
-        const payload = { ...data, type: 'MARRIAGE' };
         await createMutation.mutateAsync(payload);
       }
 

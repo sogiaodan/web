@@ -73,12 +73,17 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
   const onSubmit = async (data: SacramentFormValues) => {
     if (readOnly) return;
     try {
+      const payload: any = { ...data };
+      if (!payload.minister_id) delete payload.minister_id;
+      if (!payload.date) delete payload.date;
+      if (!payload.godparent_name) delete payload.godparent_name;
+
       if (isEdit) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { parishioner_id, ...updateData } = data;
+        const { parishioner_id, ...updateData } = payload;
         await updateMutation.mutateAsync(updateData);
       } else {
-        const payload = { ...data, type };
+        payload.type = type;
         await createMutation.mutateAsync(payload);
       }
 

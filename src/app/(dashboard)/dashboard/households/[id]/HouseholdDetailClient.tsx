@@ -6,6 +6,7 @@ import { StatusSyncAlert } from "./components/StatusSyncAlert";
 import { CoupleCards } from "./components/CoupleCards";
 import { MembersTable } from "./components/MembersTable";
 import { SplitMembersSection } from "./components/SplitMembersSection";
+import { ParentHouseholdsSection } from "./components/ParentHouseholdsSection";
 import Link from "next/link";
 
 export default function HouseholdDetailClient({ id }: { id: string }) {
@@ -66,6 +67,11 @@ export default function HouseholdDetailClient({ id }: { id: string }) {
           <CoupleCards household={householdData} />
           <MembersTable members={householdData.current_members || []} />
           <SplitMembersSection members={householdData.split_members || []} />
+          <ParentHouseholdsSection
+            head={householdData.head}
+            spouse={householdData.spouse}
+            currentHouseholdId={householdData.id}
+          />
         </div>
       </div>
     </div>

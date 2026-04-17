@@ -13,7 +13,8 @@ import {
   CloudDownload,
   RefreshCw,
   HelpCircle,
-  MoreVertical
+  MoreVertical,
+  UserSearch
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { SettingsAccountsAPI } from '@/lib/api/settings';
@@ -102,6 +103,14 @@ export default function SettingsPage() {
       label: 'Tên Thánh',
       subtitle: 'Danh mục tên Thánh sử dụng trong hồ sơ',
       href: '/settings/saints',
+      show: isAdmin || isEditor,
+    },
+    {
+      id: 'priests',
+      icon: UserSearch,
+      label: 'Quản lý Linh mục',
+      subtitle: 'Danh sách linh mục cử hành bí tích trong giáo xứ',
+      href: '/settings/priests',
       show: isAdmin || isEditor,
     },
     {
