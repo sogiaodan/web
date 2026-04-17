@@ -60,7 +60,7 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Đã xuất danh sách giáo dân.');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Lỗi hệ thống khi xuất dữ liệu.');
     } finally {
       setIsExporting(false);

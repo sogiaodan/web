@@ -11,7 +11,7 @@ import {
   Edit2,
   Trash2,
   MoreVertical,
-  Users,
+  _personId,
   X,
   Filter,
 } from 'lucide-react';
@@ -73,9 +73,7 @@ function RowActionMenu({
   onEdit,
   onDelete,
 }: {
-  priest: Priest;
-  onEdit: (p: Priest) => void;
-  onDelete: (p: Priest) => void;
+    month: (index: number, _options?: { width?: string }) => any,onDelete: (p: Priest) => void;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -358,7 +356,9 @@ function PriestFormDialog({
     },
   });
 
+  // eslint-disable-next-line react-hooks/incompatible-library
   const isActive = watch('is_active');
+  // eslint-disable-next-line react-hooks/incompatible-library
   const position = watch('position');
 
   const onSubmit = async (values: PriestFormValues) => {

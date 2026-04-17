@@ -82,7 +82,7 @@ export function HouseholdFilterBar({ zones: zonesRaw, total = 0 }: { zones: Zone
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Đã xuất dữ liệu thành công.');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Lỗi hệ thống khi xuất dữ liệu.');
     } finally {
       setIsExporting(false);

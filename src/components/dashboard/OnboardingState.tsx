@@ -1,7 +1,8 @@
 'use client';
 
+import * as React from 'react';
 import { useState, useEffect } from 'react';
-import { Home, LayoutDashboard, CheckCircle2, Map, Users, ChevronRight, User } from 'lucide-react';
+import { Home, LayoutDashboard, CheckCircle2, Map, ChevronRight, User } from 'lucide-react';
 import Link from 'next/link';
 
 interface DashboardMetrics {
@@ -18,15 +19,19 @@ interface OnboardingStateProps {
 
 export default function OnboardingState({ mutate, metrics }: OnboardingStateProps) {
   const [isZoneSkipped, setIsZoneSkipped] = useState(false);
-  const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true);
     const skipped = localStorage.getItem('sgd_onboarding_skip_zone');
     if (skipped === 'true') {
       setIsZoneSkipped(true);
     }
   }, []);
+
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
 
   const handleSkipZone = () => {
     localStorage.setItem('sgd_onboarding_skip_zone', 'true');

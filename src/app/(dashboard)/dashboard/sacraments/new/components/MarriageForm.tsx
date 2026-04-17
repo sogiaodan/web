@@ -92,9 +92,8 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
     if (readOnly) return;
     try {
       // Create a clean payload object from data
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       const { non_catholic_name, non_catholic_gender, ...cleanData } = data;
-      const payload: any = { ...cleanData };
+      const payload: Record<string, unknown> = { ...cleanData };
 
       // Map non_catholic_party if mixed religion
       if (data.is_mixed_religion && non_catholic_name && non_catholic_gender) {

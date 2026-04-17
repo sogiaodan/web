@@ -36,7 +36,7 @@ export default function HouseholdSplitClient({ id }: { id: string }) {
   const { register, handleSubmit, control, formState: { errors } } = useForm<SplitFormValues>({
     resolver: zodResolver(splitSchema),
     values: householdData ? {
-      zone_id: householdData.zone_id,
+      zone_id: householdData.zone_id || '',
       address: householdData.address || '',
       household_code: '',
       pastoral_notes: '',

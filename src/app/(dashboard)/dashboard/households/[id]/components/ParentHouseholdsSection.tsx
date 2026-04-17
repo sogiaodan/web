@@ -22,11 +22,11 @@ function useOriginHousehold(id?: string) {
 
 function OriginHouseholdCard({
   title,
-  personId,
+  _personId,
   originHouseholdId,
 }: {
   title: string;
-  personId?: string;
+  _personId?: string;
   originHouseholdId?: string;
 }) {
   const { data, isLoading } = useOriginHousehold(originHouseholdId);
