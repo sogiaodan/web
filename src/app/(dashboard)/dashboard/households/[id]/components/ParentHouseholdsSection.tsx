@@ -22,11 +22,9 @@ function useOriginHousehold(id?: string) {
 
 function OriginHouseholdCard({
   title,
-  _personId,
   originHouseholdId,
 }: {
   title: string;
-  _personId?: string;
   originHouseholdId?: string;
 }) {
   const { data, isLoading } = useOriginHousehold(originHouseholdId);
@@ -111,14 +109,12 @@ export function ParentHouseholdsSection({ head, spouse, currentHouseholdId }: Pr
         {headOriginId && (
           <OriginHouseholdCard
             title="Cha Mẹ Chủ Hộ"
-            personId={head?.id}
             originHouseholdId={headOriginId}
           />
         )}
         {spouseOriginId && (
           <OriginHouseholdCard
             title="Cha Mẹ Vợ / Chồng"
-            personId={spouse?.id}
             originHouseholdId={spouseOriginId}
           />
         )}

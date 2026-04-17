@@ -21,7 +21,7 @@ const customViLocale = {
   ...vi,
   localize: {
     ...vi.localize,
-    month: (index: number, _options?: { width?: string }) => MONTHS[index] ?? MONTHS[0],
+    month: (index: number) => MONTHS[index] ?? MONTHS[0],
   },
 };
 

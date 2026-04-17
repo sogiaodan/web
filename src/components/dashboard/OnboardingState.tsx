@@ -23,7 +23,9 @@ export default function OnboardingState({ mutate, metrics }: OnboardingStateProp
   useEffect(() => {
     const skipped = localStorage.getItem('sgd_onboarding_skip_zone');
     if (skipped === 'true') {
-      setIsZoneSkipped(true);
+      queueMicrotask(() => {
+        setIsZoneSkipped(true);
+      });
     }
   }, []);
 

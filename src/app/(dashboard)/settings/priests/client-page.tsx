@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback, useRef, useEffect } from 'react';
 import Link from 'next/link';
-import { useForm } from 'react-hook-form';
+import { useForm, useWatch } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import {
@@ -11,7 +11,7 @@ import {
   Edit2,
   Trash2,
   MoreVertical,
-  _personId,
+  Users,
   X,
   Filter,
 } from 'lucide-react';
@@ -73,7 +73,9 @@ function RowActionMenu({
   onEdit,
   onDelete,
 }: {
-    month: (index: number, _options?: { width?: string }) => any,onDelete: (p: Priest) => void;
+  priest: Priest;
+  onEdit: (p: Priest) => void;
+  onDelete: (p: Priest) => void;
 }) {
   const [open, setOpen] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -339,9 +341,9 @@ function PriestFormDialog({
   const updateMutation = useUpdatePriest();
 
   const {
+    control,
     register,
     handleSubmit,
-    watch,
     setValue,
     formState: { errors, isSubmitting },
   } = useForm<PriestFormValues>({
@@ -356,10 +358,8 @@ function PriestFormDialog({
     },
   });
 
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const isActive = watch('is_active');
-  // eslint-disable-next-line react-hooks/incompatible-library
-  const position = watch('position');
+  const isActive = useWatch({ control, name: 'is_active' });
+  const position = useWatch({ control, name: 'position' });
 
   const onSubmit = async (values: PriestFormValues) => {
     const payload: CreatePriestPayload = {

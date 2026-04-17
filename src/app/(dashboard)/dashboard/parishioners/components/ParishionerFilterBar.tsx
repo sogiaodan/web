@@ -83,7 +83,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
       window.URL.revokeObjectURL(url);
       document.body.removeChild(a);
       toast.success('Đã xuất dữ liệu thành công.');
-    } catch (_error) {
+    } catch {
       toast.error('Lỗi hệ thống khi xuất dữ liệu.');
     } finally {
       setIsExporting(false);
