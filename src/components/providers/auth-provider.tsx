@@ -51,10 +51,14 @@ export function AuthProvider({
       setIsLoading(true);
     }
     
-    // Safety timeout
+    // Safety timeout: stop loading if the request stalls.
+    // Only clear the user session if this is a forced load (initial mount when session is missing).
+    // Background refreshes (e.g. from popstate) should NOT clear the user if the network stalls.
     const timeout = setTimeout(() => {
       setIsLoading(false);
-      setUser(null);
+      if (forceLoading) {
+        setUser(null);
+      }
       isCheckingRef.current = false;
     }, 5000);
 

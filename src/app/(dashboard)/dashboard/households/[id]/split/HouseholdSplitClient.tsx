@@ -35,9 +35,16 @@ export default function HouseholdSplitClient({ id }: { id: string }) {
 
   const { register, handleSubmit, control, formState: { errors } } = useForm<SplitFormValues>({
     resolver: zodResolver(splitSchema),
-    defaultValues: {
-      zone_id: householdData?.zone_id || '',
-      address: householdData?.address || '',
+    values: householdData ? {
+      zone_id: householdData.zone_id,
+      address: householdData.address || '',
+      household_code: '',
+      pastoral_notes: '',
+      physical_book_no: '',
+      book_issue_date: '',
+    } : undefined,
+    resetOptions: {
+      keepDirtyValues: true, // Prevent overwriting user input if data re-fetches
     }
   });
 
@@ -51,8 +58,8 @@ export default function HouseholdSplitClient({ id }: { id: string }) {
       head_id: childId,
       member_ids: [childId],
     }, {
-      onSuccess: () => {
-        router.push(`/dashboard/households/${id}`);
+      onSuccess: (result) => {
+        router.push(`/dashboard/households/${result?.id ?? id}`);
       }
     });
   };

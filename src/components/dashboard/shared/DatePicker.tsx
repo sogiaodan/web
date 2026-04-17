@@ -2,7 +2,6 @@
 
 import * as React from 'react';
 import { format, parse, parseISO, isValid } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import { Calendar as CalendarIcon } from 'lucide-react';
 
 import { cn } from '@/lib/utils';
