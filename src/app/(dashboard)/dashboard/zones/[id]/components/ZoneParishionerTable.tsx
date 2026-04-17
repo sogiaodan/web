@@ -1,9 +1,11 @@
 'use client';
 
+import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ParishionerLookup } from '@/types/zone';
 import { ZoneParishionerFilterBar } from './ZoneParishionerFilterBar';
+import { toast } from 'sonner';
 
 interface ZoneParishionerTableProps {
   zoneId: string;
@@ -17,6 +19,7 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const [isExporting, setIsExporting] = useState(false);
 
   const totalPages = Math.ceil(total / limit) || 1;
   const startIdx = (page - 1) * limit + 1;
@@ -30,8 +33,38 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
   };
 
   const handleExportCSV = async () => {
-    // Basic export redirect or direct fetch with download
-    window.location.href = `/api/v1/zones/${zoneId}/parishioners/export`;
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('page');
+      params.delete('limit');
+      
+      const response = await fetch(`/api/v1/zones/${zoneId}/parishioners/export?${params.toString()}`);
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast.error('Gửi yêu cầu quá nhanh. Vui lòng thử lại sau 1 phút.');
+        } else {
+          toast.error('Xuất dữ liệu thất bại. Vui lòng thử lại.');
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `giaokhu_${zoneId.slice(0, 8)}_export_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Đã xuất danh sách giáo dân.');
+    } catch (error) {
+      toast.error('Lỗi hệ thống khi xuất dữ liệu.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -44,10 +77,15 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
         <div className="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
           <button 
             onClick={handleExportCSV}
-            className="w-full sm:w-auto flex items-center justify-center gap-2 border border-outline px-4 py-2 rounded text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95"
+            disabled={isExporting || items.length === 0}
+            className="w-full sm:w-auto flex items-center justify-center gap-2 border border-outline px-4 py-2 rounded text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-[18px]">download</span>
-            Xuất File
+            {isExporting ? (
+               <span className="material-symbols-outlined text-[18px] animate-spin text-primary">progress_activity</span>
+            ) : (
+              <span className="material-symbols-outlined text-[18px]">download</span>
+            )}
+            <span>{isExporting ? 'Đang xuất...' : 'Xuất File'}</span>
           </button>
         </div>
       </div>

@@ -58,6 +58,7 @@ export function ParishionerListClient() {
       <ParishionerFilterBar
         zones={zones}
         canEdit={canEdit}
+        total={total}
         filterDrawerSlot={<AdvancedFilterDrawer zones={zones} />}
       />
       <ParishionerTable

@@ -24,7 +24,8 @@ import { FormInput } from '@/components/ui/FormInput';
 import { AlertTriangle, Trash2 } from 'lucide-react';
 import { 
   useBackupStatusQuery, 
-  useBackupMutation 
+  useBackupMutation,
+  useExportExcelMutation
 } from '@/lib/queries/useSettingsQueries';
 import FeedbackModal from '@/components/dashboard/FeedbackModal';
 import { useQueryClient } from '@tanstack/react-query';
@@ -35,6 +36,7 @@ export default function SettingsPage() {
   
   const { data: backupData } = useBackupStatusQuery();
   const backupMutation = useBackupMutation();
+  const exportExcelMutation = useExportExcelMutation();
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isFeedbackModalOpen, setIsFeedbackModalOpen] = useState(false);
@@ -81,6 +83,10 @@ export default function SettingsPage() {
 
   const handleBackup = () => {
     backupMutation.mutate();
+  };
+
+  const handleExportExcel = () => {
+    exportExcelMutation.mutate();
   };
 
 
@@ -239,20 +245,36 @@ export default function SettingsPage() {
                   Tải xuống bản sao lưu toàn bộ dữ liệu hiện tại
                 </span>
               </div>
-              <button
-                onClick={handleBackup}
-                disabled={backupMutation.isPending}
-                className="shrink-0 inline-flex items-center justify-center rounded bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] md:min-h-[36px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {backupMutation.isPending ? (
-                  <span className="flex items-center gap-2">
-                    <LoadingSpinner className="h-4 w-4 text-white" />
-                    Đang xử lý...
-                  </span>
-                ) : (
-                  'Sao lưu ngay'
-                )}
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={handleExportExcel}
+                  disabled={exportExcelMutation.isPending || backupMutation.isPending}
+                  className="shrink-0 inline-flex items-center justify-center rounded border border-primary px-4 py-1.5 text-sm font-medium text-primary hover:bg-primary/5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] md:min-h-[36px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {exportExcelMutation.isPending ? (
+                    <span className="flex items-center gap-2">
+                       <LoadingSpinner className="h-4 w-4" />
+                       Đang xuất...
+                    </span>
+                  ) : (
+                    'Xuất Excel'
+                  )}
+                </button>
+                <button
+                  onClick={handleBackup}
+                  disabled={backupMutation.isPending || exportExcelMutation.isPending}
+                  className="shrink-0 inline-flex items-center justify-center rounded bg-primary px-4 py-1.5 text-sm font-medium text-white hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary min-h-[48px] md:min-h-[36px] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {backupMutation.isPending ? (
+                    <span className="flex items-center gap-2">
+                      <LoadingSpinner className="h-4 w-4 text-white" />
+                      Đang xử lý...
+                    </span>
+                  ) : (
+                    'Sao lưu ngay'
+                  )}
+                </button>
+              </div>
             </div>
           )}
 

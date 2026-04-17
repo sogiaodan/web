@@ -1,10 +1,11 @@
 'use client';
 
-import { useTransition, useCallback } from 'react';
+import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
+import { toast } from 'sonner';
 import { CertificateTypeTabs } from './CertificateTypeTabs';
 import { CertificateFilterBar } from './CertificateFilterBar';
 import { CertificateTable } from './CertificateTable';
@@ -19,6 +20,7 @@ export function CertificateListClient() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
 
   const activeTab: CertificateType = (searchParams.get('type') as CertificateType) || 'MARRIAGE_PREP';
   const page = Number(searchParams.get('page')) || 1;
@@ -57,10 +59,38 @@ export function CertificateListClient() {
     });
   }, [pathname, router, searchParams]);
 
-  const handleExport = () => {
-    const currentParams = new URLSearchParams(searchParams.toString());
-    currentParams.set('type', activeTab);
-    window.open(`/api/v1/catechism-certificates/export?${currentParams.toString()}`, '_blank');
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const currentParams = new URLSearchParams(searchParams.toString());
+      currentParams.set('type', activeTab);
+      
+      const response = await fetch(`/api/v1/catechism-certificates/export?${currentParams.toString()}`);
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast.error('Gửi yêu cầu quá nhanh. Vui lòng thử lại sau 1 phút.');
+        } else {
+          toast.error('Xuất dữ liệu thất bại. Vui lòng thử lại.');
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chungchi_${activeTab.toLowerCase()}_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`Đã xuất dữ liệu ${activeTab} thành công.`);
+    } catch (error) {
+      toast.error('Lỗi hệ thống khi xuất dữ liệu.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const items = response?.items || [];
@@ -95,6 +125,8 @@ export function CertificateListClient() {
         search={searchParams.get('search') || ''}
         onSearchChange={handleSearch}
         onExport={handleExport}
+        isExporting={isExporting}
+        total={total}
       />
 
       <CertificateTable

@@ -1,21 +1,24 @@
 'use client';
 
-import React, { useRef, useTransition } from 'react';
+import React, { useRef, useTransition, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/zone';
+import { toast } from 'sonner';
 
 interface Props {
   zones: Zone[];
   canEdit: boolean;
+  total?: number;
   filterDrawerSlot?: React.ReactNode;
 }
 
-export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlot }: Props) {
+export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filterDrawerSlot }: Props) {
   const zones = Array.isArray(zonesRaw) ? zonesRaw : [];
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
   const mobileSearchInputRef = useRef<HTMLInputElement>(null);
   const debounceRef = useRef<NodeJS.Timeout | null>(null);
@@ -52,11 +55,39 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
     }
   };
 
-  const handleExportCSV = () => {
-    const params = new URLSearchParams(searchParams.toString());
-    params.delete('page');
-    params.delete('limit');
-    window.open(`/api/v1/parishioners/export?${params.toString()}`, '_blank');
+  const handleExportCSV = async () => {
+    try {
+      setIsExporting(true);
+      const params = new URLSearchParams(searchParams.toString());
+      params.delete('page');
+      params.delete('limit');
+      
+      const response = await fetch(`/api/v1/parishioners/export?${params.toString()}`);
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast.error('Gửi yêu cầu quá nhanh. Vui lòng thử lại sau 1 phút.');
+        } else {
+          toast.error('Xuất dữ liệu thất bại. Vui lòng thử lại.');
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `giaodan_export_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success('Đã xuất dữ liệu thành công.');
+    } catch (error) {
+      toast.error('Lỗi hệ thống khi xuất dữ liệu.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   return (
@@ -96,10 +127,15 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
           <button
             id="export-csv-btn"
             onClick={handleExportCSV}
-            className="h-12 px-4 flex items-center gap-2 border border-primary text-primary text-sm font-medium rounded hover:bg-primary/5 transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1"
+            disabled={isExporting || total === 0}
+            className="h-12 px-4 flex items-center gap-2 border border-outline text-on-surface text-sm font-medium rounded hover:bg-surface-container transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <span className="material-symbols-outlined text-lg">download</span>
-            <span>Xuất CSV</span>
+            {isExporting ? (
+              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+            ) : (
+              <span className="material-symbols-outlined text-lg">download</span>
+            )}
+            <span>{isExporting ? 'Đang xuất...' : 'Xuất CSV'}</span>
           </button>
         )}
 
@@ -144,10 +180,15 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, filterDrawerSlo
           {canEdit && (
             <button
               onClick={handleExportCSV}
-              className="flex-1 h-12 flex items-center justify-center gap-2 border border-primary text-primary text-sm font-medium rounded hover:bg-primary/5 transition-all active:scale-95"
+              disabled={isExporting || total === 0}
+              className="flex-1 h-12 flex items-center justify-center gap-2 border border-outline text-on-surface text-sm font-medium rounded hover:bg-surface-container transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              <span className="material-symbols-outlined text-lg">download</span>
-              <span>Xuất CSV</span>
+              {isExporting ? (
+                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              ) : (
+                <span className="material-symbols-outlined text-lg">download</span>
+              )}
+              <span>{isExporting ? 'Đang xuất...' : 'Xuất CSV'}</span>
             </button>
           )}
         </div>

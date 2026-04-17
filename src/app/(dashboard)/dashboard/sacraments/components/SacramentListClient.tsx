@@ -1,10 +1,11 @@
 'use client';
 
-import { useTransition, useCallback } from 'react';
+import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Plus, Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
+import { toast } from 'sonner';
 import { SacramentTabs } from './SacramentTabs';
 import { SacramentFilterBar } from './SacramentFilterBar';
 import { SacramentTable } from './SacramentTable';
@@ -20,6 +21,7 @@ export function SacramentListClient() {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
+  const [isExporting, setIsExporting] = useState(false);
 
   const activeTab: SacramentType = (searchParams.get('type') as SacramentType) || 'BAPTISM';
   const isMarriage = activeTab === 'MARRIAGE';
@@ -61,13 +63,47 @@ export function SacramentListClient() {
     });
   }, [pathname, router, searchParams]);
 
-  const handleExport = () => {
-    const currentParams = new URLSearchParams(searchParams.toString());
-    const type = currentParams.get('type') || 'BAPTISM';
-    const isMarriageExport = type === 'MARRIAGE';
-    const baseUrl = isMarriageExport ? '/api/v1/sacraments/marriages/export' : '/api/v1/sacraments/export';
-    const exportUrl = `${baseUrl}?${currentParams.toString()}`;
-    window.open(exportUrl, '_blank');
+  const handleExport = async () => {
+    try {
+      setIsExporting(true);
+      const currentParams = new URLSearchParams(searchParams.toString());
+      const type = currentParams.get('type') || activeTab || 'BAPTISM';
+      
+      // Ensure type is explicitly set in parameters
+      if (!currentParams.has('type')) {
+        currentParams.set('type', type);
+      }
+
+      const isMarriageExport = type === 'MARRIAGE';
+      const baseUrl = isMarriageExport ? '/api/v1/sacraments/marriages/export' : '/api/v1/sacraments/export';
+      const exportUrl = `${baseUrl}?${currentParams.toString()}`;
+      
+      const response = await fetch(exportUrl);
+      
+      if (!response.ok) {
+        if (response.status === 429) {
+          toast.error('Gửi yêu cầu quá nhanh. Vui lòng thử lại sau 1 phút.');
+        } else {
+          toast.error('Xuất dữ liệu thất bại. Vui lòng thử lại.');
+        }
+        return;
+      }
+      
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bitich_${type.toLowerCase()}_${new Date().getTime()}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+      toast.success(`Đã xuất dữ liệu ${type} thành công.`);
+    } catch (error) {
+      toast.error('Lỗi hệ thống khi xuất dữ liệu.');
+    } finally {
+      setIsExporting(false);
+    }
   };
 
   const items = response?.items || [];
@@ -102,6 +138,8 @@ export function SacramentListClient() {
         search={searchParams.get('search') || ''}
         onSearchChange={handleSearch}
         onExport={handleExport}
+        isExporting={isExporting}
+        total={total}
       />
 
       {isMarriage ? (

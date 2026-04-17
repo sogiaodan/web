@@ -2,18 +2,22 @@
 
 import { useState, useEffect, useTransition } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import { Search, Download } from 'lucide-react';
+import { Search, Download, Loader2 } from 'lucide-react';
 
 interface CertificateFilterBarProps {
   search: string;
   onSearchChange: (val: string) => void;
   onExport: () => void;
+  isExporting?: boolean;
+  total?: number;
 }
 
 export function CertificateFilterBar({
   search,
   onSearchChange,
   onExport,
+  isExporting = false,
+  total = 0,
 }: CertificateFilterBarProps) {
   const [localSearch, setLocalSearch] = useState(search);
 
@@ -50,11 +54,16 @@ export function CertificateFilterBar({
 
       <button
         type="button"
-        className="flex items-center justify-center gap-2 px-4 bg-surface text-on-surface border border-outline rounded-sm hover:bg-surface-hover transition-colors h-[40px] md:h-9 outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="flex items-center justify-center gap-2 px-4 bg-surface text-on-surface border border-outline rounded-sm hover:bg-surface-hover transition-colors h-[40px] md:h-9 outline-none focus-visible:ring-2 focus-visible:ring-primary disabled:opacity-50 disabled:cursor-not-allowed"
         onClick={onExport}
+        disabled={isExporting || total === 0}
       >
-        <Download className="h-4 w-4" />
-        <span className="hidden md:inline">Xuất CSV</span>
+        {isExporting ? (
+          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+        ) : (
+          <Download className="h-4 w-4" />
+        )}
+        <span className="hidden md:inline">{isExporting ? 'Đang xuất...' : 'Xuất CSV'}</span>
       </button>
     </div>
   );
