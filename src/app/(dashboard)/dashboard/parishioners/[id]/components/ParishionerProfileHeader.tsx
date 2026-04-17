@@ -1,6 +1,5 @@
 import Link from 'next/link';
 import { ParishionerDetail, ParishionerStatus } from '@/types/parishioner';
-import { PrintCertificateButton } from './PrintCertificateButton';
 
 // ─── Status label/color helpers ───────────────────────────────────────────────
 
@@ -50,9 +49,16 @@ function formatDate(dateStr: string | null | undefined): string {
 
 function formatMaritalStatus(status: string | null | undefined): string {
   if (!status) return '—';
-  if (status === 'MARRIED') return 'Đã kết hôn';
-  if (status === 'SINGLE') return 'Độc thân';
-  return status;
+  const mapping: Record<string, string> = {
+    'SINGLE': 'Độc thân',
+    'MARRIED': 'Đã kết hôn',
+    'MIXED_RELIGION': 'Đã kết hôn (Khác đạo)',
+    'SEPARATED': 'Ly thân',
+    'DIVORCED': 'Ly dị',
+    'WIDOWED': 'Góa',
+    'IRREGULAR': 'Hôn phối ngăn trở',
+  };
+  return mapping[status] || status;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
@@ -172,7 +178,6 @@ export function ParishionerProfileHeader({ parishioner, canEdit }: Props) {
                 <span className="material-symbols-outlined text-lg">edit</span>
                 Chỉnh sửa
               </Link>
-              <PrintCertificateButton />
             </div>
           )}
         </div>

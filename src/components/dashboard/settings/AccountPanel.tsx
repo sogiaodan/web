@@ -28,7 +28,7 @@ const changePasswordSchema = z.object({
   current_password: z.string().min(1, 'Mật khẩu hiện tại không được để trống'),
   new_password: z.string()
     .min(8, 'Mật khẩu phải có ít nhất 8 ký tự')
-    .regex(/^[a-zA-Z0-9]+$/, 'Mật khẩu chỉ được chứa chữ cái và chữ số'),
+    .regex(/^(?=.*[a-zA-Z])(?=.*\d).*$/, 'Mật khẩu phải bao gồm cả chữ cái và chữ số'),
   confirm_password: z.string().min(1, 'Vui lòng xác nhận mật khẩu'),
 }).refine((data) => data.new_password === data.confirm_password, {
   message: 'Mật khẩu xác nhận không khớp',

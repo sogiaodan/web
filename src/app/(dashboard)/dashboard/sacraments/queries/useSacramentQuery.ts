@@ -19,7 +19,7 @@ export function useSacramentsQuery(params?: Record<string, string>) {
   return useQuery<SacramentListResponse | MarriageListResponse, Error>({
     queryKey: ["sacraments", isMarriage ? "marriages" : "standard", params],
     queryFn: () => apiFetch<SacramentListResponse | MarriageListResponse>(endpoint),
-    staleTime: 60_000,
+    staleTime: 60000,
   });
 }
 
@@ -33,6 +33,6 @@ export function useSacramentDetailQuery<T = any>(id: string, isMarriage: boolean
     queryKey: ["sacraments", isMarriage ? "marriages" : "standard", id],
     queryFn: () => apiFetch<T>(endpoint),
     enabled: !!id,
-    staleTime: 60_000,
+    staleTime: 60000,
   });
 }

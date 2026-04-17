@@ -107,29 +107,7 @@ function TimelineEntry({
               )}
             </div>
 
-            {/* Certificate thumbnail */}
-            {sacrament.certificate_url ? (
-              <a
-                href={sacrament.certificate_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 flex items-center gap-2 text-xs font-medium text-primary hover:underline underline-offset-2 transition-colors group"
-              >
-                <div className="w-10 h-10 bg-[#F5F5F4] border border-outline rounded overflow-hidden flex items-center justify-center shrink-0">
-                  <span className="material-symbols-outlined text-sm text-[#78716C]">
-                    description
-                  </span>
-                </div>
-                <span>Xem Giấy chứng nhận</span>
-                <span className="material-symbols-outlined text-sm group-hover:translate-x-0.5 transition-transform">
-                  open_in_new
-                </span>
-              </a>
-            ) : (
-              <p className="mt-2 text-xs text-[#78716C] italic font-body">
-                Chưa có giấy chứng nhận
-              </p>
-            )}
+
           </>
         ) : (
           /* Not received — muted dashed style per spec */

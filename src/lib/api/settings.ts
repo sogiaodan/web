@@ -106,6 +106,31 @@ export const SettingsAPI = {
     window.URL.revokeObjectURL(url);
   },
 
+  exportExcel: async (): Promise<void> => {
+    const response = await fetch('/api/v1/settings/export/excel', {
+      method: 'GET',
+      credentials: 'include',
+    });
+    
+    if (!response.ok) {
+      if (response.status === 429) {
+        throw new Error('Gửi yêu cầu quá nhanh. Vui lòng thử lại sau 1 phút.');
+      }
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.message || 'Xuất dữ liệu thất bại');
+    }
+
+    const blob = await response.blob();
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `sogiaodan_full_export_${new Date().getTime()}.xlsx`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  },
+
   getParishInfo: async (): Promise<ParishInfoResponse> => {
     const data = await apiFetch<ParishInfo>('/api/v1/settings/parish');
     return { data, message: '', status: 200 };

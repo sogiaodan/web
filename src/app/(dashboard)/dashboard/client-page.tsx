@@ -21,10 +21,8 @@ export default function DashboardOverviewPage() {
   const isActuallyLoading = isLoading && !data;
 
   // Detect empty state (onboarding case)
-  const isEmpty = data && 
-    data.metrics.total_parishioners === 0 && 
-    data.metrics.total_households === 0 && 
-    (data.activities?.length || 0) === 0;
+  // Dashboard is empty if there are no households explicitly created.
+  const isEmpty = data && data.metrics.total_households === 0;
 
   if (error) {
     return (
@@ -47,8 +45,8 @@ export default function DashboardOverviewPage() {
   }
 
   // If no data yet, show onboarding state
-  if (!isLoading && isEmpty) {
-    return <OnboardingState mutate={mutate} />;
+  if (!isLoading && isEmpty && data) {
+    return <OnboardingState mutate={mutate} metrics={data.metrics} />;
   }
 
   return (

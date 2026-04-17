@@ -40,11 +40,24 @@ export function useBackupMutation() {
     mutationFn: () => SettingsAPI.triggerBackup(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['settings', 'backup-status'] });
-      toast.success('Data backup successful');
+      toast.success('Sao lưu dữ liệu thành công');
     },
     onError: (err: unknown) => {
       const error = err as Error;
       toast.error(error.message || 'Có lỗi xảy ra trong quá trình sao lưu');
+    },
+  });
+}
+
+export function useExportExcelMutation() {
+  return useMutation({
+    mutationFn: () => SettingsAPI.exportExcel(),
+    onSuccess: () => {
+      toast.success('Xuất dữ liệu Excel thành công');
+    },
+    onError: (err: unknown) => {
+      const error = err as Error;
+      toast.error(error.message || 'Có lỗi xảy ra khi xuất dữ liệu');
     },
   });
 }

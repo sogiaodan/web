@@ -39,19 +39,24 @@ export function AuthProvider({
   const pathname = usePathname();
   const isCheckingRef = useRef(false);
   const redirectSentinel = useRef({ count: 0, lastTime: 0 });
+  const pendingRedirect = useRef<string | null>(null);
 
   const loadUser = useCallback(async (forceLoading = true) => {
     if (isCheckingRef.current) return;
     isCheckingRef.current = true;
 
-    if (forceLoading && !user) {
+    // Use a local variable or ref to track if we've successfully loaded
+    // instead of relying on the closure user which could be stale.
+    if (forceLoading) {
       setIsLoading(true);
     }
     
-    // Safety timeout
+    // Safety timeout: stop loading if the request stalls.
+    // Only clear the user session if this is a forced load (initial mount when session is missing).
+    // Background refreshes (e.g. from popstate) should NOT clear the user if the network stalls.
     const timeout = setTimeout(() => {
-      if (!user) {
-        setIsLoading(false);
+      setIsLoading(false);
+      if (forceLoading) {
         setUser(null);
       }
       isCheckingRef.current = false;
@@ -60,7 +65,10 @@ export function AuthProvider({
     try {
       const response = await authApi.getMe();
       if (response && response.user) {
-        setUser(response.user);
+        setUser(prev => {
+          if (JSON.stringify(prev) === JSON.stringify(response.user)) return prev;
+          return response.user;
+        });
       } else {
         setUser(null);
       }
@@ -84,7 +92,7 @@ export function AuthProvider({
       setIsLoading(false);
       isCheckingRef.current = false;
     }
-  }, [user]);
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -121,8 +129,13 @@ export function AuthProvider({
       redirectSentinel.current.count = 0;
     }
 
+    if (pendingRedirect.current === pathname) {
+      pendingRedirect.current = null; // Navigation completed
+    }
+
     const performRedirect = (target: string) => {
       if (pathname === target) return; // ALREADY THERE - prevent redundant history entries and requests
+      if (pendingRedirect.current === target) return; // ALREADY NAVIGATING
       
       if (redirectSentinel.current.count > 2) {
         console.error(`[auth-sentinel] Loop detected! Blocking redirect to ${target} from ${pathname}`);
@@ -131,6 +144,7 @@ export function AuthProvider({
       
       redirectSentinel.current.count++;
       redirectSentinel.current.lastTime = now;
+      pendingRedirect.current = target;
       console.log(`[auth] Redirecting (${redirectSentinel.current.count}/3) to ${target} from ${pathname}`);
       router.replace(target);
     };

@@ -10,6 +10,7 @@ import { PriestDropdown } from '@/components/ui/PriestDropdown';
 import { BookInfoFields } from '@/components/ui/BookInfoFields';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 const marriageSchema = z.object({
   husband_id: z.string().min(1, 'Vui lòng chọn Chú rể'),
@@ -90,12 +91,29 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
   const onSubmit = async (data: MarriageFormValues) => {
     if (readOnly) return;
     try {
+      // Create a clean payload object from data
+      const { non_catholic_name, non_catholic_gender, ...cleanData } = data;
+      const payload: Record<string, unknown> = { ...cleanData };
+
+      // Map non_catholic_party if mixed religion
+      if (data.is_mixed_religion && non_catholic_name && non_catholic_gender) {
+        payload.non_catholic_party = {
+          full_name: non_catholic_name,
+          gender: non_catholic_gender
+        };
+      }
+
+      // Remove empty string fields that cause validation errors
+      if (!payload.minister_id) delete payload.minister_id;
+      if (!payload.witness_1_name) delete payload.witness_1_name;
+      if (!payload.witness_2_name) delete payload.witness_2_name;
+      if (!payload.marriage_date) delete payload.marriage_date;
+
       if (isEdit) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { husband_id, wife_id, create_household, ...updateData } = data;
+        const { husband_id, wife_id, create_household, ...updateData } = payload;
         await updateMutation.mutateAsync(updateData);
       } else {
-        const payload = { ...data, type: 'MARRIAGE' };
         await createMutation.mutateAsync(payload);
       }
 
@@ -224,21 +242,21 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
             Thông tin Cử hành
           </h3>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                Ngày Cử hành
-              </label>
-              <input
-                type="date"
-                max={new Date().toISOString().substring(0, 10)}
-                disabled={readOnly}
-                {...register('marriage_date')}
-                className={`w-full bg-surface border rounded-sm px-3 py-3 text-sm font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${
-                  errors.marriage_date ? 'border-red-500 text-on-surface' : 'border-outline text-on-surface'
-                } ${readOnly ? 'opacity-70 cursor-not-allowed bg-surface-container' : ''}`}
-              />
-              {errors.marriage_date && <p className="mt-1 text-[10px] text-red-500">{errors.marriage_date.message}</p>}
-            </div>
+            <Controller
+              control={control}
+              name="marriage_date"
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày Cử hành"
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.marriage_date?.message}
+                  disabled={readOnly}
+                  max={new Date().toLocaleDateString('en-CA')}
+                  className="w-full"
+                />
+              )}
+            />
 
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">

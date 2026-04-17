@@ -15,6 +15,7 @@ import { useZones } from '@/components/providers/zones-provider';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 import { useCreateHousehold } from '../queries/useHouseholdMutations';
 // import { ParishionerLookup } from '@/types/parishioner';
 import { useCallback, useEffect, useRef } from 'react';
@@ -383,16 +384,13 @@ export default function AddHouseholdPage() {
                 </select>
               </div>
             </div>
-            <div className="space-y-1.5">
-              <FieldLabel>Ngày Cấp Sổ</FieldLabel>
-              <input 
-                type="date"
-                name="book_issue_date"
-                value={formData.book_issue_date}
-                onChange={handleChange}
-                className={getInputCls(isSubmitting)}
-              />
-            </div>
+            <DatePicker
+              label="Ngày Cấp Sổ"
+              value={formData.book_issue_date}
+              onChange={(val) => setFormData(p => ({ ...p, book_issue_date: val }))}
+              disabled={isSubmitting}
+              max={new Date().toLocaleDateString('en-CA')}
+            />
 
             <div className="space-y-1.5">
               <FieldLabel>Số Quyển / Số Thứ Tự</FieldLabel>
@@ -493,17 +491,14 @@ export default function AddHouseholdPage() {
               label="Giới Tính"
             />
 
-            <div className="space-y-1.5">
-              <FieldLabel required>Ngày Sinh</FieldLabel>
-              <input 
-                type="date"
-                name="birth_date"
-                value={formData.birth_date}
-                onChange={handleChange}
-                required
-                className={getInputCls(isSubmitting)}
-              />
-            </div>
+            <DatePicker
+              label="Ngày Sinh"
+              required
+              value={formData.birth_date}
+              onChange={(val) => setFormData(p => ({ ...p, birth_date: val }))}
+              disabled={isSubmitting}
+              max={new Date().toLocaleDateString('en-CA')}
+            />
 
             <div className="md:col-span-2 pt-2">
               <button

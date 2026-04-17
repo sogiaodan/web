@@ -12,7 +12,7 @@ interface NotificationPanelProps {
 
 function formatRelativeTime(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
-  const mins  = Math.floor(diff / 60_000);
+  const mins  = Math.floor(diff / 60000);
   const hours = Math.floor(mins / 60);
   const days  = Math.floor(hours / 24);
   if (days  > 0) return `${days} ngày trước`;

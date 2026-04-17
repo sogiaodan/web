@@ -7,8 +7,7 @@ import { ParishionerDetail, ParishionerLookup, ParishionerGender } from '@/types
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
-
-
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 // ─── Typeahead Lookup ─────────────────────────────────────────────────────────
 
 interface TypeaheadResult {
@@ -280,7 +279,16 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
       if (isEdit) {
         // Explicitly omit fields that are not allowed by the Update DTO or are handled elsewhere
         const updateData: Record<string, unknown> = { ...payload };
-        delete updateData.marital_status;
+        
+        // If marital status is protected (locked by household system), don't send it in update
+        const isMaritalProtected = !!initialData?.household?.id && 
+                                  (initialData?.relationship_to_head === 'HEAD' || 
+                                   initialData?.relationship_to_head === 'SPOUSE');
+        
+        if (isMaritalProtected) {
+          delete updateData.marital_status;
+        }
+        
         delete updateData.date_of_death;
         
         await updateMutation.mutateAsync(updateData);
@@ -395,18 +403,18 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
             </div>
 
             {/* Birth Date */}
-            <div className="space-y-1.5">
-              <FieldLabel required>Ngày sinh</FieldLabel>
-              <input
-                type="date"
-                value={formData.birth_date}
-                onChange={(e) => { set('birth_date', e.target.value); if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined })); }}
-                disabled={isSubmitting}
-                max={new Date().toISOString().split('T')[0]}
-                className={getInputCls(isSubmitting, !!errors.birth_date)}
-              />
-              <FieldError message={errors.birth_date} />
-            </div>
+            <DatePicker
+              label="Ngày sinh"
+              required
+              value={formData.birth_date}
+              onChange={(val) => {
+                set('birth_date', val);
+                if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined }));
+              }}
+              disabled={isSubmitting}
+              max={new Date().toLocaleDateString('en-CA')}
+              error={errors.birth_date}
+            />
 
             <div className="space-y-1.5">
               <div className="flex items-center gap-2 h-6 mb-2">
@@ -485,17 +493,13 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
 
             {/* Date of Death (Conditional) */}
             {formData.status === 'DECEASED' && (
-              <div className="space-y-1.5">
-                <FieldLabel>Ngày qua đời</FieldLabel>
-                <input
-                  type="date"
-                  value={formData.date_of_death}
-                  onChange={(e) => set('date_of_death', e.target.value)}
-                  disabled={isSubmitting}
-                  max={new Date().toISOString().split('T')[0]}
-                  className={getInputCls(isSubmitting)}
-                />
-              </div>
+              <DatePicker
+                label="Ngày qua đời"
+                value={formData.date_of_death}
+                onChange={(val) => set('date_of_death', val)}
+                disabled={isSubmitting}
+                max={new Date().toLocaleDateString('en-CA')}
+              />
             )}
           </div>
 

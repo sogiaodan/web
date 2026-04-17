@@ -9,6 +9,7 @@ import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
 import { GenderSelect } from '@/components/dashboard/shared/GenderSelect';
 import { useAddMemberToHousehold } from '../../../queries/useHouseholdMutations';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 // ─── Typeahead Lookup ─────────────────────────────────────────────────────────
 
@@ -228,6 +229,7 @@ export function AddMemberForm({ household }: { household: Household }) {
   const [existingText, setExistingText] = useState('');
   const [showSearch, setShowSearch] = useState(false);
   const [selectedParishionerRole, setSelectedParishionerRole] = useState<string | null>(null);
+  const [selectedParishionerBirthDate, setSelectedParishionerBirthDate] = useState<string | null>(null);
 
   const set = (key: keyof FormData, value: FormData[keyof FormData]) =>
     setFormData((p) => ({ ...p, [key]: value }));
@@ -295,11 +297,14 @@ export function AddMemberForm({ household }: { household: Household }) {
     sub: p.birth_date
       ? `Ngày sinh: ${new Date(p.birth_date).toLocaleDateString('vi-VN')}`
       : undefined,
-    meta: { role: p.relationship_to_head }
+    meta: { 
+      role: p.relationship_to_head,
+      birth_date: p.birth_date
+    }
   });
   
   const householdFetchUrl = (q: string) =>
-    `/api/v1/households?search=${encodeURIComponent(q)}&limit=8`;
+    `/api/v1/households?search=${encodeURIComponent(q)}&limit=8&exclude_ids=${household.id}`;
 
   const mapHouseholdResult = (h: {
     id: string;
@@ -352,8 +357,30 @@ export function AddMemberForm({ household }: { household: Household }) {
   // If the person is already a CHILD in their own household, they shouldn't be added as CHILD again elsewhere.
   const isPersonAlreadyChild = selectedParishionerRole === 'CHILD';
 
+  let isPersonOlderThanHead = false;
+  if (head?.birth_date) {
+    const headDate = new Date(head.birth_date);
+    const personDateStr = formData.existing_parishioner_id 
+      ? selectedParishionerBirthDate 
+      : formData.birth_date;
+      
+    if (personDateStr) {
+      const personDate = new Date(personDateStr);
+      if (!isNaN(personDate.getTime()) && personDate < headDate) {
+        isPersonOlderThanHead = true;
+      }
+    }
+  }
+
   const hideSpouseOption = !!household.spouse || isSelectedUserHead || isSelectedUserSpouse || isPersonAlreadyAuthoritative;
-  const hideChildOption = isPersonAlreadyChild;
+  const hideChildOption = isPersonAlreadyChild || isPersonOlderThanHead;
+
+  // Auto-correct relationship if CHILD is currently selected but no longer valid
+  React.useEffect(() => {
+    if (hideChildOption && formData.relationship_to_head === 'CHILD' && paramRel !== 'SPOUSE') {
+      set('relationship_to_head', 'PARENT'); // Switch to a valid neutral fallback
+    }
+  }, [hideChildOption, formData.relationship_to_head, paramRel]);
 
   return (
     <form onSubmit={handleSubmit} noValidate className="space-y-8 pb-20">
@@ -369,7 +396,17 @@ export function AddMemberForm({ household }: { household: Household }) {
       <div className="flex flex-col items-center">
         <button
           type="button"
-          onClick={() => setShowSearch(!showSearch)}
+          onClick={() => {
+              const nextShow = !showSearch;
+              setShowSearch(nextShow);
+              // When hiding the search panel, clear any selected person so the new-member form reappears
+              if (!nextShow) {
+                set('existing_parishioner_id', '');
+                setExistingText('');
+                setSelectedParishionerRole(null);
+                setSelectedParishionerBirthDate(null);
+              }
+            }}
           className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-300 ${
             showSearch 
               ? 'bg-primary text-white shadow-md' 
@@ -396,15 +433,15 @@ export function AddMemberForm({ household }: { household: Household }) {
                   onSelect={(item) => {
                     set('existing_parishioner_id', item.id);
                     const role = item.meta?.role as string | null;
+                    const bDate = item.meta?.birth_date as string | null;
                     setSelectedParishionerRole(role);
-                    if (role === 'CHILD') {
-                      set('relationship_to_head', 'GRANDCHILD');
-                    }
+                    setSelectedParishionerBirthDate(bDate);
                   }}
                   onClear={() => {
                     set('existing_parishioner_id', '');
                     setExistingText('');
                     setSelectedParishionerRole(null);
+                    setSelectedParishionerBirthDate(null);
                   }}
                   fetchUrl={parishionerFetchUrlAll}
                   mapResult={mapParishioner}
@@ -419,14 +456,22 @@ export function AddMemberForm({ household }: { household: Household }) {
                       <div className="relative">
                         <select
                           value={formData.relationship_to_head}
-                          onChange={(e) => set('relationship_to_head', e.target.value)}
+                          onChange={(e) => {
+                      const rel = e.target.value;
+                      setFormData(p => ({
+                        ...p,
+                        relationship_to_head: rel,
+                        // Reset non-catholic flag when switching away from SPOUSE
+                        is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
+                        christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
+                      }));
+                    }}
                           disabled={isSubmitting}
                           className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
                         >
                           {!hideChildOption && <option value="CHILD">Con cái</option>}
                           {!hideSpouseOption && <option value="SPOUSE">Vợ/Chồng</option>}
                           <option value="PARENT">Cha mẹ</option>
-                          <option value="GRANDCHILD">Cháu</option>
                         </select>
                         <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
                       </div>
@@ -490,18 +535,18 @@ export function AddMemberForm({ household }: { household: Household }) {
               />
             </div>
 
-            <div className="space-y-1.5">
-              <FieldLabel required>Ngày sinh</FieldLabel>
-              <input
-                type="date"
-                value={formData.birth_date}
-                onChange={(e) => { set('birth_date', e.target.value); if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined })); }}
-                disabled={isSubmitting}
-                max={new Date().toISOString().split('T')[0]}
-                className={getInputCls(isSubmitting, !!errors.birth_date)}
-              />
-              <FieldError message={errors.birth_date} />
-            </div>
+            <DatePicker
+              label="Ngày sinh"
+              required
+              value={formData.birth_date}
+              onChange={(val) => {
+                set('birth_date', val);
+                if (errors.birth_date) setErrors(p => ({ ...p, birth_date: undefined }));
+              }}
+              disabled={isSubmitting}
+              error={errors.birth_date}
+              max={new Date().toLocaleDateString('en-CA')}
+            />
 
             <div className="space-y-1.5">
               <FieldLabel required>Trạng thái sinh hoạt</FieldLabel>
@@ -522,36 +567,62 @@ export function AddMemberForm({ household }: { household: Household }) {
             </div>
 
             {formData.status === 'DECEASED' && (
-               <div className="space-y-1.5">
-                  <FieldLabel>Ngày qua đời</FieldLabel>
-                  <input
-                     type="date"
-                     value={formData.date_of_death}
-                     onChange={(e) => set('date_of_death', e.target.value)}
-                     disabled={isSubmitting}
-                     max={new Date().toISOString().split('T')[0]}
-                     className={getInputCls(isSubmitting)}
-                  />
-               </div>
+               <DatePicker
+                  label="Ngày qua đời"
+                  value={formData.date_of_death}
+                  onChange={(val) => set('date_of_death', val)}
+                  disabled={isSubmitting}
+                  max={new Date().toLocaleDateString('en-CA')}
+               />
             )}
 
             {!formData.existing_parishioner_id && (
               <div className="space-y-1.5">
                 <FieldLabel required>Quan hệ với Chủ hộ</FieldLabel>
-                <div className="relative">
-                  <select
-                    value={formData.relationship_to_head}
-                    onChange={(e) => set('relationship_to_head', e.target.value)}
-                    disabled={isSubmitting}
-                    className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
-                  >
-                    {!hideChildOption && <option value="CHILD">Con cái</option>}
-                    {!hideSpouseOption && <option value="SPOUSE">Vợ/Chồng</option>}
-                    <option value="PARENT">Cha mẹ</option>
-                    <option value="GRANDCHILD">Cháu</option>
-                  </select>
-                  <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
-                </div>
+                {paramRel === 'SPOUSE' ? (
+                  // Coming from the spouse card — lock the relationship, no changing allowed
+                  <div className={`${getInputCls(false)} flex items-center gap-2 bg-surface-container cursor-not-allowed opacity-80`}>
+                    <span className="material-symbols-outlined text-primary text-sm">favorite</span>
+                    <span className="font-medium">{head?.gender === 'MALE' ? 'Vợ' : 'Chồng'}</span>
+                    <span className="material-symbols-outlined text-muted text-sm ml-auto">lock</span>
+                  </div>
+                ) : (
+                  <div className="relative">
+                    <select
+                      value={formData.relationship_to_head}
+                      onChange={(e) => {
+                      const rel = e.target.value;
+                      setFormData(p => ({
+                        ...p,
+                        relationship_to_head: rel,
+                        // Reset non-catholic flag when switching away from SPOUSE
+                        is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
+                        christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
+                      }));
+                    }}
+                      disabled={isSubmitting}
+                      className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
+                    >
+                      {!hideChildOption && <option value="CHILD">Con cái</option>}
+                      {!hideSpouseOption && <option value="SPOUSE">Vợ/Chồng</option>}
+                      <option value="PARENT">Cha mẹ</option>
+                      <option value="GRANDCHILD">Cháu</option>
+                    </select>
+                    <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
+                  </div>
+                )}
+                {formData.relationship_to_head === 'PARENT' && (
+                  <p className="flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mt-1 font-body">
+                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">info</span>
+                    <span>Chỉ thêm <strong>Cha/Mẹ</strong> vào hộ này nếu họ không có sổ hộ giáo riêng. Nếu có, hãy dùng tính năng “Tìm giáo dân có sẵn” để gắn kết quan hệ.</span>
+                  </p>
+                )}
+                {formData.relationship_to_head === 'GRANDCHILD' && (
+                  <p className="flex items-start gap-1.5 text-xs text-amber-700 bg-amber-50 border border-amber-200 rounded px-3 py-2 mt-1 font-body">
+                    <span className="material-symbols-outlined text-sm flex-shrink-0 mt-0.5">info</span>
+                    <span>Chỉ thêm <strong>Cháu</strong> vào hộ này nếu cha mẹ cháu chưa có sổ hộ giáo. Nếu có, hãy thêm <strong>Cháu</strong> vào sổ đó.</span>
+                  </p>
+                )}
               </div>
             )}
           </div>
@@ -559,38 +630,45 @@ export function AddMemberForm({ household }: { household: Household }) {
           <GenderSelect
             value={formData.gender}
             onChange={(g) => { set('gender', g); if (errors.gender) setErrors(p => ({ ...p, gender: undefined })); }}
-            disabled={isSubmitting}
+            disabled={isSubmitting || formData.relationship_to_head === 'SPOUSE'}
             required
             error={errors.gender}
             className="mt-6"
           />
+          {formData.relationship_to_head === 'SPOUSE' && (
+            <p className="mt-1 text-xs text-muted-foreground font-body">
+              * Giới tính được xác định tự động theo phối ngẫu của Chủ hộ.
+            </p>
+          )}
 
-          <div className="mt-4">
-            <label className="flex items-center gap-3 cursor-pointer group w-fit">
-              <div
-                className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
-                  formData.is_non_catholic
-                    ? 'bg-primary border-primary'
-                    : 'border-[#E7E5E4] group-hover:border-primary/50'
-                }`}
-                onClick={() => {
-                  const newVal = !formData.is_non_catholic;
-                  setFormData(p => ({
-                    ...p,
-                    is_non_catholic: newVal,
-                    christian_name: newVal ? '' : p.christian_name
-                  }));
-                }}
-              >
-                {formData.is_non_catholic && (
-                  <span className="material-symbols-outlined text-white text-xs">check</span>
-                )}
-              </div>
-              <span className="text-sm font-body text-[#1C1917]">
-                Không phải Công giáo (vợ/chồng khác đạo)
-              </span>
-            </label>
-          </div>
+          {formData.relationship_to_head === 'SPOUSE' && (
+            <div className="mt-4">
+              <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                <div
+                  className={`w-5 h-5 rounded border-2 flex items-center justify-center transition-all ${
+                    formData.is_non_catholic
+                      ? 'bg-primary border-primary'
+                      : 'border-[#E7E5E4] group-hover:border-primary/50'
+                  }`}
+                  onClick={() => {
+                    const newVal = !formData.is_non_catholic;
+                    setFormData(p => ({
+                      ...p,
+                      is_non_catholic: newVal,
+                      christian_name: newVal ? '' : p.christian_name
+                    }));
+                  }}
+                >
+                  {formData.is_non_catholic && (
+                    <span className="material-symbols-outlined text-white text-xs">check</span>
+                  )}
+                </div>
+                <span className="text-sm font-body text-[#1C1917]">
+                  Không phải Công giáo (vợ/chồng khác đạo)
+                </span>
+              </label>
+            </div>
+          )}
         </div>
       )}
 

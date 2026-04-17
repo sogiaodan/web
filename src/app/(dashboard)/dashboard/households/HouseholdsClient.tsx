@@ -58,7 +58,10 @@ export default function HouseholdsClient() {
           </div>
         ) : (
           <>
-            <HouseholdFilterBar zones={zonesData?.items || []} />
+            <HouseholdFilterBar 
+              zones={zonesData?.items || []} 
+              total={householdData.pagination?.total || 0}
+            />
             
             <HouseholdTable 
               households={householdData.items || []} 

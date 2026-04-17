@@ -11,6 +11,7 @@ import { BookInfoFields } from '@/components/ui/BookInfoFields';
 import { SacramentType } from '@/types/sacrament';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
+import { DatePicker } from '@/components/dashboard/shared/DatePicker';
 
 const sacramentSchema = z.object({
   parishioner_id: z.string().min(1, 'Vui lòng chọn người lãnh nhận'),
@@ -72,12 +73,17 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
   const onSubmit = async (data: SacramentFormValues) => {
     if (readOnly) return;
     try {
+      const payload: Record<string, unknown> = { ...data };
+      if (!payload.minister_id) delete payload.minister_id;
+      if (!payload.date) delete payload.date;
+      if (!payload.godparent_name) delete payload.godparent_name;
+
       if (isEdit) {
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        const { parishioner_id, ...updateData } = data;
+        const { parishioner_id, ...updateData } = payload;
         await updateMutation.mutateAsync(updateData);
       } else {
-        const payload = { ...data, type };
+        payload.type = type;
         await createMutation.mutateAsync(payload);
       }
 
@@ -111,21 +117,22 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
           />
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
-              <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">
-                Ngày lãnh nhận <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                max={new Date().toISOString().substring(0, 10)}
-                disabled={readOnly}
-                {...register('date')}
-                className={`w-full bg-surface border rounded-sm px-3 py-3 text-sm font-body focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all ${
-                  errors.date ? 'border-red-500 text-on-surface' : 'border-outline text-on-surface'
-                } ${readOnly ? 'opacity-70 cursor-not-allowed bg-surface-container' : ''}`}
-              />
-              {errors.date && <p className="mt-1 text-[10px] text-red-500">{errors.date.message}</p>}
-            </div>
+            <Controller
+              control={control}
+              name="date"
+              render={({ field }) => (
+                <DatePicker
+                  label="Ngày lãnh nhận"
+                  required
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.date?.message}
+                  disabled={readOnly}
+                  max={new Date().toLocaleDateString('en-CA')}
+                  className="w-full"
+                />
+              )}
+            />
 
             <div>
               <label className="block text-[11px] font-bold text-on-surface-variant uppercase tracking-widest mb-1">

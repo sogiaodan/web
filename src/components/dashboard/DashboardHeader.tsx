@@ -10,6 +10,8 @@ import { ActivityLog } from '@/components/dashboard/ActivityRow';
 export interface DashboardSummaryResponse {
   church_name: string;
   metrics: {
+    total_priests: number;
+    total_zones: number;
     total_parishioners: number;
     total_households: number;
   };
