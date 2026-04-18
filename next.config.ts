@@ -17,6 +17,10 @@ const nextConfig: NextConfig = {
       {
         protocol: 'https',
         hostname: 'vaticannews.va',
+      },
+      {
+        protocol: 'https',
+        hostname: 'img.youtube.com',
       }
     ],
   },
