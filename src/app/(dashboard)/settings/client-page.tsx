@@ -233,10 +233,10 @@ export default function SettingsPage() {
               </div>
               <div className="flex-1 flex flex-col justify-center mr-4">
                 <span className="font-sans text-base font-semibold text-foreground">
-                  Sao lưu Dữ liệu
+                  Xuất dữ liệu Excel
                 </span>
                 <span className="font-sans text-[13px] text-muted">
-                  Tải xuống bản sao lưu toàn bộ dữ liệu hiện tại
+                  Tải xuống toàn bộ dữ liệu giáo xứ định dạng Excel
                 </span>
               </div>
               <div className="flex items-center gap-3">
