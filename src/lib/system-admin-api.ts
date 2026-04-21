@@ -52,34 +52,38 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     }
     
     if (rs.status >= 500) {
-      import('@sentry/nextjs').then(Sentry => {
-        Sentry.withScope(scope => {
-          scope.setTag('endpoint', endpoint);
-          scope.setTag('method', options.method || 'GET');
-          
-          // Sanitize status message/response if it looks like JSON
-          let sanitizedMsg = message;
-          try {
-            if (message && (message.startsWith('{') || message.startsWith('['))) {
-              sanitizedMsg = JSON.stringify(sanitizeForSentry(JSON.parse(message)));
-            }
-          } catch {}
-          if (sanitizedMsg.length > 2000) {
-            sanitizedMsg = sanitizedMsg.substring(0, 2000) + '... [TRUNCATED]';
-          }
-          scope.setExtra('response_body', sanitizedMsg);
-
-          if (options.body) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize status message/response if it looks like JSON
+            let sanitizedMsg = message;
             try {
-              const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-              scope.setExtra('request_body', sanitizeForSentry(bodyObj));
-            } catch {
-              scope.setExtra('request_body', '[NON_JSON_BODY]');
+              if (message && (message.startsWith('{') || message.startsWith('['))) {
+                sanitizedMsg = JSON.stringify(sanitizeForSentry(JSON.parse(message)));
+              }
+            } catch {}
+            if (sanitizedMsg.length > 2000) {
+              sanitizedMsg = sanitizedMsg.substring(0, 2000) + '... [TRUNCATED]';
             }
-          }
-          Sentry.captureException(new Error(`[system-admin-api] HTTP ${rs.status} on ${endpoint}`));
+            scope.setExtra('response_body', sanitizedMsg);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                scope.setExtra('request_body', '[NON_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`[system-admin-api] HTTP ${rs.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {
+          // Best-effort error reporting: ignore failures to load Sentry (e.g. adblockers)
         });
-      });
     }
 
     const err = new Error(message) as Error & { status?: number };

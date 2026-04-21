@@ -74,35 +74,39 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
       console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody || responseText || 'No response body');
     }
     if (!isSessionCheck && rs.status >= 500) {
-      import('@sentry/nextjs').then(Sentry => {
-        Sentry.withScope(scope => {
-          scope.setTag('endpoint', endpoint);
-          scope.setTag('method', options.method || 'GET');
-          
-          // Sanitize response body if it's JSON, otherwise truncate
-          let sanitizedResponse = responseText;
-          try {
-            if (responseText && (responseText.startsWith('{') || responseText.startsWith('['))) {
-              sanitizedResponse = JSON.stringify(sanitizeForSentry(JSON.parse(responseText)));
-            }
-          } catch {}
-          if (sanitizedResponse.length > 2000) {
-            sanitizedResponse = sanitizedResponse.substring(0, 2000) + '... [TRUNCATED]';
-          }
-          scope.setExtra('response_body', sanitizedResponse);
-
-          if (options.body) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize response body if it's JSON, otherwise truncate
+            let sanitizedResponse = responseText;
             try {
-              const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
-              scope.setExtra('request_body', sanitizeForSentry(bodyObj));
-            } catch {
-              // Body might be FormData or something else non-JSON
-              scope.setExtra('request_body', '[NOT_JSON_BODY]');
+              if (responseText && (responseText.startsWith('{') || responseText.startsWith('['))) {
+                sanitizedResponse = JSON.stringify(sanitizeForSentry(JSON.parse(responseText)));
+              }
+            } catch {}
+            if (sanitizedResponse.length > 2000) {
+              sanitizedResponse = sanitizedResponse.substring(0, 2000) + '... [TRUNCATED]';
             }
-          }
-          Sentry.captureException(new Error(`[auth-api] HTTP ${rs.status} on ${endpoint}`));
+            scope.setExtra('response_body', sanitizedResponse);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                // Body might be FormData or something else non-JSON
+                scope.setExtra('request_body', '[NOT_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`[auth-api] HTTP ${rs.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {
+          // Best-effort error reporting: ignore failures to load Sentry (e.g. adblockers)
         });
-      });
     }
 
     if (message) {
