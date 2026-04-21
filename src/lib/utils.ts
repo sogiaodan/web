@@ -18,3 +18,34 @@ export function formatDate(dateStr: string | null | undefined): string {
     return dateStr;
   }
 }
+
+export function sanitizeForSentry(obj: any): any {
+  if (!obj || typeof obj !== 'object') return obj;
+  
+  const SENSITIVE_KEYS = [
+    'password', 
+    'password_confirmation', 
+    'new_password', 
+    'token', 
+    'accessToken', 
+    'refreshToken', 
+    'secret',
+    'bank_account',
+    'bank_name',
+    'tax_code'
+  ];
+
+  const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
+
+  for (const key in sanitized) {
+    if (SENSITIVE_KEYS.includes(key.toLowerCase())) {
+      sanitized[key] = '[REDACTED]';
+    } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
+      sanitized[key] = sanitizeForSentry(sanitized[key]);
+    } else if (typeof sanitized[key] === 'string' && sanitized[key].length > 2000) {
+      sanitized[key] = sanitized[key].substring(0, 2000) + '... [TRUNCATED]';
+    }
+  }
+
+  return sanitized;
+}

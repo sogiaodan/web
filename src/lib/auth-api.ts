@@ -1,3 +1,5 @@
+import { sanitizeForSentry } from './utils';
+
 export interface User {
   id: string;
   name: string;
@@ -76,12 +78,26 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
         Sentry.withScope(scope => {
           scope.setTag('endpoint', endpoint);
           scope.setTag('method', options.method || 'GET');
-          scope.setExtra('response_body', responseText);
+          
+          // Sanitize response body if it's JSON, otherwise truncate
+          let sanitizedResponse = responseText;
+          try {
+            if (responseText && (responseText.startsWith('{') || responseText.startsWith('['))) {
+              sanitizedResponse = JSON.stringify(sanitizeForSentry(JSON.parse(responseText)));
+            }
+          } catch {}
+          if (sanitizedResponse.length > 2000) {
+            sanitizedResponse = sanitizedResponse.substring(0, 2000) + '... [TRUNCATED]';
+          }
+          scope.setExtra('response_body', sanitizedResponse);
+
           if (options.body) {
             try {
-              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+              const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+              scope.setExtra('request_body', sanitizeForSentry(bodyObj));
             } catch {
-              scope.setExtra('request_body', options.body);
+              // Body might be FormData or something else non-JSON
+              scope.setExtra('request_body', '[NOT_JSON_BODY]');
             }
           }
           Sentry.captureException(new Error(`[auth-api] HTTP ${rs.status} on ${endpoint}`));

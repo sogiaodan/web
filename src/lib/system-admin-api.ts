@@ -21,6 +21,7 @@ import {
   BackupRecord,
   TriggerBackupResponse,
 } from '../types/system-admin';
+import { sanitizeForSentry } from './utils';
 
 const BASE_URL = '/api/v1/system-admin';
 
@@ -55,12 +56,25 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
         Sentry.withScope(scope => {
           scope.setTag('endpoint', endpoint);
           scope.setTag('method', options.method || 'GET');
-          scope.setExtra('response_body', message);
+          
+          // Sanitize status message/response if it looks like JSON
+          let sanitizedMsg = message;
+          try {
+            if (message && (message.startsWith('{') || message.startsWith('['))) {
+              sanitizedMsg = JSON.stringify(sanitizeForSentry(JSON.parse(message)));
+            }
+          } catch {}
+          if (sanitizedMsg.length > 2000) {
+            sanitizedMsg = sanitizedMsg.substring(0, 2000) + '... [TRUNCATED]';
+          }
+          scope.setExtra('response_body', sanitizedMsg);
+
           if (options.body) {
             try {
-              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+              const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+              scope.setExtra('request_body', sanitizeForSentry(bodyObj));
             } catch {
-              scope.setExtra('request_body', options.body);
+              scope.setExtra('request_body', '[NON_JSON_BODY]');
             }
           }
           Sentry.captureException(new Error(`[system-admin-api] HTTP ${rs.status} on ${endpoint}`));
