@@ -8,6 +8,8 @@ export class ApiError extends Error {
   }
 }
 
+import { sanitizeForSentry } from './utils';
+
 // Map backend error codes → Vietnamese user-friendly messages
 const ERROR_MESSAGES: Record<string, string> = {
   // Household
@@ -83,21 +85,36 @@ export async function apiFetch<T = unknown>(
     }
     
     if (res.status >= 500) {
-      import('@sentry/nextjs').then(Sentry => {
-        Sentry.withScope(scope => {
-          scope.setTag('endpoint', endpoint);
-          scope.setTag('method', options.method || 'GET');
-          scope.setExtra('response_body', rawMessage);
-          if (options.body) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize response body if it's JSON, otherwise truncate
+            let sanitizedResponse = typeof rawMessage === 'string' ? rawMessage : JSON.stringify(rawMessage);
             try {
-              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
-            } catch {
-              scope.setExtra('request_body', options.body);
+              if (sanitizedResponse && (sanitizedResponse.startsWith('{') || sanitizedResponse.startsWith('['))) {
+                sanitizedResponse = JSON.stringify(sanitizeForSentry(JSON.parse(sanitizedResponse)));
+              }
+            } catch {}
+            if (sanitizedResponse.length > 2000) {
+              sanitizedResponse = sanitizedResponse.substring(0, 2000) + '... [TRUNCATED]';
             }
-          }
-          Sentry.captureException(new Error(`API Error ${res.status} on ${endpoint}`));
-        });
-      });
+            scope.setExtra('response_body', sanitizedResponse);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                scope.setExtra('request_body', '[NON_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`API Error ${res.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {});
     }
     
     throw new ApiError(message, res.status);
