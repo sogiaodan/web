@@ -81,16 +81,15 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
             scope.setTag('method', options.method || 'GET');
             
             // Sanitize response body if it's JSON, otherwise truncate
-            let sanitizedResponse = responseText;
-            try {
-              if (responseText && (responseText.startsWith('{') || responseText.startsWith('['))) {
-                sanitizedResponse = JSON.stringify(sanitizeForSentry(JSON.parse(responseText)));
-              }
-            } catch {}
-            if (sanitizedResponse.length > 2000) {
-              sanitizedResponse = sanitizedResponse.substring(0, 2000) + '... [TRUNCATED]';
+            const sanitizedResponse = sanitizeForSentry(responseBody || responseText);
+            let responseStr = typeof sanitizedResponse === 'string' 
+              ? sanitizedResponse 
+              : JSON.stringify(sanitizedResponse);
+
+            if (responseStr.length > 2000) {
+              responseStr = responseStr.substring(0, 2000) + '... [TRUNCATED]';
             }
-            scope.setExtra('response_body', sanitizedResponse);
+            scope.setExtra('response_body', responseStr);
 
             if (options.body) {
               try {
