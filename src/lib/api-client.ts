@@ -82,6 +82,24 @@ export async function apiFetch<T = unknown>(
       }
     }
     
+    if (res.status >= 500) {
+      import('@sentry/nextjs').then(Sentry => {
+        Sentry.withScope(scope => {
+          scope.setTag('endpoint', endpoint);
+          scope.setTag('method', options.method || 'GET');
+          scope.setExtra('response_body', rawMessage);
+          if (options.body) {
+            try {
+              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+            } catch {
+              scope.setExtra('request_body', options.body);
+            }
+          }
+          Sentry.captureException(new Error(`API Error ${res.status} on ${endpoint}`));
+        });
+      });
+    }
+    
     throw new ApiError(message, res.status);
   }
 

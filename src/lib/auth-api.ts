@@ -71,7 +71,24 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     if (!isSessionCheck) {
       console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody || responseText || 'No response body');
     }
-    
+    if (!isSessionCheck && rs.status >= 500) {
+      import('@sentry/nextjs').then(Sentry => {
+        Sentry.withScope(scope => {
+          scope.setTag('endpoint', endpoint);
+          scope.setTag('method', options.method || 'GET');
+          scope.setExtra('response_body', responseText);
+          if (options.body) {
+            try {
+              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+            } catch {
+              scope.setExtra('request_body', options.body);
+            }
+          }
+          Sentry.captureException(new Error(`[auth-api] HTTP ${rs.status} on ${endpoint}`));
+        });
+      });
+    }
+
     if (message) {
       throw new Error(message);
     }

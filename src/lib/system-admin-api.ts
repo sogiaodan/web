@@ -50,6 +50,24 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
       window.dispatchEvent(new Event('sysadmin:unauthorized'));
     }
     
+    if (rs.status >= 500) {
+      import('@sentry/nextjs').then(Sentry => {
+        Sentry.withScope(scope => {
+          scope.setTag('endpoint', endpoint);
+          scope.setTag('method', options.method || 'GET');
+          scope.setExtra('response_body', message);
+          if (options.body) {
+            try {
+              scope.setExtra('request_body', typeof options.body === 'string' ? JSON.parse(options.body) : options.body);
+            } catch {
+              scope.setExtra('request_body', options.body);
+            }
+          }
+          Sentry.captureException(new Error(`[system-admin-api] HTTP ${rs.status} on ${endpoint}`));
+        });
+      });
+    }
+
     const err = new Error(message) as Error & { status?: number };
     err.status = rs.status;
     throw err;
