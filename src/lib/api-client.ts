@@ -8,6 +8,8 @@ export class ApiError extends Error {
   }
 }
 
+import { sanitizeForSentry } from './utils';
+
 // Map backend error codes → Vietnamese user-friendly messages
 const ERROR_MESSAGES: Record<string, string> = {
   // Household
@@ -80,6 +82,38 @@ export async function apiFetch<T = unknown>(
       if (isTokenInvalidError && typeof window !== 'undefined') {
         window.dispatchEvent(new Event('auth:unauthorized'));
       }
+    }
+    
+    if (res.status >= 500) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize response body if it's JSON, otherwise truncate
+            const sanitizedResponse = sanitizeForSentry(json || rawMessage);
+            let responseStr = typeof sanitizedResponse === 'string' 
+              ? sanitizedResponse 
+              : JSON.stringify(sanitizedResponse);
+
+            if (responseStr.length > 2000) {
+              responseStr = responseStr.substring(0, 2000) + '... [TRUNCATED]';
+            }
+            scope.setExtra('response_body', responseStr);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                scope.setExtra('request_body', '[NON_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`API Error ${res.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {});
     }
     
     throw new ApiError(message, res.status);

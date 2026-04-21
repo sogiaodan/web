@@ -1,3 +1,5 @@
+import { sanitizeForSentry } from './utils';
+
 export interface User {
   id: string;
   name: string;
@@ -71,7 +73,41 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
     if (!isSessionCheck) {
       console.error(`[auth-api] Error ${rs.status} on ${endpoint}:`, responseBody || responseText || 'No response body');
     }
-    
+    if (!isSessionCheck && rs.status >= 500) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize response body if it's JSON, otherwise truncate
+            const sanitizedResponse = sanitizeForSentry(responseBody || responseText);
+            let responseStr = typeof sanitizedResponse === 'string' 
+              ? sanitizedResponse 
+              : JSON.stringify(sanitizedResponse);
+
+            if (responseStr.length > 2000) {
+              responseStr = responseStr.substring(0, 2000) + '... [TRUNCATED]';
+            }
+            scope.setExtra('response_body', responseStr);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                // Body might be FormData or something else non-JSON
+                scope.setExtra('request_body', '[NOT_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`[auth-api] HTTP ${rs.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {
+          // Best-effort error reporting: ignore failures to load Sentry (e.g. adblockers)
+        });
+    }
+
     if (message) {
       throw new Error(message);
     }

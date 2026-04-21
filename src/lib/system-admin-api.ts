@@ -21,6 +21,7 @@ import {
   BackupRecord,
   TriggerBackupResponse,
 } from '../types/system-admin';
+import { sanitizeForSentry } from './utils';
 
 const BASE_URL = '/api/v1/system-admin';
 
@@ -50,6 +51,40 @@ async function apiFetch<T>(endpoint: string, options: RequestInit = {}): Promise
       window.dispatchEvent(new Event('sysadmin:unauthorized'));
     }
     
+    if (rs.status >= 500) {
+      import('@sentry/nextjs')
+        .then(Sentry => {
+          Sentry.withScope(scope => {
+            scope.setTag('endpoint', endpoint);
+            scope.setTag('method', options.method || 'GET');
+            
+            // Sanitize and attach the actual response payload if available
+            const sanitizedResponse = sanitizeForSentry(responseBody || message);
+            let responseStr = typeof sanitizedResponse === 'string' 
+              ? sanitizedResponse 
+              : JSON.stringify(sanitizedResponse);
+
+            if (responseStr.length > 2000) {
+              responseStr = responseStr.substring(0, 2000) + '... [TRUNCATED]';
+            }
+            scope.setExtra('response_body', responseStr);
+
+            if (options.body) {
+              try {
+                const bodyObj = typeof options.body === 'string' ? JSON.parse(options.body) : options.body;
+                scope.setExtra('request_body', sanitizeForSentry(bodyObj));
+              } catch {
+                scope.setExtra('request_body', '[NON_JSON_BODY]');
+              }
+            }
+            Sentry.captureException(new Error(`[system-admin-api] HTTP ${rs.status} on ${endpoint}`));
+          });
+        })
+        .catch(() => {
+          // Best-effort error reporting: ignore failures to load Sentry (e.g. adblockers)
+        });
+    }
+
     const err = new Error(message) as Error & { status?: number };
     err.status = rs.status;
     throw err;
