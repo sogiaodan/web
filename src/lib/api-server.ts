@@ -34,6 +34,7 @@ export async function apiServerFetch<T = unknown>(endpoint: string, options: Req
     const res = await fetch(fullUrl, {
       ...options,
       headers,
+      cache: 'no-store', // Always bypass Next.js fetch caching for server-side API requests
     });
 
     const body = await res.json().catch(() => null);
