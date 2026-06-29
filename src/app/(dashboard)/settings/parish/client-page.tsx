@@ -204,7 +204,8 @@ export default function ParishInformationPage() {
                         type="text"
                         id="name"
                         {...register('name')}
-                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[48px] transition-all ${errors.name ? 'border-primary' : 'border-outline'}`}
+                        readOnly={true}
+                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm bg-surface-container/60 cursor-not-allowed opacity-75 outline-none border-outline min-h-[48px]`}
                         placeholder="VD: Giáo xứ Tân Định"
                       />
                       {errors.name && <p className="mt-1 text-xs text-primary">{errors.name.message}</p>}
@@ -218,7 +219,8 @@ export default function ParishInformationPage() {
                         type="text"
                         id="diocese"
                         {...register('diocese')}
-                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[48px] transition-all border-outline`}
+                        readOnly={true}
+                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm bg-surface-container/60 cursor-not-allowed opacity-75 outline-none border-outline min-h-[48px]`}
                         placeholder="VD: TGP Sài Gòn"
                       />
                     </div>
@@ -231,7 +233,8 @@ export default function ParishInformationPage() {
                         type="text"
                         id="deanery"
                         {...register('deanery')}
-                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm focus:border-primary focus:outline-none focus:ring-1 focus:ring-primary min-h-[48px] transition-all border-outline`}
+                        readOnly={true}
+                        className={`block w-full rounded border px-3 py-2 text-sm shadow-sm bg-surface-container/60 cursor-not-allowed opacity-75 outline-none border-outline min-h-[48px]`}
                         placeholder="VD: Hạt Tân Định"
                       />
                     </div>

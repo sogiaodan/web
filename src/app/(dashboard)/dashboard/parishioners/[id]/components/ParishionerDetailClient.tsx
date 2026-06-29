@@ -1,5 +1,6 @@
 'use client';
 
+import { useMemo } from 'react';
 import Link from 'next/link';
 import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
@@ -10,9 +11,27 @@ import { SiblingsSection } from './SiblingsSection';
 import { GenealogyTree } from './GenealogyTree';
 import { SacramentalTimeline } from './SacramentalTimeline';
 
-export function ParishionerDetailClient({ id, returnTo }: { id: string; returnTo?: string }) {
+export function ParishionerDetailClient({ id, searchParams }: { id: string; searchParams?: Record<string, any> }) {
   const { user } = useAuth();
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
+
+  const returnTo = searchParams?.returnTo;
+  
+  const backQueryString = useMemo(() => {
+    if (!searchParams) return '';
+    const q = new URLSearchParams();
+    Object.entries(searchParams).forEach(([key, value]) => {
+      if (key !== 'returnTo') {
+        if (Array.isArray(value)) {
+          value.forEach(v => q.append(key, v));
+        } else if (value) {
+          q.append(key, value);
+        }
+      }
+    });
+    const str = q.toString();
+    return str ? `?${str}` : '';
+  }, [searchParams]);
 
   const { data: parishioner, isLoading, error } = useParishionerDetailQuery(id);
 
@@ -37,7 +56,7 @@ export function ParishionerDetailClient({ id, returnTo }: { id: string; returnTo
       <Link
         href={(returnTo === 'household' && parishioner.household)
           ? `/dashboard/households/${parishioner.household.id}`
-          : '/dashboard/parishioners'
+          : `/dashboard/parishioners${backQueryString}`
         }
         className="inline-flex items-center gap-1 text-sm font-medium text-muted hover:text-primary transition-colors mb-6 group font-body"
       >

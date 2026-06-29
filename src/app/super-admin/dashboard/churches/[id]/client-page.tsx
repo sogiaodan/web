@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useMemo } from 'react';
 import Link from 'next/link';
+import { DIOCESES_LIST, DIOCESES_DEANERIES_MAP } from '@/lib/constants/dioceses';
 import {
   ChevronRight,
   Globe,
@@ -498,7 +499,17 @@ export default function ChurchDetailClientPage({ id }: Props) {
 
   const handleFieldChange = useCallback(
     (name: keyof UpdateChurchRequest | 'established_year' | 'schema_name', value: string) => {
-      setFormState((prev) => (prev ? { ...prev, [name]: value } : prev));
+      setFormState((prev) => {
+        if (!prev) return null;
+        if (name === 'diocese') {
+          return {
+            ...prev,
+            diocese: value,
+            deanery: '',
+          };
+        }
+        return { ...prev, [name]: value };
+      });
     },
     [],
   );
@@ -627,20 +638,70 @@ export default function ChurchDetailClientPage({ id }: Props) {
               isEditing={isEditing}
               onChange={handleFieldChange}
             />
-            <FormField
-              label="Giáo Phận"
-              name="diocese"
-              value={formState.diocese}
-              isEditing={isEditing}
-              onChange={handleFieldChange}
-            />
-            <FormField
-              label="Giáo Hạt"
-              name="deanery"
-              value={formState.deanery}
-              isEditing={isEditing}
-              onChange={handleFieldChange}
-            />
+            {/* Giáo phận select */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Giáo Phận</label>
+              {!isEditing ? (
+                <input
+                  type="text"
+                  value={formState.diocese}
+                  readOnly={true}
+                  className={clsx(
+                    'w-full px-3 py-2 text-sm border rounded-sm transition-all duration-200 outline-none',
+                    'bg-vellum/60 border-outline/40 text-muted cursor-default'
+                  )}
+                />
+              ) : (
+                <select
+                  value={formState.diocese}
+                  onChange={(e) => handleFieldChange('diocese', e.target.value)}
+                  className="w-full px-3 py-2 text-sm border rounded-sm transition-all duration-200 outline-none bg-white border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground min-h-[38px]"
+                >
+                  <option value="">Chọn Giáo phận...</option>
+                  {DIOCESES_LIST.map((d) => (
+                    <option key={d} value={d}>
+                      {d}
+                    </option>
+                  ))}
+                </select>
+              )}
+            </div>
+
+            {/* Giáo hạt select */}
+            <div className="space-y-1.5">
+              <label className="text-[10px] font-bold text-muted uppercase tracking-widest">Giáo Hạt</label>
+              {!isEditing ? (
+                <input
+                  type="text"
+                  value={formState.deanery}
+                  readOnly={true}
+                  className={clsx(
+                    'w-full px-3 py-2 text-sm border rounded-sm transition-all duration-200 outline-none',
+                    'bg-vellum/60 border-outline/40 text-muted cursor-default'
+                  )}
+                />
+              ) : (
+                <select
+                  value={formState.deanery}
+                  onChange={(e) => handleFieldChange('deanery', e.target.value)}
+                  disabled={!formState.diocese}
+                  className={clsx(
+                    "w-full px-3 py-2 text-sm border rounded-sm transition-all duration-200 outline-none min-h-[38px]",
+                    !formState.diocese
+                      ? "bg-stone-50 border-outline/30 text-muted/65 cursor-not-allowed"
+                      : "bg-white border-outline focus:border-primary focus:ring-2 focus:ring-primary/20 text-foreground"
+                  )}
+                >
+                  <option value="">Chọn Giáo hạt...</option>
+                  {formState.diocese &&
+                    DIOCESES_DEANERIES_MAP[formState.diocese]?.map((dg) => (
+                      <option key={dg} value={dg}>
+                        {dg}
+                      </option>
+                    ))}
+                </select>
+              )}
+            </div>
             <FormField
               label="Chánh Xứ Hiện Tại"
               name="pastor_name"

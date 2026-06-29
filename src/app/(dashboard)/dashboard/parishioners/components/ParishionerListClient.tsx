@@ -42,11 +42,7 @@ export function ParishionerListClient() {
     return params;
   }, [searchParams]);
 
-  const { data, isLoading } = useParishionersQuery(queryParams);
-  
-  if (isLoading && !data) {
-    return <LoadingSection message="Đang tải danh sách giáo dân..." className="py-20" />;
-  }
+  const { data, isLoading, isFetching } = useParishionersQuery(queryParams);
 
   const items = data?.items || [];
   const total = data?.pagination?.total || 0;
@@ -59,18 +55,28 @@ export function ParishionerListClient() {
         zones={zones}
         canEdit={canEdit}
         total={total}
+        isFetching={isFetching}
         filterDrawerSlot={<AdvancedFilterDrawer zones={zones} />}
       />
-      <ParishionerTable
-        items={items}
-        total={total}
-        page={page}
-        limit={limit}
-        canEdit={canEdit}
-        onPreview={handleOpenPreview}
-      />
-      {data?.stats && (
-        <ParishionerSummaryCards stats={data.stats} />
+      {isLoading && !data ? (
+        <div className="bg-surface border border-outline rounded p-12 flex flex-col items-center justify-center gap-3 mt-4 min-h-[300px]">
+          <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <p className="text-sm font-body text-muted">Đang tải danh sách giáo dân...</p>
+        </div>
+      ) : (
+        <>
+          <ParishionerTable
+            items={items}
+            total={total}
+            page={page}
+            limit={limit}
+            canEdit={canEdit}
+            onPreview={handleOpenPreview}
+          />
+          {data?.stats && (
+            <ParishionerSummaryCards stats={data.stats} />
+          )}
+        </>
       )}
       <QuickPreviewDrawer
         parishionerId={previewId}
