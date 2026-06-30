@@ -137,11 +137,11 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
           <h3 className="font-display font-bold text-sm text-on-surface mb-4 pb-2 border-b border-outline uppercase">
             Thông tin Tân hôn
           </h3>
-          <div className="mb-4">
+          <div className="mb-4 hidden">
             <label className="flex items-center gap-2 cursor-pointer w-max">
               <input
                 type="checkbox"
-                disabled={readOnly}
+                disabled={readOnly || isEdit}
                 {...register('is_mixed_religion')}
                 className="w-4 h-4 rounded border-outline text-primary focus:ring-primary disabled:opacity-50"
               />
@@ -151,7 +151,7 @@ export function MarriageForm({ id, initialData, initialHusband, initialWife, rea
             </label>
           </div>
 
-          {!isMixedReligion ? (
+          {(!isMixedReligion || isEdit) ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Controller
                 control={control}

@@ -35,11 +35,12 @@ interface SacramentFormProps {
   initialData?: Partial<SacramentFormValues>;
   initialParishioner?: ParishionerLookup | null;
   readOnly?: boolean;
+  onCancel?: () => void;
 }
 
 import { useCreateSacrament, useUpdateSacrament } from '../../queries/useSacramentMutations';
 
-export function SacramentForm({ type, id, initialData, initialParishioner, readOnly = false }: SacramentFormProps) {
+export function SacramentForm({ type, id, initialData, initialParishioner, readOnly = false, onCancel }: SacramentFormProps) {
   const router = useRouter();
   const { user } = useAuth();
   
@@ -231,7 +232,13 @@ export function SacramentForm({ type, id, initialData, initialParishioner, readO
         )}
         <button
           type="button"
-          onClick={() => router.push('/dashboard/sacraments')}
+          onClick={() => {
+            if (onCancel) {
+              onCancel();
+            } else {
+              router.push('/dashboard/sacraments');
+            }
+          }}
           className="w-full sm:w-auto px-6 py-3 text-sm font-bold text-primary hover:bg-surface-hover rounded-sm transition-colors border border-primary sm:border-transparent focus-visible:border-outline order-2 sm:order-1"
         >
           Hủy bỏ

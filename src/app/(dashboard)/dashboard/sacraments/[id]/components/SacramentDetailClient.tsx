@@ -76,25 +76,18 @@ export function SacramentDetailClient({ id }: { id: string }) {
           initialData={initialData}
           initialParishioner={sacrament.parishioner}
           readOnly={false}
+          onCancel={() => setIsEditing(false)}
         />
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="text-sm font-bold text-on-surface-variant hover:text-on-surface"
-          >
-            Quay lại Chi tiết
-          </button>
-        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <div className="space-y-6 print:hidden">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-          {canEdit ? 'Chỉnh sửa Bí tích' : 'Chi tiết Bí tích'}
+          Chi tiết Bí tích
         </h1>
         <p className="text-on-surface-variant font-body text-sm">
           Hồ sơ Bí tích của: <span className="font-bold">{sacrament.parishioner?.christian_name} {sacrament.parishioner?.full_name}</span>
@@ -264,11 +257,12 @@ export function SacramentDetailClient({ id }: { id: string }) {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Full Width Certificate Section */}
       <div className="mt-8 space-y-6">
-        <div className="bg-surface border border-outline rounded-md md:rounded-sm p-0 md:p-6 pb-0 overflow-hidden">
-          <div className="px-4 py-3 md:pt-0 md:px-0 flex items-center justify-between border-b border-outline md:border-b-0 md:mb-6">
+        <div className="bg-surface border border-outline rounded-md md:rounded-sm p-0 md:p-6 pb-0 overflow-hidden print:border-0 print:p-0 print:bg-transparent">
+          <div className="px-4 py-3 md:pt-0 md:px-0 flex items-center justify-between border-b border-outline md:border-b-0 md:mb-6 print:hidden">
             <div className="flex items-center gap-2">
             </div>
             <button 
@@ -279,8 +273,8 @@ export function SacramentDetailClient({ id }: { id: string }) {
             </button>
           </div>
           
-            <div className="bg-[#E7E5E4]/30 p-4 md:p-12 flex justify-center overflow-x-auto min-h-[600px]">
-               <div className="shadow-2xl hover:shadow-primary/10 transition-shadow">
+            <div className="bg-[#E7E5E4]/30 p-4 md:p-12 flex justify-center overflow-x-auto min-h-[600px] print:bg-transparent print:p-0 print:min-h-0">
+               <div className="shadow-2xl hover:shadow-primary/10 transition-shadow print:shadow-none">
                   <PrintableCertificate 
                     sacrament={sacrament} 
                     baptism={baptism} 
@@ -489,36 +483,59 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
             size: A4;
             margin: 0;
           }
-          /* Hide everything by default */
-          :global(body), :global(html), :global(#__next), :global(.dashboard-layout) {
+          /* Reset root and body layout */
+          :global(html),
+          :global(body),
+          :global(#__next) {
             background: white !important;
             padding: 0 !important;
             margin: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
-          :global(header), :global(nav), :global(aside), :global(button), :global(.print-hidden) {
+          /* Reset flex/grid and height layout containers specifically */
+          :global(div[class*="h-dvh"]),
+          :global(div[class*="flex-1"]),
+          :global(main) {
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            display: block !important;
+          }
+          :global(header),
+          :global(nav),
+          :global(aside),
+          :global(button),
+          :global(.print-hidden) {
             display: none !important;
           }
-          body * {
+          :global(body) * {
             visibility: hidden;
           }
           /* Show only the certificate area */
-          .certificate-print-area, .certificate-print-area * {
+          :global(.certificate-print-area), :global(.certificate-print-area) * {
             visibility: visible;
           }
-          .certificate-print-area {
+          :global(.certificate-print-area) {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: relative !important;
             width: 210mm !important;
             height: 297mm !important;
-            margin: 0;
+            margin: 0 auto !important;
             padding: 25mm !important;
             box-shadow: none !important;
-            border-width: 15px !important;
+            border: 12px double #1C1917 !important;
             -webkit-print-color-adjust: exact;
             background: white !important;
             z-index: 9999;
+            page-break-inside: avoid;
+            page-break-after: avoid;
           }
         }
       `}</style>

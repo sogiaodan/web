@@ -204,6 +204,8 @@ export function AddMemberForm({ household }: { household: Household }) {
 
   const [errors, setErrors] = useState<FormErrors>({});
 
+  const initialRel = (paramRel === 'SPOUSE' && household.spouse) ? 'CHILD' : (paramRel ?? 'CHILD');
+
   const [formData, setFormData] = useState<FormData>({
     christian_name: '',
     full_name: '',
@@ -216,9 +218,9 @@ export function AddMemberForm({ household }: { household: Household }) {
     occupation: '',
     is_non_catholic: false,
     status: 'RESIDING',
-    marital_status: 'SINGLE',
+    marital_status: initialRel === 'SPOUSE' ? 'MARRIED' : 'SINGLE',
     date_of_death: '',
-    relationship_to_head: (paramRel === 'SPOUSE' && household.spouse) ? 'CHILD' : (paramRel ?? 'CHILD'),
+    relationship_to_head: initialRel,
     origin_household_id: '',
     existing_parishioner_id: '',
   });
@@ -457,15 +459,16 @@ export function AddMemberForm({ household }: { household: Household }) {
                         <select
                           value={formData.relationship_to_head}
                           onChange={(e) => {
-                      const rel = e.target.value;
-                      setFormData(p => ({
-                        ...p,
-                        relationship_to_head: rel,
-                        // Reset non-catholic flag when switching away from SPOUSE
-                        is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
-                        christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
-                      }));
-                    }}
+                            const rel = e.target.value;
+                            setFormData((p) => ({
+                              ...p,
+                              relationship_to_head: rel,
+                              // Reset non-catholic flag when switching away from SPOUSE
+                              is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
+                              christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
+                              marital_status: rel === 'SPOUSE' ? 'MARRIED' : (p.marital_status === 'MARRIED' ? 'SINGLE' : p.marital_status),
+                            }));
+                          }}
                           disabled={isSubmitting}
                           className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
                         >
@@ -576,6 +579,26 @@ export function AddMemberForm({ household }: { household: Household }) {
                />
             )}
 
+            {/* -- Marital status (hidden for SPOUSE as they inherit MARRIED status) -- */}
+            {formData.relationship_to_head !== 'SPOUSE' && (
+              <div className="space-y-1.5">
+                <FieldLabel>Tình trạng hôn nhân</FieldLabel>
+                <div className="relative">
+                  <select
+                    value={formData.marital_status}
+                    onChange={(e) => set('marital_status', e.target.value)}
+                    disabled={isSubmitting}
+                    className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
+                  >
+                    <option value="SINGLE">Độc thân</option>
+                    <option value="RELIGIOUS">Tu sĩ</option>
+                    <option value="PRIEST">Linh mục</option>
+                  </select>
+                  <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">expand_more</span>
+                </div>
+              </div>
+            )}
+
             {!formData.existing_parishioner_id && (
               <div className="space-y-1.5">
                 <FieldLabel required>Quan hệ với Chủ hộ</FieldLabel>
@@ -591,15 +614,16 @@ export function AddMemberForm({ household }: { household: Household }) {
                     <select
                       value={formData.relationship_to_head}
                       onChange={(e) => {
-                      const rel = e.target.value;
-                      setFormData(p => ({
-                        ...p,
-                        relationship_to_head: rel,
-                        // Reset non-catholic flag when switching away from SPOUSE
-                        is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
-                        christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
-                      }));
-                    }}
+                        const rel = e.target.value;
+                        setFormData((p) => ({
+                          ...p,
+                          relationship_to_head: rel,
+                          // Reset non-catholic flag when switching away from SPOUSE
+                          is_non_catholic: rel === 'SPOUSE' ? p.is_non_catholic : false,
+                          christian_name: rel === 'SPOUSE' && p.is_non_catholic ? '' : p.christian_name,
+                          marital_status: rel === 'SPOUSE' ? 'MARRIED' : (p.marital_status === 'MARRIED' ? 'SINGLE' : p.marital_status),
+                        }));
+                      }}
                       disabled={isSubmitting}
                       className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
                     >

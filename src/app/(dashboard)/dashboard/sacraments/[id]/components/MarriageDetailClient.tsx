@@ -47,7 +47,7 @@ export function MarriageDetailClient({ id }: { id: string }) {
     <>
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-          {canEdit ? 'Chỉnh sửa Hôn phối' : 'Chi tiết Hôn phối'}
+          Chi tiết Hôn phối
         </h1>
         <p className="text-on-surface-variant font-body text-sm">
           Tân Lang: <span className="font-bold">{marriage.husband?.christian_name} {marriage.husband?.full_name}</span> & Tân Nương: <span className="font-bold">{marriage.wife?.christian_name} {marriage.wife?.full_name}</span>

@@ -3,7 +3,8 @@
 export type ParishionerStatus = 'RESIDING' | 'ABSENT' | 'MOVED' | 'DECEASED';
 export type ParishionerGender = 'MALE' | 'FEMALE';
 export type SacramentType = 'BAPTISM' | 'EUCHARIST' | 'CONFIRMATION' | 'ANOINTING_OF_SICK' | 'HOLY_ORDERS';
-export type MaritalStatus = 'SINGLE' | 'MARRIED';
+export type MaritalStatus = 'SINGLE' | 'MARRIED' | 'RELIGIOUS' | 'PRIEST';
+
 
 // ─── Core Entities ────────────────────────────────────────────────────────────
 
@@ -60,6 +61,8 @@ export interface MarriageInfo {
   id: string;
   spouse: ParishionerSummaryRef;
   marriage_date: string;
+  place?: string | null;
+  minister_name?: string | null;
 }
 
 // ─── Detail Response ──────────────────────────────────────────────────────────

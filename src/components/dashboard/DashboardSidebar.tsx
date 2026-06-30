@@ -140,14 +140,14 @@ export default function DashboardSidebar({ isOpen, onClose, onOpenAccountPanel }
     <>
       <div 
         className={clsx(
-          "fixed inset-0 z-40 bg-foreground/50 lg:hidden transition-opacity",
+          "fixed inset-0 z-40 bg-foreground/50 lg:hidden transition-opacity print:hidden",
           isOpen ? "opacity-100" : "opacity-0 pointer-events-none"
         )} 
         onClick={onClose}
       />
 
       <div className={clsx(
-        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-surface border-r border-outline transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 h-dvh",
+        "fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-surface border-r border-outline transition-transform duration-300 ease-in-out lg:sticky lg:top-0 lg:translate-x-0 h-dvh print:hidden",
         isOpen ? "translate-x-0" : "-translate-x-full"
       )}>
         <div className="absolute top-4 right-4 lg:hidden">

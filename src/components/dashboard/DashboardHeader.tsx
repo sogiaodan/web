@@ -14,6 +14,7 @@ export interface DashboardSummaryResponse {
     total_zones: number;
     total_parishioners: number;
     total_households: number;
+    total_parish_groups: number;
   };
   activities: ActivityLog[];
 }

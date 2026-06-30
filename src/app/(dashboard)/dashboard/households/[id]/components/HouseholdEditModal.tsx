@@ -120,10 +120,9 @@ export function HouseholdEditModal({ household, isOpen, onClose }: HouseholdEdit
                 className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
               >
                 <option value="MARRIED">Đã kết hôn</option>
-                <option value="MIXED_RELIGION">Kết hôn khác đạo (Phép chuẩn)</option>
-                <option value="IRREGULAR">Hôn nhân ngăn trở (Nguội lạnh)</option>
-                <option value="SEPARATED">Ly thân / Ly dị</option>
-                <option value="WIDOWED">Góa</option>
+                <option value="SINGLE">Độc thân</option>
+                <option value="RELIGIOUS">Tu sĩ</option>
+                <option value="PRIEST">Linh mục</option>
               </select>
             </div>
 

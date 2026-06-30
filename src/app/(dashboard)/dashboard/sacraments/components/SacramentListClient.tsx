@@ -3,7 +3,7 @@
 import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
 import { SacramentTabs } from './SacramentTabs';
@@ -22,6 +22,7 @@ export function SacramentListClient() {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
   const [isExporting, setIsExporting] = useState(false);
+  const [isSelectModalOpen, setIsSelectModalOpen] = useState(false);
 
   const activeTab: SacramentType = (searchParams.get('type') as SacramentType) || 'BAPTISM';
   const isMarriage = activeTab === 'MARRIAGE';
@@ -124,13 +125,13 @@ export function SacramentListClient() {
         </div>
 
         {canEdit && (
-          <Link
-            href="/dashboard/sacraments/new"
+          <button
+            onClick={() => setIsSelectModalOpen(true)}
             className="flex items-center justify-center gap-2 bg-primary text-white px-6 h-12 rounded-sm font-bold text-sm hover:bg-primary/90 transition-all shadow-sm shrink-0"
           >
             <Plus className="h-5 w-5" />
             Ghi nhận Bí tích
-          </Link>
+          </button>
         )}
       </div>
 
@@ -160,6 +161,107 @@ export function SacramentListClient() {
       )}
 
       <SacramentInfoCards />
+
+      {/* Sacrament type selection Modal */}
+      {isSelectModalOpen && (
+        <>
+          {/* Backdrop */}
+          <div
+            className="fixed inset-0 z-50 bg-foreground/50 transition-opacity"
+            onClick={() => setIsSelectModalOpen(false)}
+          />
+
+          {/* Dialog container */}
+          <div className="fixed inset-x-4 bottom-4 md:inset-auto md:top-1/2 md:left-1/2 z-50 md:w-full md:max-w-md md:-translate-x-1/2 md:-translate-y-1/2">
+            <div className="bg-background rounded-xl shadow-xl overflow-hidden flex flex-col border border-outline animate-in fade-in-50 zoom-in-95 duration-150">
+              {/* Header */}
+              <div className="px-6 py-5 border-b border-outline flex items-center justify-between bg-surface shrink-0">
+                <h2 className="font-serif text-xl font-bold text-foreground">
+                  Chọn loại Bí tích ghi nhận
+                </h2>
+                <button
+                  type="button"
+                  onClick={() => setIsSelectModalOpen(false)}
+                  aria-label="Đóng"
+                  className="p-2 rounded-full hover:bg-hover-bg text-muted min-h-[48px] min-w-[48px] flex items-center justify-center -mr-2 transition-colors"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+              </div>
+
+              {/* Options list */}
+              <div className="p-6 space-y-3">
+                <button
+                  onClick={() => {
+                    setIsSelectModalOpen(false);
+                    router.push('/dashboard/sacraments/new?type=BAPTISM');
+                  }}
+                  className="w-full flex items-center justify-between p-4 border border-outline rounded-sm hover:border-primary hover:bg-primary/5 transition-all text-left font-body text-foreground"
+                >
+                  <div>
+                    <div className="font-bold text-sm">Bí tích Rửa tội</div>
+                    <div className="text-xs text-muted">Ghi nhận hồ sơ Rửa tội cho giáo dân</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsSelectModalOpen(false);
+                    router.push('/dashboard/sacraments/new?type=EUCHARIST');
+                  }}
+                  className="w-full flex items-center justify-between p-4 border border-outline rounded-sm hover:border-primary hover:bg-primary/5 transition-all text-left font-body text-foreground"
+                >
+                  <div>
+                    <div className="font-bold text-sm">Bí tích Rước lễ</div>
+                    <div className="text-xs text-muted">Ghi nhận hồ sơ Rước lễ lần đầu</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsSelectModalOpen(false);
+                    router.push('/dashboard/sacraments/new?type=CONFIRMATION');
+                  }}
+                  className="w-full flex items-center justify-between p-4 border border-outline rounded-sm hover:border-primary hover:bg-primary/5 transition-all text-left font-body text-foreground"
+                >
+                  <div>
+                    <div className="font-bold text-sm">Bí tích Thêm sức</div>
+                    <div className="text-xs text-muted">Ghi nhận hồ sơ lãnh nhận Bí tích Thêm sức</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted" />
+                </button>
+
+                <button
+                  onClick={() => {
+                    setIsSelectModalOpen(false);
+                    router.push('/dashboard/sacraments/new?type=MARRIAGE');
+                  }}
+                  className="w-full flex items-center justify-between p-4 border border-outline rounded-sm hover:border-primary hover:bg-primary/5 transition-all text-left font-body text-foreground"
+                >
+                  <div>
+                    <div className="font-bold text-sm">Bí tích Hôn phối</div>
+                    <div className="text-xs text-muted">Ghi nhận kết hôn (Hôn phối trong đạo)</div>
+                  </div>
+                  <ChevronRight className="h-5 w-5 text-muted" />
+                </button>
+              </div>
+
+              {/* Footer */}
+              <div className="px-6 py-4 bg-surface border-t border-outline flex justify-end">
+                <button
+                  type="button"
+                  onClick={() => setIsSelectModalOpen(false)}
+                  className="px-5 py-2 text-sm font-medium text-foreground hover:bg-hover-bg border border-outline rounded min-h-[48px] transition-colors"
+                >
+                  Hủy
+                </button>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }

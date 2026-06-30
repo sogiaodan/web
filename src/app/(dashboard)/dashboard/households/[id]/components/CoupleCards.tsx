@@ -15,12 +15,9 @@ function formatDate(dateStr?: string) {
 
 const MARITAL_STATUS_MAP: Record<string, { label: string, color: string }> = {
   MARRIED: { label: 'Đã kết hôn', color: 'bg-emerald-50 text-emerald-700 border-emerald-100' },
-  IRREGULAR: { label: 'Ngăn trở', color: 'bg-orange-50 text-orange-700 border-orange-200' },
-  MIXED_RELIGION: { label: 'Khác đạo', color: 'bg-sky-50 text-sky-700 border-sky-100' },
-  SEPARATED: { label: 'Ly thân', color: 'bg-rose-50 text-rose-700 border-rose-200' },
-  DIVORCED: { label: 'Ly dị', color: 'bg-rose-50 text-rose-700 border-rose-200' },
-  WIDOWED: { label: 'Góa', color: 'bg-slate-50 text-slate-700 border-slate-200' },
   SINGLE: { label: 'Độc thân', color: 'bg-amber-50 text-amber-700 border-amber-200' },
+  RELIGIOUS: { label: 'Tu sĩ', color: 'bg-violet-50 text-violet-700 border-violet-100' },
+  PRIEST: { label: 'Linh mục', color: 'bg-sky-50 text-sky-700 border-sky-100' },
 };
 
 function MaritalStatusBadge({ status }: { status?: string }) {

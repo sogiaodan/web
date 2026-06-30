@@ -8,6 +8,7 @@ import { HouseholdSummaryCards } from "./components/HouseholdSummaryCards";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Plus } from "lucide-react";
+import { ErrorSection } from "@/components/ui/ErrorSection";
 
 export default function HouseholdsClient() {
   const searchParams = useSearchParams();
@@ -25,7 +26,7 @@ export default function HouseholdsClient() {
   if (status) queryParams.status = status;
   if (search) queryParams.search = search;
   
-  const { data: householdData, isLoading: isLoadingHouseholds } = useHouseholdsQuery(queryParams);
+  const { data: householdData, isLoading: isLoadingHouseholds, isError, refetch } = useHouseholdsQuery(queryParams);
   const { data: zonesData } = useZonesQuery();
 
   const isActuallyLoading = isLoadingHouseholds && !householdData;
@@ -52,6 +53,13 @@ export default function HouseholdsClient() {
           <div className="flex justify-center p-8">
             <div className="h-8 w-8 animate-spin rounded-full border-4 border-primary border-t-transparent"></div>
           </div>
+        ) : isError && !householdData ? (
+          <ErrorSection
+            title="Không thể tải danh sách hộ giáo"
+            message="Đã xảy ra lỗi khi tải danh sách hộ giáo. Vui lòng kiểm tra kết nối mạng, hoặc tài khoản của bạn bị giới hạn lượt truy cập (429 Rate Limit)."
+            onRetry={refetch}
+            className="min-h-[300px]"
+          />
         ) : !householdData ? (
           <div className="bg-surface border border-outline rounded p-8 text-center text-on-surface-variant">
             Không thể tải dữ liệu hộ giáo. Vui lòng thử lại sau.

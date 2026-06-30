@@ -48,10 +48,14 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
       return;
     }
 
-    // Only search if 3 or more characters
+    // Only search if 3 or more characters, otherwise clear search parameter with a debounce
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
+      }, 300);
+    } else {
+      debounceRef.current = setTimeout(() => {
+        handleFilter('search', '');
       }, 300);
     }
   };
@@ -230,6 +234,8 @@ const GENDER_LABELS: Record<string, string> = {
 const MARITAL_LABELS: Record<string, string> = {
   SINGLE: 'Độc thân',
   MARRIED: 'Đã kết hôn',
+  RELIGIOUS: 'Tu sĩ',
+  PRIEST: 'Linh mục',
 };
 
 function ActiveFilterChips({
