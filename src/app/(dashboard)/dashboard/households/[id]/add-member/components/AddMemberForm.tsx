@@ -591,6 +591,7 @@ export function AddMemberForm({ household }: { household: Household }) {
                     className={`${getInputCls(isSubmitting)} appearance-none pr-10`}
                   >
                     <option value="SINGLE">Độc thân</option>
+                    <option value="MARRIED">Đã kết hôn</option>
                     <option value="RELIGIOUS">Tu sĩ</option>
                     <option value="PRIEST">Linh mục</option>
                   </select>

@@ -11,11 +11,11 @@ import { SiblingsSection } from './SiblingsSection';
 import { GenealogyTree } from './GenealogyTree';
 import { SacramentalTimeline } from './SacramentalTimeline';
 
-export function ParishionerDetailClient({ id, searchParams }: { id: string; searchParams?: Record<string, any> }) {
+export function ParishionerDetailClient({ id, searchParams }: { id: string; searchParams?: Record<string, string | string[] | undefined> }) {
   const { user } = useAuth();
   const canEdit = user?.role === 'ADMIN' || user?.role === 'EDITOR';
 
-  const returnTo = searchParams?.returnTo;
+  const returnTo = typeof searchParams?.returnTo === 'string' ? searchParams.returnTo : undefined;
   
   const backQueryString = useMemo(() => {
     if (!searchParams) return '';
@@ -23,8 +23,10 @@ export function ParishionerDetailClient({ id, searchParams }: { id: string; sear
     Object.entries(searchParams).forEach(([key, value]) => {
       if (key !== 'returnTo') {
         if (Array.isArray(value)) {
-          value.forEach(v => q.append(key, v));
-        } else if (value) {
+          value.forEach(v => {
+            if (typeof v === 'string') q.append(key, v);
+          });
+        } else if (typeof value === 'string') {
           q.append(key, value);
         }
       }

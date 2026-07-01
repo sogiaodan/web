@@ -944,49 +944,6 @@ export function CertificateForm({
           <CertificateBusinessNotes />
         </div>
       </div>
-
-      {/* Full Width Certificate Section */}
-      {mode === 'edit' && !isEditing && initialData && (
-        <div className="mt-8 space-y-6">
-          <div className="bg-surface border border-outline rounded-md md:rounded-sm p-0 md:p-6 pb-0 overflow-hidden print:border-0 print:p-0 print:bg-transparent">
-            <div className="px-4 py-3 md:pt-0 md:px-0 flex items-center justify-between border-b border-outline md:border-b-0 md:mb-6 print:hidden">
-              <div className="flex items-center gap-2">
-                <Printer className="h-5 w-5 text-primary" />
-                <h3 className="text-sm font-bold text-on-surface uppercase tracking-wider">
-                  Mẫu In Chứng Chỉ (A4)
-                </h3>
-              </div>
-              <button
-                onClick={() => window.print()}
-                className="bg-primary hover:bg-primary/90 text-white px-6 py-2.5 rounded-sm font-bold text-sm flex items-center gap-2 shadow-md transition-all active:scale-95"
-              >
-                <Printer className="w-4 h-4" /> IN CHỨNG CHỈ (A4)
-              </button>
-            </div>
-
-            <div className="bg-[#E7E5E4]/30 p-4 md:p-12 flex justify-center overflow-x-auto min-h-[600px] print:bg-transparent print:p-0 print:min-h-0">
-              <div className="shadow-2xl hover:shadow-primary/10 transition-shadow print:shadow-none">
-                <PrintableCatechismCertificate
-                  certificate={initialData}
-                  parishInfo={parishInfo}
-                />
-              </div>
-            </div>
-
-            <div className="bg-on-surface px-6 py-3 flex items-center justify-between text-surface print:hidden">
-              <div className="flex items-center gap-4">
-                <span className="text-xs font-bold uppercase tracking-widest opacity-80 italic">
-                  Mẫu phôi chuẩn A4
-                </span>
-                <div className="h-4 w-[1px] bg-surface/20"></div>
-                <span className="text-[10px] opacity-60">
-                  Vui lòng kiểm tra kỹ thông tin trước khi in ấn thực tế.
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </>
   );
 }
