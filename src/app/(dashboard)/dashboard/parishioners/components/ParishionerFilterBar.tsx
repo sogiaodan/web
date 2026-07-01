@@ -10,9 +10,10 @@ interface Props {
   canEdit: boolean;
   total?: number;
   filterDrawerSlot?: React.ReactNode;
+  isFetching?: boolean;
 }
 
-export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filterDrawerSlot }: Props) {
+export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filterDrawerSlot, isFetching = false }: Props) {
   const zones = Array.isArray(zonesRaw) ? zonesRaw : [];
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -47,10 +48,14 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
       return;
     }
 
-    // Only search if 3 or more characters
+    // Only search if 3 or more characters, otherwise clear search parameter with a debounce
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
+      }, 300);
+    } else {
+      debounceRef.current = setTimeout(() => {
+        handleFilter('search', '');
       }, 300);
     }
   };
@@ -112,7 +117,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
             placeholder="Tìm kiếm giáo dân..."
             className="flex-1 bg-transparent border-none p-0 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50 min-h-[36px]"
           />
-          {isPending && (
+          {(isPending || isFetching) && (
             <span className="material-symbols-outlined text-primary text-sm animate-spin">progress_activity</span>
           )}
         </div>
@@ -229,6 +234,8 @@ const GENDER_LABELS: Record<string, string> = {
 const MARITAL_LABELS: Record<string, string> = {
   SINGLE: 'Độc thân',
   MARRIED: 'Đã kết hôn',
+  RELIGIOUS: 'Tu sĩ',
+  PRIEST: 'Linh mục',
 };
 
 function ActiveFilterChips({

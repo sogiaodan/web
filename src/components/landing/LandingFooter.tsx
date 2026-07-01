@@ -1,13 +1,9 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { Mail, MapPin, Phone } from 'lucide-react';
+import { Mail, Phone } from 'lucide-react';
 import { CONTACT_INFO, PROJECT_LINKS } from '@/lib/configs';
 
 const contactListData = [
-  {
-    icon: <MapPin className="h-4 w-4 flex-shrink-0 mt-0.5" />,
-    text: CONTACT_INFO.address,
-  },
   {
     icon: <Phone className="h-4 w-4 flex-shrink-0 mt-0.5" />,
     text: CONTACT_INFO.phone,

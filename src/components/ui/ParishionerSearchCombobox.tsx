@@ -46,6 +46,12 @@ export function ParishionerSearchCombobox({
   }, [value]);
 
   useEffect(() => {
+    if (initialSelected) {
+      setSelected(initialSelected);
+    }
+  }, [initialSelected]);
+
+  useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (wrapperRef.current && !wrapperRef.current.contains(event.target as Node)) {
         setIsOpen(false);

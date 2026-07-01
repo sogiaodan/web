@@ -158,7 +158,9 @@ export function CertificateTable({
           <tbody className="divide-y divide-outline">
             {items.map((item, index) => {
               const stt = (page - 1) * limit + index + 1;
-              const fullName = `${item.parishioner.christian_name ? item.parishioner.christian_name + ' ' : ''}${item.parishioner.full_name}`;
+              const fullName = item.is_outsider 
+                ? `${item.outsider_christian_name ? item.outsider_christian_name + ' ' : ''}${item.outsider_name || ''}`.trim()
+                : `${item.parishioner?.christian_name ? item.parishioner.christian_name + ' ' : ''}${item.parishioner?.full_name || ''}`.trim();
               return (
                 <tr key={item.id} className="hover:bg-surface-hover transition-colors group">
                   <td className="px-4 py-4 text-sm text-on-surface-variant text-center">{stt.toString().padStart(2, '0')}</td>
@@ -174,15 +176,22 @@ export function CertificateTable({
                         {fullName}
                       </div>
                     </Link>
-                    {item.parishioner.parish_name && (
+                    {item.is_outsider ? (
+                      <div className="text-[11px] text-[#166534] font-body mt-0.5 truncate font-medium">
+                        Người ngoài xứ
+                      </div>
+                    ) : item.parishioner?.parish_name ? (
                       <div className="text-[11px] text-[#A8A29E] font-body mt-0.5 truncate">
                         {item.parishioner.parish_name}
                       </div>
-                    )}
+                    ) : null}
                   </td>
                   <td className="px-4 py-4 text-sm text-on-surface font-body">
-                    {formatDate(item.parishioner.birth_date)}
+                    {item.is_outsider 
+                      ? formatDate(item.outsider_birth_date)
+                      : formatDate(item.parishioner?.birth_date)}
                   </td>
+
                   <td className="px-4 py-4">
                     <CertificateTypeBadge type={item.certificate_type} />
                   </td>
@@ -220,7 +229,9 @@ export function CertificateTable({
       {/* Mobile Cards */}
       <div className="md:hidden space-y-3 pb-20">
         {items.map((item) => {
-          const fullName = `${item.parishioner.christian_name ? item.parishioner.christian_name + ' ' : ''}${item.parishioner.full_name}`;
+          const fullName = item.is_outsider 
+            ? `${item.outsider_christian_name ? item.outsider_christian_name + ' ' : ''}${item.outsider_name || ''}`.trim()
+            : `${item.parishioner?.christian_name ? item.parishioner.christian_name + ' ' : ''}${item.parishioner?.full_name || ''}`.trim();
           return (
             <div
               key={item.id}
@@ -233,12 +244,15 @@ export function CertificateTable({
                       {fullName}
                     </h3>
                   </Link>
-                  {item.parishioner.parish_name && (
+                  {item.is_outsider ? (
+                    <p className="text-xs text-[#166534] font-body mt-0.5 font-medium">Người ngoài xứ</p>
+                  ) : item.parishioner?.parish_name ? (
                     <p className="text-xs text-[#A8A29E] font-body mt-0.5">{item.parishioner.parish_name}</p>
-                  )}
+                  ) : null}
                 </div>
                 <ActionButton id={item.id} />
               </div>
+
 
               <div className="flex items-center gap-2 flex-wrap mb-2">
                 <CertificateTypeBadge type={item.certificate_type} />

@@ -479,11 +479,8 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
                 >
                   <option value="SINGLE">Độc Thân</option>
                   <option value="MARRIED">Đã Kết Hôn</option>
-                  <option value="MIXED_RELIGION">Đã Kết Hôn (Khác Đạo)</option>
-                  <option value="IRREGULAR">Kết Hôn (Mắc Ngăn Trở)</option>
-                  <option value="SEPARATED">Ly Thân</option>
-                  <option value="DIVORCED">Ly Dị</option>
-                  <option value="WIDOWED">Góa</option>
+                  <option value="RELIGIOUS">Tu Sĩ</option>
+                  <option value="PRIEST">Linh Mục</option>
                 </select>
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
                   expand_more

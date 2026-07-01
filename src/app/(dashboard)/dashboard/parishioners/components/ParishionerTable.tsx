@@ -76,6 +76,10 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+  const searchParamsStr = searchParams.toString();
+  const getDetailUrl = (id: string) => {
+    return `/dashboard/parishioners/${id}${searchParamsStr ? `?${searchParamsStr}` : ''}`;
+  };
 
   const totalPages = Math.ceil(total / limit) || 1;
   const startIdx = (page - 1) * limit + 1;
@@ -157,7 +161,7 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                   </td>
                   <td className="px-5 py-4">
                     <Link
-                      href={`/dashboard/parishioners/${item.id}`}
+                      href={getDetailUrl(item.id)}
                       className="font-body font-semibold text-[#1C1917] hover:text-primary hover:underline underline-offset-2 transition-colors text-base"
                     >
                       {item.full_name}
@@ -191,7 +195,7 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                       </button>
                       {/* Navigate to full detail */}
                       <Link
-                        href={`/dashboard/parishioners/${item.id}`}
+                        href={getDetailUrl(item.id)}
                         id={`view-parishioner-${item.id}`}
                         title="Xem chi tiết"
                         className="w-9 h-9 flex items-center justify-center rounded hover:bg-primary/10 text-[#78716C] hover:text-primary transition-all focus-visible:ring-2 focus-visible:ring-primary"
@@ -280,7 +284,7 @@ export function ParishionerTable({ items, total, page, limit, canEdit = false, o
                 XEM NHANH
               </button>
               <Link
-                href={`/dashboard/parishioners/${item.id}`}
+                href={getDetailUrl(item.id)}
                 className="flex-1 h-12 flex items-center justify-center gap-1 text-xs font-bold text-[#78716C] border border-[#E7E5E4] rounded hover:bg-[#F5F5F4] transition-all active:scale-95"
               >
                 <span className="material-symbols-outlined text-sm">open_in_new</span>

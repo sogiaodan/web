@@ -13,10 +13,10 @@ export default async function ParishionerDetailPage({
   searchParams,
 }: {
   params: Promise<{ id: string }>;
-  searchParams: Promise<{ returnTo?: string }>;
+  searchParams: Promise<Record<string, string | string[] | undefined>>;
 }) {
   const { id } = await params;
-  const { returnTo } = await searchParams;
+  const resolvedSearchParams = await searchParams;
 
   return (
     <div className="flex-1 overflow-y-auto p-4 md:p-8 bg-background-light">
@@ -26,7 +26,7 @@ export default async function ParishionerDetailPage({
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
           </div>
         }>
-          <ParishionerDetailClient id={id} returnTo={returnTo} />
+          <ParishionerDetailClient id={id} searchParams={resolvedSearchParams} />
         </Suspense>
       </div>
     </div>

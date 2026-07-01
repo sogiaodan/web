@@ -1,5 +1,6 @@
 'use client';
 
+import { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { apiFetch } from '@/lib/api-client';
 
@@ -7,6 +8,7 @@ interface Priest {
   id: string;
   christian_name: string | null;
   full_name: string;
+  is_active: boolean;
 }
 
 interface PriestDropdownProps {
@@ -18,8 +20,6 @@ interface PriestDropdownProps {
   disabled?: boolean;
 }
 
-
-
 export function PriestDropdown({
   value,
   onChange,
@@ -28,12 +28,20 @@ export function PriestDropdown({
   error,
   disabled = false,
 }: PriestDropdownProps) {
-  // Client-side cache with staleTime handled by React Query (set to 5 minutes to prevent unnecessary refetching of the priest list)
+  const [showAll, setShowAll] = useState(false);
+
+  // Fetch all priests and categorize them client-side
   const { data: priests, isLoading } = useQuery({
     queryKey: ['priests_dropdown'],
-    queryFn: () => apiFetch<Priest[]>('/api/v1/priests?is_active=true'),
+    queryFn: () => apiFetch<Priest[]>('/api/v1/priests'),
     staleTime: 300000,
   });
+
+  const activePriests = priests?.filter((p) => p.is_active);
+  const inactivePriests = priests?.filter((p) => !p.is_active);
+
+  // Default active list, always including the currently selected priest (even if inactive) to avoid empty select box
+  const visibleActivePriests = priests?.filter((p) => p.is_active || p.id === value);
 
   return (
     <div className="w-full">
@@ -47,6 +55,10 @@ export function PriestDropdown({
           value={value || ''}
           onChange={(e) => {
             const val = e.target.value;
+            if (val === 'SHOW_ALL') {
+              setShowAll(true);
+              return;
+            }
             if (!val) {
               onChange(null);
               return;
@@ -61,11 +73,43 @@ export function PriestDropdown({
           } ${disabled || isLoading ? 'opacity-70 cursor-not-allowed bg-surface-container' : ''}`}
         >
           <option value="" disabled hidden>{isLoading ? 'Đang tải...' : placeholder}</option>
-          {priests?.map((p) => (
-            <option key={p.id} value={p.id} className="text-on-surface">
-              Lm. {p.christian_name ? p.christian_name + ' ' : ''}{p.full_name}
-            </option>
-          ))}
+          
+          {!showAll ? (
+            <>
+              {visibleActivePriests?.map((p) => (
+                <option key={p.id} value={p.id} className="text-on-surface">
+                  Lm. {p.christian_name ? p.christian_name + ' ' : ''}{p.full_name}
+                  {!p.is_active ? ' (Không còn đương nhiệm)' : ''}
+                </option>
+              ))}
+              {inactivePriests && inactivePriests.length > 0 && (
+                <option value="SHOW_ALL" className="text-primary font-semibold">
+                  -- Linh mục cựu / ngoài giáo xứ... --
+                </option>
+              )}
+            </>
+          ) : (
+            <>
+              {activePriests && activePriests.length > 0 && (
+                <optgroup label="Linh mục đương nhiệm" className="text-xs font-bold text-on-surface-variant">
+                  {activePriests.map((p) => (
+                    <option key={p.id} value={p.id} className="text-sm text-on-surface font-normal">
+                      Lm. {p.christian_name ? p.christian_name + ' ' : ''}{p.full_name}
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+              {inactivePriests && inactivePriests.length > 0 && (
+                <optgroup label="Linh mục cựu / Ngoài giáo xứ" className="text-xs font-bold text-on-surface-variant">
+                  {inactivePriests.map((p) => (
+                    <option key={p.id} value={p.id} className="text-sm text-on-surface-variant font-normal">
+                      Lm. {p.christian_name ? p.christian_name + ' ' : ''}{p.full_name} (Không đương nhiệm)
+                    </option>
+                  ))}
+                </optgroup>
+              )}
+            </>
+          )}
         </select>
         <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-on-surface-variant text-lg pointer-events-none">
           expand_more

@@ -327,8 +327,10 @@ export function AdvancedFilterDrawer({ zones }: Props) {
                 className="w-full appearance-none bg-surface border border-[#E7E5E4] rounded px-4 py-3 text-sm font-body text-[#1C1917] focus:border-primary focus:ring-1 focus:ring-primary outline-none transition-all pr-10"
               >
                 <option value="">Tất cả</option>
-                <option value="SINGLE">Độc thân</option>
                 <option value="MARRIED">Đã kết hôn</option>
+                <option value="SINGLE">Độc thân</option>
+                <option value="RELIGIOUS">Tu sĩ</option>
+                <option value="PRIEST">Linh mục</option>
               </select>
               <span className="absolute right-3 top-1/2 -translate-y-1/2 material-symbols-outlined text-[#78716C] text-lg pointer-events-none">
                 expand_more

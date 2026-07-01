@@ -14,7 +14,8 @@ import {
   RefreshCw,
   HelpCircle,
   MoreVertical,
-  UserSearch
+  UserSearch,
+  History
 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { SettingsAccountsAPI } from '@/lib/api/settings';
@@ -120,6 +121,14 @@ export default function SettingsPage() {
       subtitle: 'Cập nhật thông tin cơ bản và địa chỉ giáo xứ',
       href: '/settings/parish',
       show: isAdmin,
+    },
+    {
+      id: 'activities',
+      icon: History,
+      label: 'Nhật ký Hoạt động',
+      subtitle: 'Xem và theo dõi lịch sử thao tác hệ thống',
+      href: '/dashboard/activities',
+      show: isAdmin || isEditor,
     },
     {
       id: 'feedback',

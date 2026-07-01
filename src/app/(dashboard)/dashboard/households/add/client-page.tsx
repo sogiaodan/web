@@ -377,10 +377,9 @@ export default function AddHouseholdPage() {
                   style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7' /%3E%3C/svg%3E")` }}
                 >
                   <option value="MARRIED">Đã kết hôn</option>
-                  <option value="MIXED_RELIGION">Kết hôn khác đạo (Phép chuẩn)</option>
-                  <option value="IRREGULAR">Hôn nhân ngăn trở (Nguội lạnh)</option>
-                  <option value="SEPARATED">Ly thân / Ly dị</option>
-                  <option value="WIDOWED">Góa</option>
+                  <option value="SINGLE">Độc thân</option>
+                  <option value="RELIGIOUS">Tu sĩ</option>
+                  <option value="PRIEST">Linh mục</option>
                 </select>
               </div>
             </div>

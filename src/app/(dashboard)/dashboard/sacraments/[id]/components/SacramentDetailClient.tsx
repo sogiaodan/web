@@ -48,7 +48,7 @@ export function SacramentDetailClient({ id }: { id: string }) {
   const initialData = {
     parishioner_id: sacrament.parishioner?.id || '',
     date: sacrament.date || '',
-    place: '',
+    place: sacrament.place || '',
     minister_id: sacrament.minister?.id || '',
     godparent_name: sacrament.godparent_name || '',
     book_no: sacrament.book_no || '',
@@ -76,25 +76,18 @@ export function SacramentDetailClient({ id }: { id: string }) {
           initialData={initialData}
           initialParishioner={sacrament.parishioner}
           readOnly={false}
+          onCancel={() => setIsEditing(false)}
         />
-        <div className="mt-4">
-          <button
-            type="button"
-            onClick={() => setIsEditing(false)}
-            className="text-sm font-bold text-on-surface-variant hover:text-on-surface"
-          >
-            Quay lại Chi tiết
-          </button>
-        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
+      <div className="space-y-6 print:hidden">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-display font-bold text-on-surface mb-1">
-          {canEdit ? 'Chỉnh sửa Bí tích' : 'Chi tiết Bí tích'}
+          Chi tiết Bí tích
         </h1>
         <p className="text-on-surface-variant font-body text-sm">
           Hồ sơ Bí tích của: <span className="font-bold">{sacrament.parishioner?.christian_name} {sacrament.parishioner?.full_name}</span>
@@ -186,7 +179,7 @@ export function SacramentDetailClient({ id }: { id: string }) {
                 </div>
                 <div>
                   <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">ĐỊA ĐIỂM</span>
-                  <span className="text-sm md:text-base font-medium text-on-surface font-body">Nhà thờ Chính Tòa</span>
+                  <span className="text-sm md:text-base font-medium text-on-surface font-body">{sacrament.place || '—'}</span>
                 </div>
                 <div>
                   <span className="text-[10px] text-on-surface-variant uppercase font-bold tracking-widest block mb-1">LINH MỤC CHỦ SỰ</span>
@@ -264,11 +257,12 @@ export function SacramentDetailClient({ id }: { id: string }) {
           </div>
         </div>
       </div>
+    </div>
 
       {/* Full Width Certificate Section */}
       <div className="mt-8 space-y-6">
-        <div className="bg-surface border border-outline rounded-md md:rounded-sm p-0 md:p-6 pb-0 overflow-hidden">
-          <div className="px-4 py-3 md:pt-0 md:px-0 flex items-center justify-between border-b border-outline md:border-b-0 md:mb-6">
+        <div className="bg-surface border border-outline rounded-md md:rounded-sm p-0 md:p-6 pb-0 overflow-hidden print:border-0 print:p-0 print:bg-transparent">
+          <div className="px-4 py-3 md:pt-0 md:px-0 flex items-center justify-between border-b border-outline md:border-b-0 md:mb-6 print:hidden">
             <div className="flex items-center gap-2">
             </div>
             <button 
@@ -279,8 +273,8 @@ export function SacramentDetailClient({ id }: { id: string }) {
             </button>
           </div>
           
-            <div className="bg-[#E7E5E4]/30 p-4 md:p-12 flex justify-center overflow-x-auto min-h-[600px]">
-               <div className="shadow-2xl hover:shadow-primary/10 transition-shadow">
+            <div className="bg-[#E7E5E4]/30 p-4 md:p-12 flex justify-center overflow-x-auto min-h-[600px] print:bg-transparent print:p-0 print:min-h-0">
+               <div className="shadow-2xl hover:shadow-primary/10 transition-shadow print:shadow-none">
                   <PrintableCertificate 
                     sacrament={sacrament} 
                     baptism={baptism} 
@@ -341,27 +335,25 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
 
   return (
     <div className="certificate-print-area bg-white text-black p-8 md:p-12 shadow-2xl relative overflow-hidden print:shadow-none" 
-         style={{ width: '210mm', minHeight: '297mm', border: '12px double #B91C1C' }}>
+         style={{ width: '210mm', minHeight: '297mm', border: '12px double #1C1917', fontFamily: "'Times New Roman', Times, serif" }}>
       
-      {/* Red Corner Decorations */}
-      <div className="absolute top-2 left-2 w-16 h-16 border-t-2 border-l-2 border-[#B91C1C]"></div>
-      <div className="absolute top-2 right-2 w-16 h-16 border-t-2 border-r-2 border-[#B91C1C]"></div>
-      <div className="absolute bottom-2 left-2 w-16 h-16 border-b-2 border-l-2 border-[#B91C1C]"></div>
-      <div className="absolute bottom-2 right-2 w-16 h-16 border-b-2 border-r-2 border-[#B91C1C]"></div>
+      {/* Black Corner Decorations */}
+      <div className="absolute top-2 left-2 w-16 h-16 border-t-2 border-l-2 border-[#1C1917]"></div>
+      <div className="absolute top-2 right-2 w-16 h-16 border-t-2 border-r-2 border-[#1C1917]"></div>
+      <div className="absolute bottom-2 left-2 w-16 h-16 border-b-2 border-l-2 border-[#1C1917]"></div>
+      <div className="absolute bottom-2 right-2 w-16 h-16 border-b-2 border-r-2 border-[#1C1917]"></div>
 
-      <div className="flex flex-col h-full font-sans text-[#1C1917]">
-        {/* Header Content */}
-        <div className="flex justify-between text-[10px] font-bold mb-8 uppercase tracking-tight opacity-70">
+      <div className="flex flex-col h-full text-[#1C1917]">
+        {/* Header Content - 3 Rows stacked vertically on the left */}
+        <div className="flex flex-col gap-1 text-[11px] font-bold mb-8 uppercase tracking-wider text-left opacity-80 leading-normal">
           <p>
-            GIÁO PHẬN {parishInfo?.diocese ? <span className="text-black font-black ml-1">{parishInfo.diocese}</span> : '..............................'}
+            GIÁO PHẬN: {parishInfo?.diocese ? <span className="text-black font-extrabold ml-1">{parishInfo.diocese}</span> : '................................................'}
           </p>
-          <div className="text-center">
-             <p className="mb-0.5 font-bold">
-               GIÁO HẠT {parishInfo?.deanery ? <span className="text-black font-black ml-1">{parishInfo.deanery}</span> : '..............................'}
-             </p>
-          </div>
           <p>
-            GIÁO XỨ {parishInfo?.name ? <span className="text-black font-black ml-1">{parishInfo.name}</span> : '..............................'}
+            GIÁO HẠT: {parishInfo?.deanery ? <span className="text-black font-extrabold ml-1">{parishInfo.deanery}</span> : '................................................'}
+          </p>
+          <p>
+            GIÁO XỨ: {parishInfo?.name ? <span className="text-black font-extrabold ml-1">{parishInfo.name}</span> : '................................................'}
           </p>
         </div>
 
@@ -369,7 +361,7 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
           <div className="flex justify-center gap-1 text-[#B91C1C] mb-2 opacity-50">
              <span className="text-xs">♦</span> <span className="text-xs">♦</span> <span className="text-xs">♦</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-black text-[#B91C1C] tracking-tighter uppercase whitespace-nowrap leading-tight">
+          <h1 className="text-3xl md:text-4xl font-extrabold text-[#B91C1C] tracking-tighter uppercase whitespace-nowrap leading-tight">
             {title}
           </h1>
           <div className="flex justify-center gap-1 text-[#B91C1C] mt-2 opacity-50">
@@ -385,11 +377,11 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
             </div>
           </div>
           
-          <p className="text-center font-black text-[#B91C1C] text-xl my-4 uppercase tracking-[0.2em] opacity-80">CHỨNG NHẬN</p>
+          <p className="text-center font-bold text-[#1C1917] text-xl my-4 uppercase tracking-[0.2em] opacity-80">CHỨNG NHẬN</p>
 
           <div className="flex items-end gap-2">
             <span className="whitespace-nowrap font-medium text-black/60">Anh (Chị):</span>
-            <div className="flex-1 border-b border-dotted border-black px-4 font-black uppercase text-2xl text-[#1A1A1A] tracking-tight">
+            <div className="flex-1 border-b border-dotted border-black px-4 font-bold uppercase text-2xl text-[#1A1A1A] tracking-tight">
               {sacrament.parishioner.christian_name} {sacrament.parishioner.full_name}
             </div>
           </div>
@@ -426,8 +418,8 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
             </div>
           )}
 
-          <div className="bg-[#B91C1C]/5 py-2.5 rounded-sm border-y border-[#B91C1C]/30 my-4">
-            <p className="text-center font-black text-[#B91C1C] text-base md:text-lg uppercase tracking-wider whitespace-nowrap">
+          <div className="bg-stone-50 py-2.5 rounded-sm border-y border-stone-300 my-4">
+            <p className="text-center font-bold text-[#1C1917] text-base md:text-lg uppercase tracking-wider whitespace-nowrap">
               ĐÃ ĐƯỢC LÃNH NHẬN {typeText}
             </p>
           </div>
@@ -435,7 +427,7 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
           <div className="grid grid-cols-2 gap-8">
              <div className="flex items-end gap-2">
                <span className="whitespace-nowrap font-medium text-black/60">Vào ngày:</span>
-               <div className="flex-1 border-b border-dotted border-black/80 px-4 font-black text-xl text-[#1A1A1A]">
+               <div className="flex-1 border-b border-dotted border-black/80 px-4 font-bold text-xl text-[#1A1A1A]">
                  {formatDate(sacrament.date)}
                </div>
              </div>
@@ -471,7 +463,7 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
           <div className="flex justify-end mt-12 text-center">
              <div className="w-80">
                <p className="text-[10px] italic mb-1 opacity-60">Giáo xứ Tân Thịnh, ngày {new Date().getDate()} tháng {new Date().getMonth() + 1} năm {new Date().getFullYear()}</p>
-               <p className="text-sm font-black uppercase mb-1 tracking-tight text-[#1C1917]">LINH MỤC CHÁNH XỨ</p>
+               <p className="text-sm font-bold uppercase mb-1 tracking-tight text-[#1C1917]">LINH MỤC CHÁNH XỨ</p>
                <div className="h-20 mb-2 relative">
                  <div className="absolute inset-0 flex items-center justify-center opacity-5 select-none grayscale">
                     <svg viewBox="0 0 100 40" className="w-32 h-16 opacity-20"><path d="M10,20 Q30,10 50,30 T90,20" fill="none" stroke="black" strokeWidth="0.5"/></svg>
@@ -491,36 +483,59 @@ function PrintableCertificate({ sacrament, baptism, parishInfo }: {
             size: A4;
             margin: 0;
           }
-          /* Hide everything by default */
-          :global(body), :global(html), :global(#__next), :global(.dashboard-layout) {
+          /* Reset root and body layout */
+          :global(html),
+          :global(body),
+          :global(#__next) {
             background: white !important;
             padding: 0 !important;
             margin: 0 !important;
+            height: auto !important;
+            overflow: visible !important;
           }
-          :global(header), :global(nav), :global(aside), :global(button), :global(.print-hidden) {
+          /* Reset flex/grid and height layout containers specifically */
+          :global(div[class*="h-dvh"]),
+          :global(div[class*="flex-1"]),
+          :global(main) {
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+            overflow: visible !important;
+            padding: 0 !important;
+            margin: 0 !important;
+            border: none !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            display: block !important;
+          }
+          :global(header),
+          :global(nav),
+          :global(aside),
+          :global(button),
+          :global(.print-hidden) {
             display: none !important;
           }
-          body * {
+          :global(body) * {
             visibility: hidden;
           }
           /* Show only the certificate area */
-          .certificate-print-area, .certificate-print-area * {
+          :global(.certificate-print-area), :global(.certificate-print-area) * {
             visibility: visible;
           }
-          .certificate-print-area {
+          :global(.certificate-print-area) {
             display: block !important;
-            position: absolute;
-            left: 0;
-            top: 0;
+            position: relative !important;
             width: 210mm !important;
             height: 297mm !important;
-            margin: 0;
+            margin: 0 auto !important;
             padding: 25mm !important;
             box-shadow: none !important;
-            border-width: 15px !important;
+            border: 12px double #1C1917 !important;
             -webkit-print-color-adjust: exact;
             background: white !important;
             z-index: 9999;
+            page-break-inside: avoid;
+            page-break-after: avoid;
           }
         }
       `}</style>

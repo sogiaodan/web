@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { SacramentEntry, MarriageInfo, SacramentType } from '@/types/parishioner';
 
 // ─── Sacrament display metadata ───────────────────────────────────────────────
@@ -29,6 +30,15 @@ function formatDate(dateStr: string | null | undefined): string {
   }
 }
 
+function formatMinisterName(name: string | null | undefined): string | null {
+  if (!name) return null;
+  const trimmed = name.trim();
+  if (/^(lm\.?|linh\s+mục)\s/i.test(trimmed)) {
+    return trimmed;
+  }
+  return `Lm. ${trimmed}`;
+}
+
 // ─── Single Timeline Entry ────────────────────────────────────────────────────
 
 function TimelineEntry({
@@ -40,10 +50,63 @@ function TimelineEntry({
   type: SacramentType;
   isLast: boolean;
 }) {
-  // Always resolve meta from the canonical `type` prop (not sacrament.type)
-  // so 'not received' entries still show the correct label and icon.
   const meta = SACRAMENT_META[type];
   const received = !!sacrament?.date;
+
+  const content = (
+    <div className={`pb-6 flex-1 min-w-0 ${received ? 'group' : ''}`}>
+      {received && sacrament ? (
+        <>
+          {/* Date */}
+          <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
+            {formatDate(sacrament.date)}
+          </p>
+          {/* Sacrament name + link cue */}
+          <p className="font-body font-semibold text-[#1C1917] text-base mb-2 leading-tight flex items-center gap-1">
+            {meta?.label || sacrament.type}
+            <span className="material-symbols-outlined text-sm text-[#A8A29E] group-hover:text-primary transition-colors mt-[1px] leading-none">
+              open_in_new
+            </span>
+          </p>
+          {/* Details */}
+          <div className="space-y-1.5">
+            {sacrament.place && (
+              <div className="flex items-center gap-1.5 text-sm text-[#78716C]">
+                <span className="material-symbols-outlined text-sm shrink-0">
+                  location_on
+                </span>
+                <span className="font-body">{sacrament.place}</span>
+              </div>
+            )}
+            {sacrament.minister_name && (
+              <div className="flex items-center gap-1.5 text-sm text-[#78716C]">
+                <span className="material-symbols-outlined text-sm shrink-0">
+                  person
+                </span>
+                <span className="font-body">{formatMinisterName(sacrament.minister_name)}</span>
+              </div>
+            )}
+            {sacrament.godparent_name && (
+              <div className="flex items-center gap-1.5 text-sm text-[#78716C]">
+                <span className="material-symbols-outlined text-sm shrink-0">
+                  favorite
+                </span>
+                <span className="font-body">Người đỡ đầu: {sacrament.godparent_name}</span>
+              </div>
+            )}
+          </div>
+        </>
+      ) : (
+        /* Not received — muted dashed style per spec */
+        <div className="pb-4">
+          <p className="font-body font-medium text-base text-[#78716C]">
+            {meta?.label || 'Bí tích'}
+          </p>
+          <p className="text-xs text-[#78716C]/50 font-body italic">Chưa ghi nhận</p>
+        </div>
+      )}
+    </div>
+  );
 
   return (
     <div className="flex gap-4">
@@ -67,58 +130,17 @@ function TimelineEntry({
         {!isLast && <div className="w-px flex-1 min-h-[24px] bg-[#E7E5E4] mt-1" />}
       </div>
 
-      {/* Content */}
-      <div className={`pb-6 flex-1 min-w-0 ${isLast ? '' : ''}`}>
-        {received && sacrament ? (
-          <>
-            {/* Date */}
-            <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
-              {formatDate(sacrament.date)}
-            </p>
-            {/* Sacrament name */}
-            <p className="font-body font-semibold text-[#1C1917] text-base mb-2 leading-tight">
-              {meta?.label || sacrament.type}
-            </p>
-            {/* Details */}
-            <div className="space-y-1.5">
-              {sacrament.place && (
-                <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
-                  <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">
-                    location_on
-                  </span>
-                  <span className="font-body">{sacrament.place}</span>
-                </div>
-              )}
-              {sacrament.minister_name && (
-                <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
-                  <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">
-                    person
-                  </span>
-                  <span className="font-body">{sacrament.minister_name}</span>
-                </div>
-              )}
-              {sacrament.godparent_name && (
-                <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
-                  <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">
-                    favorite
-                  </span>
-                  <span className="font-body">Người đỡ đầu: {sacrament.godparent_name}</span>
-                </div>
-              )}
-            </div>
-
-
-          </>
-        ) : (
-          /* Not received — muted dashed style per spec */
-          <div className="pb-4">
-            <p className="font-body font-medium text-base text-[#78716C]">
-              {meta?.label || 'Bí tích'}
-            </p>
-            <p className="text-xs text-[#78716C]/50 font-body italic">Chưa ghi nhận</p>
-          </div>
-        )}
-      </div>
+      {/* Content — clickable only when received */}
+      {received && sacrament?.id ? (
+        <Link
+          href={`/dashboard/sacraments/${sacrament.id}`}
+          className="flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          {content}
+        </Link>
+      ) : (
+        <div className="flex-1 min-w-0">{content}</div>
+      )}
     </div>
   );
 }
@@ -127,6 +149,43 @@ function TimelineEntry({
 
 function MarriageEntry({ marriage, isLast }: { marriage: MarriageInfo | null; isLast: boolean }) {
   const received = !!marriage;
+
+  const content = (
+    <div className={`pb-6 flex-1 min-w-0 ${received ? 'group' : ''}`}>
+      {received ? (
+        <>
+          <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
+            {formatDate(marriage.marriage_date)}
+          </p>
+          <p className="font-body font-semibold text-[#1C1917] text-base mb-1 leading-tight flex items-center gap-1">
+            Hôn phối
+            <span className="material-symbols-outlined text-sm text-[#A8A29E] group-hover:text-primary transition-colors mt-[1px] leading-none">
+              open_in_new
+            </span>
+          </p>
+          <div className="flex items-center gap-1.5 text-sm text-[#78716C]">
+            <span className="material-symbols-outlined text-sm shrink-0">person</span>
+            <span className="font-body">
+              {marriage.spouse.christian_name && `${marriage.spouse.christian_name} `}
+              {marriage.spouse.full_name}
+            </span>
+          </div>
+          {marriage.minister_name && (
+            <div className="flex items-center gap-1.5 text-sm text-[#78716C] mt-1.5">
+              <span className="material-symbols-outlined text-sm shrink-0">person</span>
+              <span className="font-body">{formatMinisterName(marriage.minister_name)}</span>
+            </div>
+          )}
+        </>
+      ) : (
+        <div className="pb-4">
+          <p className="font-body font-medium text-base text-[#78716C]">Hôn phối</p>
+          <p className="text-xs text-[#78716C]/50 font-body italic">Chưa ghi nhận</p>
+        </div>
+      )}
+    </div>
+  );
+
   return (
     <div className="flex gap-4">
       <div className="flex flex-col items-center shrink-0">
@@ -147,30 +206,18 @@ function MarriageEntry({ marriage, isLast }: { marriage: MarriageInfo | null; is
         </div>
         {!isLast && <div className="w-px flex-1 min-h-[24px] bg-[#E7E5E4] mt-1" />}
       </div>
-      <div className="pb-6 flex-1 min-w-0">
-        {received ? (
-          <>
-            <p className="text-xs font-bold text-primary font-body tracking-wide mb-1">
-              {formatDate(marriage.marriage_date)}
-            </p>
-            <p className="font-body font-semibold text-[#1C1917] text-base mb-1 leading-tight">
-              Hôn phối
-            </p>
-            <div className="flex items-start gap-1.5 text-sm text-[#78716C]">
-              <span className="material-symbols-outlined text-sm shrink-0 mt-0.5">person</span>
-              <span className="font-body">
-                {marriage.spouse.christian_name && `${marriage.spouse.christian_name} `}
-                {marriage.spouse.full_name}
-              </span>
-            </div>
-          </>
-        ) : (
-          <div className="pb-4">
-            <p className="font-body font-medium text-base text-[#78716C]">Hôn phối</p>
-            <p className="text-xs text-[#78716C]/50 font-body italic">Chưa ghi nhận</p>
-          </div>
-        )}
-      </div>
+
+      {/* Content — clickable only when received */}
+      {received && marriage?.id ? (
+        <Link
+          href={`/dashboard/sacraments/marriages/${marriage.id}`}
+          className="flex-1 min-w-0 hover:opacity-80 transition-opacity cursor-pointer"
+        >
+          {content}
+        </Link>
+      ) : (
+        <div className="flex-1 min-w-0">{content}</div>
+      )}
     </div>
   );
 }
@@ -194,7 +241,6 @@ export function SacramentalTimeline({ sacraments, marriage }: Props) {
     { type: 'EUCHARIST', isMarriage: false },
     { type: 'CONFIRMATION', isMarriage: false },
     { type: 'MARRIAGE', isMarriage: true },
-    { type: 'ANOINTING_OF_SICK', isMarriage: false },
   ];
 
   if (sacramentMap.has('HOLY_ORDERS')) {
@@ -230,3 +276,5 @@ export function SacramentalTimeline({ sacraments, marriage }: Props) {
     </section>
   );
 }
+
+

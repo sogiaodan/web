@@ -52,11 +52,8 @@ function formatMaritalStatus(status: string | null | undefined): string {
   const mapping: Record<string, string> = {
     'SINGLE': 'Độc thân',
     'MARRIED': 'Đã kết hôn',
-    'MIXED_RELIGION': 'Đã kết hôn (Khác đạo)',
-    'SEPARATED': 'Ly thân',
-    'DIVORCED': 'Ly dị',
-    'WIDOWED': 'Góa',
-    'IRREGULAR': 'Hôn phối ngăn trở',
+    'RELIGIOUS': 'Tu sĩ',
+    'PRIEST': 'Linh mục',
   };
   return mapping[status] || status;
 }
