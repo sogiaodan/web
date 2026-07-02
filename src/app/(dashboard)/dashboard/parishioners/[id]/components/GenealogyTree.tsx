@@ -6,6 +6,7 @@ interface Props {
   mother: ParishionerSummaryRef | null;
   currentName: string;
   christianName: string;
+  spouse: ParishionerSummaryRef | null;
 }
 
 // ─── Variants ─────────────────────────────────────────────────────────────────
@@ -174,7 +175,7 @@ function FanConnector({ count, color = '#6ee7b7' }: { count: number; color?: str
 
 // ─── Main Component ───────────────────────────────────────────────────────────
 
-export function GenealogyTree({ genealogy, father, mother, currentName, christianName }: Props) {
+export function GenealogyTree({ genealogy, father, mother, currentName, christianName, spouse }: Props) {
   const byGen = (gen: number) => genealogy.filter((n) => (n.rel_gen ?? 0) === gen);
 
   const grandparents = byGen(-2);
@@ -271,13 +272,23 @@ export function GenealogyTree({ genealogy, father, mother, currentName, christia
             </>
           )}
 
-          {/* Self */}
-          <GenealogyNodeCard
-            label="BẢN THÂN"
-            name={currentName}
-            christianName={christianName}
-            variant="self"
-          />
+          {/* Self & Spouse */}
+          <div className="flex items-stretch gap-6 justify-center">
+            <GenealogyNodeCard
+              label="BẢN THÂN"
+              name={currentName}
+              christianName={christianName}
+              variant="self"
+            />
+            {spouse && (
+              <GenealogyNodeCard
+                label={spouse.gender === 'MALE' ? 'CHỒNG' : 'VỢ'}
+                name={spouse.full_name}
+                christianName={spouse.christian_name}
+                variant="spouse"
+              />
+            )}
+          </div>
 
           {/* Family groups (Child > Spouse > Grandchildren) */}
           {hasChildren && (
@@ -322,7 +333,7 @@ export function GenealogyTree({ genealogy, father, mother, currentName, christia
           </div>
         )}
 
-        <div className="flex items-center gap-3 bg-[#F5F5F4] border-2 border-primary/30 rounded p-3 mb-6">
+        <div className={`flex items-center gap-3 bg-[#F5F5F4] border-2 border-primary/30 rounded p-3 ${spouse ? 'mb-4' : 'mb-6'}`}>
           <span className="material-symbols-outlined text-primary text-base shrink-0">person</span>
           <div className="flex-1 min-w-0 text-text-main">
             <p className="text-[9px] font-bold uppercase tracking-widest text-[#78716C] font-body">BẢN THÂN</p>
@@ -330,6 +341,19 @@ export function GenealogyTree({ genealogy, father, mother, currentName, christia
             <p className="font-display font-bold text-sm truncate">{currentName}</p>
           </div>
         </div>
+
+        {spouse && (
+          <div className="flex items-center gap-3 bg-teal-50 border border-teal-100 rounded p-3 mb-6">
+            <span className="material-symbols-outlined text-teal-500 text-base shrink-0">favorite</span>
+            <div className="flex-1 min-w-0 text-text-main">
+              <p className="text-[9px] font-bold uppercase tracking-widest text-teal-600 font-body">
+                {spouse.gender === 'MALE' ? 'CHỒNG' : 'VỢ'}
+              </p>
+              {spouse.christian_name && <p className="text-xs text-teal-500 font-display italic leading-none">{spouse.christian_name}</p>}
+              <p className="font-display font-bold text-sm truncate">{spouse.full_name}</p>
+            </div>
+          </div>
+        )}
 
         {hasChildren && (
           <div className="pt-3 space-y-6">

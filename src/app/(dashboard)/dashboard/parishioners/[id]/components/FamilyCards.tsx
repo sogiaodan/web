@@ -73,3 +73,53 @@ export function FamilyCards({ father, mother }: Props) {
     </section>
   );
 }
+
+export function SpouseCard({
+  spouse,
+  gender,
+  marriageDate,
+}: {
+  spouse: ParishionerSummaryRef;
+  gender: 'MALE' | 'FEMALE';
+  marriageDate?: string;
+}) {
+  const roleLabel = gender === 'MALE' ? 'CHỒNG' : 'VỢ';
+
+  return (
+    <section>
+      <h2 className="font-display font-bold text-lg text-[#1C1917] mb-4 flex items-center gap-2">
+        <span className="material-symbols-outlined text-primary text-xl">favorite</span>
+        Bạn đời (Hôn phối)
+      </h2>
+      <div className="flex flex-col md:flex-row gap-4">
+        <Link
+          href={`/dashboard/parishioners/${spouse.id}`}
+          className="flex-1 bg-surface border border-outline rounded p-5 flex items-center gap-4 hover:border-primary/50 hover:shadow-sm transition-all group active:scale-[0.99] focus-visible:ring-2 focus-visible:ring-primary max-w-full md:max-w-[calc(50%-8px)]"
+        >
+          <div className="w-10 h-10 rounded-full bg-teal-50 border border-teal-100 flex items-center justify-center shrink-0">
+            <span className="material-symbols-outlined text-teal-500 text-lg">favorite</span>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[10px] font-bold uppercase tracking-widest text-[#78716C] font-body mb-0.5">
+              {roleLabel}
+            </p>
+            {spouse.christian_name && (
+              <p className="text-xs text-primary font-display italic">{spouse.christian_name}</p>
+            )}
+            <p className="font-display font-bold text-[#1C1917] text-base leading-tight truncate">
+              {spouse.full_name}
+            </p>
+            {marriageDate && (
+              <p className="text-[10px] text-[#78716C] font-body mt-0.5">
+                Ngày kết hôn: {new Date(marriageDate).toLocaleDateString('vi-VN')}
+              </p>
+            )}
+          </div>
+          <span className="material-symbols-outlined text-[#78716C] group-hover:text-primary group-hover:translate-x-0.5 transition-all shrink-0">
+            chevron_right
+          </span>
+        </Link>
+      </div>
+    </section>
+  );
+}
