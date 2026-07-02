@@ -6,7 +6,7 @@ import { Loader2 } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { useParishionerDetailQuery } from '../../queries/useParishionerQueries';
 import { ParishionerProfileHeader } from './ParishionerProfileHeader';
-import { FamilyCards } from './FamilyCards';
+import { FamilyCards, SpouseCard } from './FamilyCards';
 import { SiblingsSection } from './SiblingsSection';
 import { GenealogyTree } from './GenealogyTree';
 import { SacramentalTimeline } from './SacramentalTimeline';
@@ -76,6 +76,13 @@ export function ParishionerDetailClient({ id, searchParams }: { id: string; sear
       <div className="mt-8 flex flex-col lg:flex-row gap-8">
         <div className="w-full lg:w-[60%] space-y-8">
           <FamilyCards father={parishioner.father} mother={parishioner.mother} />
+          {parishioner.marriage && (
+            <SpouseCard
+              spouse={parishioner.marriage.spouse}
+              gender={parishioner.gender === 'MALE' ? 'FEMALE' : 'MALE'}
+              marriageDate={parishioner.marriage.marriage_date}
+            />
+          )}
           {parishioner.siblings && parishioner.siblings.length > 0 && (
             <SiblingsSection siblings={parishioner.siblings} />
           )}
@@ -83,6 +90,7 @@ export function ParishionerDetailClient({ id, searchParams }: { id: string; sear
             genealogy={parishioner.genealogy}
             father={parishioner.father}
             mother={parishioner.mother}
+            spouse={parishioner.marriage?.spouse ?? null}
             currentName={parishioner.full_name}
             christianName={parishioner.christian_name || ''}
           />
