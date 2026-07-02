@@ -1,0 +1,22 @@
+name: Vercel Deployment Notification
+
+on:
+  deployment_status:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send success notification
+        if: github.event.deployment_status.state == 'success'
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -H "Content-Type: application/json" \
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\", \"text\": \"✅ *[sogiaodan/web]* Deploy Vercel THÀNH CÔNG cho commit \`${{ github.event.deployment.sha }}\`! \n\n🔗 URL: ${{ github.event.deployment_status.target_url }}\", \"parse_mode\": \"Markdown\"}"
+
+      - name: Send failure notification
+        if: github.event.deployment_status.state == 'failure'
+        run: |
+          curl -s -X POST https://api.telegram.org/bot${{ secrets.TELEGRAM_BOT_TOKEN }}/sendMessage \
+            -H "Content-Type: application/json" \
+            -d "{\"chat_id\": \"${{ secrets.TELEGRAM_CHAT_ID }}\", \"text\": \"❌ *[sogiaodan/web]* Deploy Vercel THẤT BẠI cho commit \`${{ github.event.deployment.sha }}\`! Vui lòng kiểm tra Vercel Dashboard.\", \"parse_mode\": \"Markdown\"}"
