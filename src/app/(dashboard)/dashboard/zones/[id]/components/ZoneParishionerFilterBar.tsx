@@ -38,7 +38,7 @@ export function ZoneParishionerFilterBar() {
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
-      }, 300);
+      }, 600);
     }
   };
 

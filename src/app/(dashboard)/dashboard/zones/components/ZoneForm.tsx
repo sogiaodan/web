@@ -69,7 +69,7 @@ export function ZoneForm({ initialData, isEdit }: ZoneFormProps) {
       } finally {
         setIsSearching(false);
       }
-    }, 500);
+    }, 600);
   };
 
   const selectParishioner = (p: ParishionerLookup) => {

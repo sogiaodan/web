@@ -75,7 +75,7 @@ export function HouseholdSearchCombobox({
       }
     };
 
-    const debounce = setTimeout(fetchResults, 350);
+    const debounce = setTimeout(fetchResults, 600);
     return () => clearTimeout(debounce);
   }, [query]);
 

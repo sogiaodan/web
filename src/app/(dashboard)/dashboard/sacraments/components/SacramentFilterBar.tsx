@@ -28,7 +28,7 @@ export function SacramentFilterBar({
 
     const handler = setTimeout(() => {
       onSearchChange(localSearch);
-    }, 300);
+    }, 600);
     return () => clearTimeout(handler);
   }, [localSearch, search, onSearchChange]);
 

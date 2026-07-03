@@ -50,7 +50,7 @@ export function HouseholdFilterBar({ zones: zonesRaw, total = 0 }: { zones: Zone
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
-      }, 500);
+      }, 600);
     }
   };
 

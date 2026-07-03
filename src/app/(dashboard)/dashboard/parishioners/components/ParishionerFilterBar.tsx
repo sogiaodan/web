@@ -52,11 +52,11 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
-      }, 300);
+      }, 600);
     } else {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', '');
-      }, 300);
+      }, 600);
     }
   };
 

@@ -82,7 +82,7 @@ export function ParishionerSearchCombobox({
       }
     };
 
-    const debounce = setTimeout(fetchResults, 300);
+    const debounce = setTimeout(fetchResults, 600);
     return () => clearTimeout(debounce);
   }, [query]);
 

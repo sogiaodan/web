@@ -31,7 +31,7 @@ export function ParishGroupFilterBar({
 
     debounceRef.current = setTimeout(() => {
       onSearchChange(localSearch);
-    }, 500);
+    }, 600);
 
     return () => {
       if (debounceRef.current) clearTimeout(debounceRef.current);
