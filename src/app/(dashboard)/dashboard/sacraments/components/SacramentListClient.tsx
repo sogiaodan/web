@@ -2,8 +2,7 @@
 
 import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Plus, Loader2, X, ChevronRight } from 'lucide-react';
+import { Plus, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
 import { SacramentTabs } from './SacramentTabs';

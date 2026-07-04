@@ -5,7 +5,6 @@ import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
 import { SacramentForm } from './SacramentForm';
 import { MarriageForm } from './MarriageForm';
-import { SacramentType } from '@/types/sacrament';
 
 const SACRAMENT_LABELS = {
   BAPTISM: {
