@@ -11,6 +11,7 @@ import { CertificateFilterBar } from './CertificateFilterBar';
 import { CertificateTable } from './CertificateTable';
 import { CertificateType } from '@/types/catechism';
 import { useCatechismQuery } from '../queries/useCatechismQuery';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export function CertificateListClient() {
   const { user } = useAuth();
@@ -126,7 +127,7 @@ export function CertificateListClient() {
 
       {isLoading || isPending ? (
         <div className="bg-surface border border-outline rounded p-12 flex flex-col items-center justify-center gap-3 mt-4 min-h-[300px]">
-          <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <LoadingSpinner className="h-10 w-10 text-primary" />
           <p className="text-sm font-body text-muted">Đang tải danh sách chứng chỉ...</p>
         </div>
       ) : (
