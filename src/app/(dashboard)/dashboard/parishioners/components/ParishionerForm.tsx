@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { ParishionerDetail, ParishionerLookup, ParishionerGender } from '@/types/parishioner';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
 import { FieldLabel, FieldError, SectionHeader, getInputCls } from '@/components/dashboard/shared/FormPrimitives';
@@ -670,7 +671,7 @@ export function ParishionerForm({ initialData, isEdit = false }: Props) {
           >
             {isSubmitting ? (
               <>
-                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+                <Loader2 className="h-4 w-4 animate-spin text-current shrink-0" />
                 <span>Đang lưu...</span>
               </>
             ) : (

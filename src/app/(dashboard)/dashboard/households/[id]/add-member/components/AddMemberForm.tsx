@@ -3,6 +3,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { Household } from '@/types/household';
 import { ParishionerLookup, ParishionerGender } from '@/types/parishioner';
 import { SaintNameSelect } from '@/components/dashboard/shared/SaintNameSelect';
@@ -866,7 +867,7 @@ export function AddMemberForm({ household }: { household: Household }) {
         >
           {isSubmitting ? (
             <>
-              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <Loader2 className="h-4 w-4 animate-spin text-current shrink-0" />
               <span>Đang lưu...</span>
             </>
           ) : (

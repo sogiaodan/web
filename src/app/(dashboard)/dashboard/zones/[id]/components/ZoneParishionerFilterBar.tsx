@@ -3,6 +3,7 @@
 import React, { useRef, useTransition } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ZoneAdvancedFilterDrawer } from './ZoneAdvancedFilterDrawer';
+import { Loader2 } from 'lucide-react';
 
 export function ZoneParishionerFilterBar() {
   const router = useRouter();
@@ -57,7 +58,7 @@ export function ZoneParishionerFilterBar() {
             className="flex-1 bg-transparent border-none p-0 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50"
           />
           {isPending && (
-            <span className="material-symbols-outlined text-primary text-sm animate-spin">progress_activity</span>
+            <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
           )}
         </div>
 

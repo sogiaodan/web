@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { CreateZoneDto, ZoneDetail, ParishionerLookup } from '@/types/zone';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 import { useCreateZone, useUpdateZone } from '../queries/useZoneMutations';
 
 interface ZoneFormProps {
@@ -217,7 +218,7 @@ export function ZoneForm({ initialData, isEdit }: ZoneFormProps) {
             className="w-full md:w-auto bg-primary text-white px-8 py-3 rounded shadow-sm font-bold flex items-center justify-center gap-2 hover:opacity-90 active:scale-95 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? (
-              <span className="material-symbols-outlined animate-spin text-[20px]">progress_activity</span>
+              <Loader2 className="h-5 w-5 animate-spin text-current shrink-0" />
             ) : (
               <span className="material-symbols-outlined text-[20px]">save</span>
             )}

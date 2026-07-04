@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { ParishionerPreview, ParishionerStatus, SacramentType } from '@/types/parishioner';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
@@ -144,12 +145,9 @@ export function QuickPreviewDrawer({ parishionerId, onClose, canEdit }: Props) {
         {/* ── Body ──────────────────────────────────────────────────────────── */}
         <div className="flex-1 overflow-y-auto">
 
-          {/* Loading */}
           {loading && (
             <div className="flex flex-col items-center justify-center h-48 gap-3">
-              <span className="material-symbols-outlined text-primary text-4xl animate-spin">
-                progress_activity
-              </span>
+              <LoadingSpinner className="h-10 w-10 text-primary" />
               <p className="text-sm text-[#78716C] font-body">Đang tải hồ sơ...</p>
             </div>
           )}

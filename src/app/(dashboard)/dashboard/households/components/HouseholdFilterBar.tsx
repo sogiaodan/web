@@ -4,6 +4,7 @@ import { useTransition, useRef, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/household';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 export function HouseholdFilterBar({ zones: zonesRaw, total = 0 }: { zones: Zone[], total?: number }) {
   // Defensive check: ensure 'zones' is an array to prevent .map crashes
@@ -141,7 +142,7 @@ export function HouseholdFilterBar({ zones: zonesRaw, total = 0 }: { zones: Zone
             className="w-12 flex items-center justify-center border border-outline rounded text-on-surface hover:bg-surface-container disabled:opacity-50"
           >
             {isExporting ? (
-              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <Loader2 className="h-4 w-4 animate-spin text-current shrink-0" />
             ) : (
               <span className="material-symbols-outlined text-lg">download</span>
             )}
@@ -218,7 +219,7 @@ export function HouseholdFilterBar({ zones: zonesRaw, total = 0 }: { zones: Zone
           className="h-[76px] px-6 flex flex-col items-center justify-center gap-1 border border-outline text-on-surface text-xs font-bold rounded shadow-sm hover:bg-surface-container transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed uppercase tracking-widest min-w-[100px]"
         >
           {isExporting ? (
-            <span className="material-symbols-outlined text-xl animate-spin text-primary">progress_activity</span>
+            <Loader2 className="h-5 w-5 animate-spin text-primary shrink-0" />
           ) : (
             <span className="material-symbols-outlined text-xl text-primary">download</span>
           )}
