@@ -6,6 +6,7 @@ import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { ParishionerLookup } from '@/types/zone';
 import { ZoneParishionerFilterBar } from './ZoneParishionerFilterBar';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface ZoneParishionerTableProps {
   zoneId: string;
@@ -80,11 +81,11 @@ export function ZoneParishionerTable({ zoneId, items, total, page, limit }: Zone
             disabled={isExporting || items.length === 0}
             className="w-full sm:w-auto flex items-center justify-center gap-2 border border-outline px-4 py-2 rounded text-sm font-bold text-on-surface-variant hover:bg-surface-container transition-colors active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {isExporting ? (
-               <span className="material-symbols-outlined text-[18px] animate-spin text-primary">progress_activity</span>
-            ) : (
-              <span className="material-symbols-outlined text-[18px]">download</span>
-            )}
+             {isExporting ? (
+                <Loader2 className="h-[18px] w-[18px] animate-spin text-primary shrink-0" />
+             ) : (
+               <span className="material-symbols-outlined text-[18px]">download</span>
+             )}
             <span>{isExporting ? 'Đang xuất...' : 'Xuất File'}</span>
           </button>
         </div>

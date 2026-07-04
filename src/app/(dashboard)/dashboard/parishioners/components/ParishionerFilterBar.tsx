@@ -4,6 +4,7 @@ import React, { useRef, useTransition, useState } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { Zone } from '@/types/zone';
 import { toast } from 'sonner';
+import { Loader2 } from 'lucide-react';
 
 interface Props {
   zones: Zone[];
@@ -52,11 +53,11 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
     if (val.length >= 3) {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', val);
-      }, 300);
+      }, 600);
     } else {
       debounceRef.current = setTimeout(() => {
         handleFilter('search', '');
-      }, 300);
+      }, 600);
     }
   };
 
@@ -118,7 +119,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
             className="flex-1 bg-transparent border-none p-0 text-sm text-on-surface focus:ring-0 placeholder:text-on-surface-variant/50 min-h-[36px]"
           />
           {(isPending || isFetching) && (
-            <span className="material-symbols-outlined text-primary text-sm animate-spin">progress_activity</span>
+            <Loader2 className="h-4 w-4 animate-spin text-primary shrink-0" />
           )}
         </div>
 
@@ -136,7 +137,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
             className="h-12 px-4 flex items-center gap-2 border border-outline text-on-surface text-sm font-medium rounded hover:bg-surface-container transition-all active:scale-95 focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isExporting ? (
-              <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+              <Loader2 className="h-4 w-4 animate-spin text-current shrink-0" />
             ) : (
               <span className="material-symbols-outlined text-lg">download</span>
             )}
@@ -189,7 +190,7 @@ export function ParishionerFilterBar({ zones: zonesRaw, canEdit, total = 0, filt
               className="flex-1 h-12 flex items-center justify-center gap-2 border border-outline text-on-surface text-sm font-medium rounded hover:bg-surface-container transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isExporting ? (
-                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+                <Loader2 className="h-4 w-4 animate-spin text-current shrink-0" />
               ) : (
                 <span className="material-symbols-outlined text-lg">download</span>
               )}

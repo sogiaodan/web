@@ -19,7 +19,7 @@ export function formatDate(dateStr: string | null | undefined): string {
   }
 }
 
-export function sanitizeForSentry(obj: any): any {
+export function sanitizeForSentry(obj: unknown): unknown {
   if (!obj || typeof obj !== 'object') return obj;
   
   const SENSITIVE_KEYS = [
@@ -35,17 +35,22 @@ export function sanitizeForSentry(obj: any): any {
     'tax_code'
   ];
 
-  const sanitized = Array.isArray(obj) ? [...obj] : { ...obj };
+  const sanitized = Array.isArray(obj) 
+    ? [...obj] as unknown[] 
+    : { ...(obj as Record<string, unknown>) };
 
-  for (const key in sanitized) {
+  const target = sanitized as Record<string, unknown>;
+
+  for (const key in target) {
+    const val = target[key];
     if (SENSITIVE_KEYS.includes(key.toLowerCase())) {
-      sanitized[key] = '[REDACTED]';
-    } else if (typeof sanitized[key] === 'object' && sanitized[key] !== null) {
-      sanitized[key] = sanitizeForSentry(sanitized[key]);
-    } else if (typeof sanitized[key] === 'string' && sanitized[key].length > 2000) {
-      sanitized[key] = sanitized[key].substring(0, 2000) + '... [TRUNCATED]';
+      target[key] = '[REDACTED]';
+    } else if (typeof val === 'object' && val !== null) {
+      target[key] = sanitizeForSentry(val);
+    } else if (typeof val === 'string' && val.length > 2000) {
+      target[key] = val.substring(0, 2000) + '... [TRUNCATED]';
     }
   }
 
-  return sanitized;
+  return target;
 }

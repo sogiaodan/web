@@ -7,9 +7,9 @@ import { QuickPreviewDrawer } from './QuickPreviewDrawer';
 import { ParishionerTable } from './ParishionerTable';
 import { ParishionerFilterBar } from './ParishionerFilterBar';
 import { ParishionerSummaryCards } from './ParishionerSummaryCards';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useParishionersQuery } from '../queries/useParishionerQueries';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
-import { LoadingSection } from '@/components/ui/LoadingSection';
 import { ErrorSection } from '@/components/ui/ErrorSection';
 
 export function ParishionerListClient() {
@@ -61,7 +61,7 @@ export function ParishionerListClient() {
       />
       {isLoading && !data ? (
         <div className="bg-surface border border-outline rounded p-12 flex flex-col items-center justify-center gap-3 mt-4 min-h-[300px]">
-          <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <LoadingSpinner className="h-10 w-10 text-primary" />
           <p className="text-sm font-body text-muted">Đang tải danh sách giáo dân...</p>
         </div>
       ) : isError && !data ? (

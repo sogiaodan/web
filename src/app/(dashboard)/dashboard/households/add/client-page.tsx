@@ -99,7 +99,7 @@ function TypeaheadInput<T>({
         } finally {
           setLoading(false);
         }
-      }, 350);
+      }, 600);
     },
     [fetchUrl, mapResult, gender]
   );

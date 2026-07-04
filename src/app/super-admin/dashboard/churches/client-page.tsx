@@ -100,7 +100,7 @@ export default function ChurchesManagementPage() {
     if (debounceRef.current) clearTimeout(debounceRef.current);
     debounceRef.current = setTimeout(() => {
       setDebouncedSearch(val);
-    }, 300);
+    }, 600);
   }, []);
 
   useEffect(() => {

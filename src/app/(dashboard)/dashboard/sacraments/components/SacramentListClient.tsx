@@ -2,8 +2,7 @@
 
 import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Plus, Loader2, X, ChevronRight } from 'lucide-react';
+import { Plus, X, ChevronRight } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
 import { SacramentTabs } from './SacramentTabs';
@@ -13,6 +12,7 @@ import { MarriageTable } from './MarriageTable';
 import { SacramentInfoCards } from './SacramentInfoCards';
 import { SacramentListItem, MarriageListItem, SacramentType } from '@/types/sacrament';
 import { useSacramentsQuery } from '../queries/useSacramentQuery';
+import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 
 export function SacramentListClient() {
   const { user } = useAuth();
@@ -115,13 +115,6 @@ export function SacramentListClient() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
           <SacramentTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          
-          {(isPending || isLoading) && (
-            <div className="flex items-center gap-2 text-primary/60 transition-opacity whitespace-nowrap">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span className="text-[11px] font-medium font-display">Cập nhật...</span>
-            </div>
-          )}
         </div>
 
         {canEdit && (
@@ -143,7 +136,12 @@ export function SacramentListClient() {
         total={total}
       />
 
-      {isMarriage ? (
+      {isLoading || isPending ? (
+        <div className="bg-surface border border-outline rounded p-12 flex flex-col items-center justify-center gap-3 mt-4 min-h-[300px]">
+          <LoadingSpinner className="h-10 w-10 text-primary" />
+          <p className="text-sm font-body text-muted">Đang tải danh sách hồ sơ bí tích...</p>
+        </div>
+      ) : isMarriage ? (
         <MarriageTable
           items={items as MarriageListItem[]}
           total={total}

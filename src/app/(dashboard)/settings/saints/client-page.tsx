@@ -551,7 +551,7 @@ function DeleteConfirmationModal({
               className="w-full md:w-auto px-6 py-2 text-sm font-bold text-white bg-error hover:opacity-90 rounded min-h-[48px] flex items-center justify-center gap-2 transition-all active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSubmitting ? (
-                <span className="material-symbols-outlined text-lg animate-spin">progress_activity</span>
+                <LoadingSpinner className="h-4 w-4 text-white" />
               ) : (
                 <span className="material-symbols-outlined text-lg">delete_forever</span>
               )}
