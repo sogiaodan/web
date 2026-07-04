@@ -1,9 +1,9 @@
 'use client';
 
-import { useTransition, useCallback, useState } from 'react';
+import { useTransition, useCallback, useState, useEffect } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useAuth } from '@/components/providers/auth-provider';
 import { toast } from 'sonner';
 import { CertificateTypeTabs } from './CertificateTypeTabs';
@@ -11,6 +11,7 @@ import { CertificateFilterBar } from './CertificateFilterBar';
 import { CertificateTable } from './CertificateTable';
 import { CertificateType } from '@/types/catechism';
 import { useCatechismQuery } from '../queries/useCatechismQuery';
+import LoadingCatechism from '../loading';
 
 export function CertificateListClient() {
   const { user } = useAuth();
@@ -36,6 +37,14 @@ export function CertificateListClient() {
   };
 
   const { data: response, isLoading } = useCatechismQuery(queryParams);
+
+  const [hasLoadedInitially, setHasLoadedInitially] = useState(!!response);
+
+  useEffect(() => {
+    if (!isLoading && response) {
+      setHasLoadedInitially(true);
+    }
+  }, [isLoading, response]);
 
   const handleTabChange = useCallback((type: CertificateType) => {
     startTransition(() => {
@@ -93,6 +102,10 @@ export function CertificateListClient() {
     }
   };
 
+  if (isLoading && !hasLoadedInitially) {
+    return <LoadingCatechism />;
+  }
+
   const items = response?.items || [];
   const total = response?.pagination?.total || 0;
 
@@ -101,13 +114,6 @@ export function CertificateListClient() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
         <div className="flex items-center gap-4">
           <CertificateTypeTabs activeTab={activeTab} onTabChange={handleTabChange} />
-          
-          {(isPending || isLoading) && (
-            <div className="flex items-center gap-2 text-primary/60 transition-opacity whitespace-nowrap">
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-              <span className="text-[11px] font-medium font-display">Cập nhật...</span>
-            </div>
-          )}
         </div>
 
         {canEdit && (
@@ -129,15 +135,22 @@ export function CertificateListClient() {
         total={total}
       />
 
-      <CertificateTable
-        items={items}
-        activeTab={activeTab}
-        total={total}
-        page={page}
-        limit={limit}
-        canEdit={canEdit}
-        isAdmin={isAdmin}
-      />
+      {isLoading || isPending ? (
+        <div className="bg-surface border border-outline rounded p-12 flex flex-col items-center justify-center gap-3 mt-4 min-h-[300px]">
+          <span className="material-symbols-outlined text-4xl text-primary animate-spin">progress_activity</span>
+          <p className="text-sm font-body text-muted">Đang tải danh sách chứng chỉ...</p>
+        </div>
+      ) : (
+        <CertificateTable
+          items={items}
+          activeTab={activeTab}
+          total={total}
+          page={page}
+          limit={limit}
+          canEdit={canEdit}
+          isAdmin={isAdmin}
+        />
+      )}
     </div>
   );
 }
