@@ -10,7 +10,6 @@ import { ParishionerSummaryCards } from './ParishionerSummaryCards';
 import { LoadingSpinner } from '@/components/ui/LoadingSpinner';
 import { useParishionersQuery } from '../queries/useParishionerQueries';
 import { useZonesQuery } from '@/lib/queries/useZonesQuery';
-import { LoadingSection } from '@/components/ui/LoadingSection';
 import { ErrorSection } from '@/components/ui/ErrorSection';
 
 export function ParishionerListClient() {
