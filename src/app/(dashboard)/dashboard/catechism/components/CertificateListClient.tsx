@@ -1,6 +1,6 @@
 'use client';
 
-import { useTransition, useCallback, useState, useEffect } from 'react';
+import { useTransition, useCallback, useState } from 'react';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { Plus } from 'lucide-react';
@@ -11,7 +11,6 @@ import { CertificateFilterBar } from './CertificateFilterBar';
 import { CertificateTable } from './CertificateTable';
 import { CertificateType } from '@/types/catechism';
 import { useCatechismQuery } from '../queries/useCatechismQuery';
-import LoadingCatechism from '../loading';
 
 export function CertificateListClient() {
   const { user } = useAuth();
@@ -37,14 +36,6 @@ export function CertificateListClient() {
   };
 
   const { data: response, isLoading } = useCatechismQuery(queryParams);
-
-  const [hasLoadedInitially, setHasLoadedInitially] = useState(!!response);
-
-  useEffect(() => {
-    if (!isLoading && response) {
-      setHasLoadedInitially(true);
-    }
-  }, [isLoading, response]);
 
   const handleTabChange = useCallback((type: CertificateType) => {
     startTransition(() => {
@@ -102,9 +93,7 @@ export function CertificateListClient() {
     }
   };
 
-  if (isLoading && !hasLoadedInitially) {
-    return <LoadingCatechism />;
-  }
+
 
   const items = response?.items || [];
   const total = response?.pagination?.total || 0;
