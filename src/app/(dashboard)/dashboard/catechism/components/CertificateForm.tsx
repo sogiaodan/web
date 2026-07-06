@@ -525,16 +525,18 @@ export function CertificateForm({
           </Link>
           <span className="material-symbols-outlined text-sm">chevron_right</span>
           <span className="text-on-surface font-medium truncate max-w-[200px]">
-            {mode === 'create' ? 'Ghi nhận mới' : 'Chỉnh sửa'}
+            {mode === 'create' ? 'Ghi nhận chứng chỉ' : 'Chỉnh sửa'}
           </span>
         </nav>
 
         <div className="mb-8">
           <h1 className="text-[28px] md:text-4xl font-display font-bold text-on-surface mb-1">
-            {mode === 'create' ? 'Ghi nhận Chứng chỉ' : 'Chỉnh sửa Chứng chỉ'}
+            {mode === 'create' ? 'Ghi nhận Chứng chỉ Giáo lý' : 'Chỉnh sửa Chứng chỉ Giáo lý'}
           </h1>
           <p className="text-on-surface-variant font-body text-sm">
-            {mode === 'create' ? 'Điền đầy đủ thông tin để lưu chứng chỉ mới.' : 'Cập nhật thông tin chứng chỉ.'}
+            {mode === 'create'
+              ? 'Vui lòng điền đầy đủ thông tin để lưu trữ hồ sơ chứng chỉ vào cơ sở dữ liệu của Giáo xứ.'
+              : 'Cập nhật thông tin chứng chỉ.'}
           </p>
         </div>
       </div>
